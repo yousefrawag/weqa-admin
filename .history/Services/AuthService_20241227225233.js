@@ -18,7 +18,7 @@ exports.createFirstOwnerAccount = async () => {
     phone: "01000000000",
     role: "owner",
     grander: "male",
-    identity: 123456789, 
+    identity: 123456789,
     employeeNumber: 1997,
     address: {
       area: "North-Sina",
@@ -49,6 +49,7 @@ exports.Login = expressAsyncHandler(async (req, res, next) => {
       expiresIn: "365d",
     });
     return res.status(200).json({ data: user, token });
+  } 
   } else {
     return res.status(500).json({
       status: "Error",

@@ -18,7 +18,7 @@ exports.createFirstOwnerAccount = async () => {
     phone: "01000000000",
     role: "owner",
     grander: "male",
-    identity: 123456789, 
+    identity: 123456789,
     employeeNumber: 1997,
     address: {
       area: "North-Sina",
