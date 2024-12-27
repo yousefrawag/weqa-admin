@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 //المباني المرتبطه بمستويات المنصه
-const createBuilding = new mongoose.Schema(
+const createLevels = new mongoose.Schema(
   {
     name: {
       type: String,

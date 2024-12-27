@@ -8,7 +8,7 @@ const dbCollection = require("./config/config");
 const ApiError = require("./Resuble/ApiErrors");
 const RoutesAuth = require("./Routes/RoutesAuth");
 const RoutesEmployee = require("./Routes/RoutesEmployee");
-const RoutesLevels = require("./Routes/RoutesLevels");
+const RoutesLevels = require("./Routes/");
 const { createFirstOwnerAccount } = require("./Services/AuthService");
 
 app.use(cors());

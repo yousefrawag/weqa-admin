@@ -1,4 +1,4 @@
-const createBuildingModel = require("../Models/createBuilding");
+const createBuildingModel = require("../Models/createLevels");
 const factory = require("./FactoryHandler");
 
 exports.createBuilding = factory.createOne(createBuildingModel);
