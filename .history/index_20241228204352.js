@@ -8,9 +8,8 @@ const dbCollection = require("./config/config");
 const ApiError = require("./Resuble/ApiErrors");
 const RoutesAuth = require("./Routes/RoutesAuth");
 const RoutesEmployee = require("./Routes/RoutesEmployee");
-const RoutesMainCategory = require("./Routes/RoutesMainCategory");
-const RoutesCategory = require("./Routes/RoutesCategory");
-const RoutessubCategory = require("./Routes/RoutesSubCategory");
+const RoutesLevels = require("./Routes/RoutesLevels");
+const RoutesLevels = require("./Routes/");
 const { createFirstOwnerAccount } = require("./Services/AuthService");
 
 app.use(cors());
@@ -20,9 +19,8 @@ dbCollection();
 createFirstOwnerAccount();
 app.use("/api/v1/auth", RoutesAuth);
 app.use("/api/v1/employee", RoutesEmployee);
-app.use("/api/v1/mainCategory", RoutesMainCategory);
+app.use("/api/v1/levels", RoutesLevels);
 app.use("/api/v1/category", RoutesCategory);
-app.use("/api/v1/subCategory", RoutessubCategory);
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "*");

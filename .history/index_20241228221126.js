@@ -8,7 +8,7 @@ const dbCollection = require("./config/config");
 const ApiError = require("./Resuble/ApiErrors");
 const RoutesAuth = require("./Routes/RoutesAuth");
 const RoutesEmployee = require("./Routes/RoutesEmployee");
-const RoutesMainCategory = require("./Routes/RoutesMainCategory");
+const RoutesLevels = require("./Routes/RoutesLevels");
 const RoutesCategory = require("./Routes/RoutesCategory");
 const RoutessubCategory = require("./Routes/RoutesSubCategory");
 const { createFirstOwnerAccount } = require("./Services/AuthService");
@@ -20,7 +20,7 @@ dbCollection();
 createFirstOwnerAccount();
 app.use("/api/v1/auth", RoutesAuth);
 app.use("/api/v1/employee", RoutesEmployee);
-app.use("/api/v1/mainCategory", RoutesMainCategory);
+app.use("/api/v1/mainCategory", RoutesLevels);
 app.use("/api/v1/category", RoutesCategory);
 app.use("/api/v1/subCategory", RoutessubCategory);
 app.use((req, res, next) => {
