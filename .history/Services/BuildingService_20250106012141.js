@@ -13,14 +13,14 @@ exports.createBuilding = expressAsyncHandler(async (req, res, next) => {
   const levelsModel = continued === "first" ? "maincategories" :
   continued === "second" ? "categories" :
   continued === "third" ? "subcategories" :
-  continued === "fourth" ? "nestsubcategories" :
-  "subnestsubcategories";
+  continued === "fourth" ? "NestSubCategory" :
+  "SubNestSubCategory";
   const building = new createBuildingModel({
     name,
     kind,
     levels,
     continued,
-    levelsModel,
+    levelsModel
   });
 
   try {

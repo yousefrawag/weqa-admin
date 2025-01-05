@@ -35,13 +35,10 @@ const createBuilding = new mongoose.Schema(
       required: [true, "Required Continued Building"],
       default: "first",
     },
-    location: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "location",
-        default: [],
-      },
-    ],
+    location: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "location",
+    },
   },
   { timestamps: true }
 );

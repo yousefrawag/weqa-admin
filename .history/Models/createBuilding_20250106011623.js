@@ -15,18 +15,6 @@ const createBuilding = new mongoose.Schema(
 
     levels: {
       type: mongoose.Schema.Types.ObjectId,
-      refPath: "levelsModel", // تحديد المرجع بناءً على الحقل levelsModel
-    },
-    levelsModel: {
-      type: String,
-      enum: [
-        "maincategories",
-        "categories",
-        "subcategories",
-        "nestsubcategories",
-        "subnestsubcategories",
-      ],
-      required: true,
     },
 
     continued: {
@@ -35,20 +23,19 @@ const createBuilding = new mongoose.Schema(
       required: [true, "Required Continued Building"],
       default: "first",
     },
-    location: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "location",
-        default: [],
-      },
-    ],
+    location: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "location",
+
+    },
   },
   { timestamps: true }
 );
-createBuilding.pre(/^find/, function (next) {
+createMainCategory.pre(/^find/, function (next) {
   this.populate({
-    path: "levels",
-  });
+    path: "categories",
+    select: "name",
+  })
 
   next();
 });

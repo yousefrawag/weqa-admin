@@ -10,17 +10,17 @@ const createSubNestSubCategoryModel = require("../Models/createSubNestSubCategor
 
 exports.createBuilding = expressAsyncHandler(async (req, res, next) => {
   const { levels, kind, name, continued } = req.body;
-  const levelsModel = continued === "first" ? "maincategories" :
-  continued === "second" ? "categories" :
-  continued === "third" ? "subcategories" :
-  continued === "fourth" ? "nestsubcategories" :
-  "subnestsubcategories";
+  const levelsModel = continued === "first" ? "MainCategory" :
+  continued === "second" ? "Category" :
+  continued === "third" ? "SubCategory" :
+  continued === "fourth" ? "NestSubCategory" :
+  "SubNestSubCategory";
   const building = new createBuildingModel({
     name,
     kind,
     levels,
     continued,
-    levelsModel,
+    levelsModel
   });
 
   try {

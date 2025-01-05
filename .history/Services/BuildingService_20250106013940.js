@@ -21,6 +21,7 @@ exports.createBuilding = expressAsyncHandler(async (req, res, next) => {
     levels,
     continued,
     levelsModel,
+    loca
   });
 
   try {

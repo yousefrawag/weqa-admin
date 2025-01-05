@@ -20,7 +20,7 @@ exports.createBuilding = expressAsyncHandler(async (req, res, next) => {
     kind,
     levels,
     continued,
-    levelsModel,
+    levelsModel
   });
 
   try {
