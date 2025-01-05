@@ -1,18 +1,16 @@
 const { check } = require("express-validator");
-const { default: slugify } = require("slugify");
-
 const {
   MiddlewareValidator,
 } = require("../Middlewares/MiddlewareValidatorError");
 
-exports.createsubCategoryValidator = [
+exports.createCategoryValidator = [
   check("name")
     .notEmpty()
-    .withMessage("required subCategory Name")
+    .withMessage("required Category Name")
     .custom((val, { req }) => {
-      req.body.slug = slugify(val);
+      req.body.slug = slu(val);
       return true;
     }),
-  check("categories").isMongoId().withMessage("Must be a valid ID"),
+  check("maincategories").isMongoId().withMessage("Must be a valid ID"),
   MiddlewareValidator,
 ];

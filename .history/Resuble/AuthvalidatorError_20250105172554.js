@@ -1,4 +1,5 @@
 const { check } = require("express-validator");
+const { default: slugify } = require("slugify");
 
 const {
   MiddlewareValidator,
