@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+
 const createLocation = new mongoose.Schema(
   {
     name: {
@@ -25,14 +26,8 @@ const createLocation = new mongoose.Schema(
     },
     building: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "building",
+      ref: "Building", // تأكد من تطابق الاسم مع نموذج `Building`
       required: [true, "Required Building ID"],
-    },
-
-    kind: {
-      type: String,
-      enum: ["indoor", "outdoor"],
-      default: "indoor",
     },
     placenumber: {
       type: Number,
@@ -43,13 +38,14 @@ const createLocation = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 createLocation.pre(/^find/, function (next) {
   this.populate({
     path: "building",
-    select: { location: 0 },
   });
 
   next();
 });
-const createLocationModel = mongoose.model("location", createLocation);
+
+const createLocationModel = mongoose.model("Location", createLocation);
 module.exports = createLocationModel;

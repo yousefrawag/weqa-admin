@@ -45,6 +45,16 @@ const createBuilding = new mongoose.Schema(
   },
   { timestamps: true }
 );
+createBuilding.pre(/^find/, function (next) {
+  this.populate({
+    path: "levels",
+    populate({
+      path: "location",
+      select: "name",
+    })
+  })
 
+  next();
+})
 const createBuildingModel = mongoose.model("building", createBuilding);
 module.exports = createBuildingModel;

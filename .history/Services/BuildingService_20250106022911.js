@@ -10,16 +10,11 @@ const createSubNestSubCategoryModel = require("../Models/createSubNestSubCategor
 
 exports.createBuilding = expressAsyncHandler(async (req, res, next) => {
   const { levels, kind, name, continued } = req.body;
-  const levelsModel =
-    continued === "first"
-      ? "maincategories"
-      : continued === "second"
-      ? "categories"
-      : continued === "third"
-      ? "subcategories"
-      : continued === "fourth"
-      ? "nestsubcategories"
-      : "subnestsubcategories";
+  const levelsModel = continued === "first" ? "maincategories" :
+  continued === "second" ? "categories" :
+  continued === "third" ? "subcategories" :
+  continued === "fourth" ? "nestsubcategories" :
+  "subnestsubcategories";
   const building = new createBuildingModel({
     name,
     kind,
@@ -61,28 +56,9 @@ exports.createBuilding = expressAsyncHandler(async (req, res, next) => {
   }
 });
 
-exports.getbuildings = expressAsyncHandler(async (req, res, next) => {
-  const building = await createBuildingModel
-    .find({})
-    .populate("levels") // تعبئة الحقل levels
-    .populate({
-      path: "location",
-      select: { building: 0 },
-    });
-
-  res.status(201).json({ status: "Success", data: building });
-});
-
-exports.getBuilding = expressAsyncHandler(async (req, res, next) => {
-  const building = await createBuildingModel
-    .findById(req.params.id)
-    .populate("levels") // تعبئة الحقل levels
-    .populate({
-      path: "location",
-      select: { building: 0 },
-    });
-
-  res.status(201).json({ status: "Success", data: building });
-});
+exports.getbuildings =expressAsyncHandler(async(req , res , next)=>{
+ await createBuildingModel.find().populate("levels").populate("buildings)
+}) 
+exports.getBuilding = factory.getOne(createBuildingModel);
 exports.updateBuilding = factory.updateOne(createBuildingModel);
 exports.deleteBuilding = factory.deleteOne(createBuildingModel);

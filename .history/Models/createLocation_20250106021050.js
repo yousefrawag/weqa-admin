@@ -46,10 +46,9 @@ const createLocation = new mongoose.Schema(
 createLocation.pre(/^find/, function (next) {
   this.populate({
     path: "building",
-    select: { location: 0 },
-  });
+  })
 
   next();
 });
-const createLocationModel = mongoose.model("location", createLocation);
+const createLocationModel = mongoose.model("Location", createLocation);
 module.exports = createLocationModel;

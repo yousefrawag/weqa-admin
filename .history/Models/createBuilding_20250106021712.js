@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+
 const createBuilding = new mongoose.Schema(
   {
     name: {
@@ -12,7 +13,6 @@ const createBuilding = new mongoose.Schema(
       type: String,
       required: [true, "Required Kind Building"],
     },
-
     levels: {
       type: mongoose.Schema.Types.ObjectId,
       refPath: "levelsModel", // تحديد المرجع بناءً على الحقل levelsModel
@@ -27,8 +27,7 @@ const createBuilding = new mongoose.Schema(
         "subnestsubcategories",
       ],
       required: true,
-    },
-
+    }, 
     continued: {
       type: String,
       enum: ["first", "second", "third", "fourth", "fifth"],
@@ -38,7 +37,7 @@ const createBuilding = new mongoose.Schema(
     location: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "location",
+        ref: "Location", // تأكد من تطابق الاسم مع النموذج
         default: [],
       },
     ],
@@ -46,5 +45,17 @@ const createBuilding = new mongoose.Schema(
   { timestamps: true }
 );
 
-const createBuildingModel = mongoose.model("building", createBuilding);
+createBuilding.pre(/^find/, function (next) {
+  this.populate({
+    path: "levels",
+    model: this.levelsModel, // استخدام النموذج الديناميكي
+  }).populate({
+    path: "location",
+    select: "name", // اختيار الحقول المطلوبة فقط
+  });
+
+  next();
+});
+
+const createBuildingModel = mongoose.model("Building", createBuilding);
 module.exports = createBuildingModel;

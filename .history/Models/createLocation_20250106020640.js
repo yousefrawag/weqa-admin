@@ -45,8 +45,7 @@ const createLocation = new mongoose.Schema(
 );
 createLocation.pre(/^find/, function (next) {
   this.populate({
-    path: "building",
-    select: { location: 0 },
+    path: "building"
   });
 
   next();

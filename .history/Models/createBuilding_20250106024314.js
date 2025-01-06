@@ -46,5 +46,6 @@ const createBuilding = new mongoose.Schema(
   { timestamps: true }
 );
 
+
 const createBuildingModel = mongoose.model("building", createBuilding);
 module.exports = createBuildingModel;

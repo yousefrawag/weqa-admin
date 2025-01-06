@@ -43,13 +43,12 @@ const createLocation = new mongoose.Schema(
   },
   { timestamps: true }
 );
-createLocation.pre(/^find/, function (next) {
-  this.populate({
-    path: "building",
-    select: { location: 0 },
-  });
+// createLocation.pre(/^find/, function (next) {
+//   this.populate({
+//     path: "building",
+//   });
 
-  next();
-});
+//   next();
+// });
 const createLocationModel = mongoose.model("location", createLocation);
 module.exports = createLocationModel;

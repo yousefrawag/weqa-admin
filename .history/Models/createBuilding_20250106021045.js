@@ -38,13 +38,21 @@ const createBuilding = new mongoose.Schema(
     location: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "location",
+        ref: "Location",
         default: [],
       },
     ],
   },
   { timestamps: true }
 );
+createBuilding.pre(/^find/, function (next) {
+  this.populate({
+    path: "levels",
+    model: this.levelsModel, // استخدام النموذج الديناميكي
+  }).populate("location")
+
+  next();
+});
 
 const createBuildingModel = mongoose.model("building", createBuilding);
 module.exports = createBuildingModel;

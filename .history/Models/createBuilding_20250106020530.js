@@ -45,6 +45,17 @@ const createBuilding = new mongoose.Schema(
   },
   { timestamps: true }
 );
+createBuilding.pre(/^find/, function (next) {
+  this.populate({
+    path: "levels",
+    model: this.levelsModel, // استخدام النموذج الديناميكي
+  }).populate({
+    path: "location",
+    select: "name", // اختيار الحقول المطلوبة فقط
+  });
+
+  next(); 
+});
 
 const createBuildingModel = mongoose.model("building", createBuilding);
 module.exports = createBuildingModel;
