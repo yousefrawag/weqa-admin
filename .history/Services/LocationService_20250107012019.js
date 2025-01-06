@@ -10,7 +10,7 @@ exports.createLocation = expressAsyncHandler(async (req, res, next) => {
     req.body
   );
   
-  const parentBuilding = await createBuildingModel.findById(req.body.building);
+  const parentBuilding = await createBuildingModel.findById(req.body.);
   
   if (!parentBuilding) {
     return res.status(404).json({ msg: "Not Found Building" });

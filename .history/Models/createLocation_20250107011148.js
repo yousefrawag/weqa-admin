@@ -36,57 +36,45 @@ const createLocation = new mongoose.Schema(
     },
     buildingcount: {
       type: Number,
-      required: [
-        function () {
-          return this.kind === "indoor";
-        },
-        'The "buildingcount" field is required for indoor kind.',
-      ],
+      required: function() {
+        return this.kind === 'indoor';
+      }
     },
     floorscount: {
       type: Number,
-      required: [
-        function () {
-          return this.kind === "indoor";
-        },
-        'The "floorscount" field is required for indoor kind.',
-      ],
+      required: function() {
+        return this.kind === 'indoor';
+      }
     },
     placenumber: {
       type: Number,
-      required: [
-        function () {
-          return this.kind === "indoor";
-        },
-        'The "placenumber" field is required for indoor kind.',
-      ],
+      required: function() {
+        return this.kind === 'indoor';
+      }
     },
     placename: {
       type: String,
-      required: [
-        function () {
-          return this.kind === "indoor";
-        },
-        'The "placename" field is required for indoor kind.',
-      ],
+      required: function() {
+        return this.kind === 'indoor';
+      }
     },
     roomnumber: {
       type: Number,
-      required: [
-        function () {
-          return this.kind === "indoor";
-        },
-        'The "roomnumber" field is required for indoor kind.',
-      ],
+      required: function() {
+        return this.kind === 'indoor';
+      }
     },
     details: {
       type: String,
-      required: [
-        function () {
-          return this.kind === "indoor";
-        },
-        'The "details" field is required for indoor kind.',
-      ],
+      required: function() {
+        return this.kind === 'indoor';
+      }
+    },
+    placenumber: {
+      type: Number,
+      default: function () {
+        return Math.floor(100000 + Math.random() * 900000);
+      },
     },
   },
   { timestamps: true }
@@ -95,7 +83,6 @@ createLocation.pre(/^find/, function (next) {
   this.populate({
     path: "building",
     select: { location: 0 },
-    populate: "levels",
   });
 
   next();

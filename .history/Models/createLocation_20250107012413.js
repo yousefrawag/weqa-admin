@@ -96,6 +96,7 @@ createLocation.pre(/^find/, function (next) {
     path: "building",
     select: { location: 0 },
     populate: "levels",
+    select: { location: 0 }
   });
 
   next();
