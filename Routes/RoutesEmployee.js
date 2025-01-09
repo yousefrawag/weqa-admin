@@ -14,7 +14,7 @@ const {
 const { protect } = require("../Services/AuthService");
 
 const Routes = Router();
-Routes.use(protect);
+// Routes.use(protect);
 
 Routes.route("/").post(createEmployeeValidator, createEmployee)
   .get(getEmployees);

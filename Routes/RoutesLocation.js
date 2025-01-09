@@ -9,7 +9,7 @@ const { createLocation, getLocations, getLocation, deleteLocation, updateLocatio
 
 
 const Routes = Router();
-Routes.use(protect);
+// Routes.use(protect);
 Routes.route("/")
   .post(createLocationValidator, createLocation)
   .get(getLocations);

@@ -17,7 +17,14 @@ const RoutesBuilding = require("./Routes/RoutesBuilding");
 const RoutesLocation = require("./Routes/RoutesLocation");
 const { createFirstOwnerAccount } = require("./Services/AuthService");
 
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:5173', // specify the origin that you want to allow
+  methods: 'GET,POST,PUT,DELETE , PATCH ', // specify the methods you want to allow
+  allowedHeaders: 'Content-Type,Authorization', // specify the headers you want to allow
+  credentials: true // Allow credentials to be included in the request
+
+};
+app.use(cors(corsOptions));
 app.use(express.json({ limit: "50kb" }));
 dotenv.config({ path: "config.env" });
 dbCollection();
