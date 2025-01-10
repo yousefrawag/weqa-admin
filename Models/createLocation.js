@@ -2,33 +2,16 @@ const { default: mongoose } = require("mongoose");
 
 const roomSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  roomId: {
-    type: mongoose.Schema.Types.ObjectId,
-    default: function() {
-      return new mongoose.Types.ObjectId();  // استخدام new لإنشاء ObjectId
-    }
-  },
+  assets: [{ type: mongoose.Schema.Types.ObjectId, ref: "maincategoryassets" }],
 });
 
 const sectionSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  sectionId: {
-    type: mongoose.Schema.Types.ObjectId,
-    default: function() {
-      return new mongoose.Types.ObjectId();  // استخدام new لإنشاء ObjectId
-    }
-  },
   rooms: [roomSchema],
 });
 
 const areaSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  areaId: {
-    type: mongoose.Schema.Types.ObjectId,
-    default: function() {
-      return new mongoose.Types.ObjectId();  // استخدام new لإنشاء ObjectId
-    }
-  },
   sections: [sectionSchema],
 });
 
@@ -70,6 +53,13 @@ const createLocation = new mongoose.Schema(
   },
   { timestamps: true }
 );
+createLocation.pre(/^find/, function (next) {
+  this.populate({
+    path: "building",
+    select: "name kind",
+  });
 
+  next();
+});
 const createLocationModel = mongoose.model("location", createLocation);
 module.exports = createLocationModel;
