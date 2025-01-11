@@ -47,8 +47,28 @@ exports.createMainCategoryAssets = expressAsyncHandler(async (req, res) => {
   res.status(201).json({ status: "Success", data: mainCategoryAssets });
 });
 
-exports.getMainCategoriesAssets = factory.getAll(createMainCategoryAssetsModel);
-exports.getMainCategoryAsset = factory.getOne(createMainCategoryAssetsModel);
+exports.getMainCategoriesAssets = expressAsyncHandler(
+  async (req, res, next) => {
+    const mainCategoriesAssets = await createMainCategoryAssetsModel
+      .find()
+      .populate({
+        path: "assets",
+        select: "name ",
+      });
+    res.json({ status: "Success", data: mainCategoriesAssets });
+  }
+);
+exports.getMainCategoryAsset = expressAsyncHandler(
+  async (req, res, next) => {
+    const mainCategoriesAssets = await createMainCategoryAssetsModel
+      .findById(req.params.id)
+      .populate({
+        path: "assets",
+        select: "name ",
+      });
+    res.json({ status: "Success", data: mainCategoriesAssets });
+  }
+);
 exports.updateMainCategoryAssets = factory.updateOne(
   createMainCategoryAssetsModel
 );
@@ -64,7 +84,7 @@ exports.getRoomForAssetLocation = expressAsyncHandler(async (req, res) => {
     path: "location",
     populate: {
       path: "floors.areas.sections.rooms",
-      select: "name assets",  // إرجاع الاسم فقط مع الأصول
+      select: "name assets", // إرجاع الاسم فقط مع الأصول
     },
   });
 
@@ -72,9 +92,8 @@ exports.getRoomForAssetLocation = expressAsyncHandler(async (req, res) => {
     return res.status(404).json({ msg: "Asset or location not found" });
   }
 
-
   let roomWithAsset = null;
-  let hierarchy = {};  // لاحتواء التسلسل الهرمي
+  let hierarchy = {}; // لاحتواء التسلسل الهرمي
 
   // البحث في التسلسل الهرمي للغرف
   asset.location.floors.some((floor) =>
@@ -87,7 +106,7 @@ exports.getRoomForAssetLocation = expressAsyncHandler(async (req, res) => {
           if (hasAsset) {
             roomWithAsset = room;
             hierarchy = {
-              asset:asset.name,
+              asset: asset.name,
               building: asset.location.building.name,
               floor: floor.floorName,
               area: area.name,
@@ -108,7 +127,6 @@ exports.getRoomForAssetLocation = expressAsyncHandler(async (req, res) => {
 
   res.status(200).json({
     status: "Success",
-    room:  hierarchy,
+    room: hierarchy,
   });
 });
-

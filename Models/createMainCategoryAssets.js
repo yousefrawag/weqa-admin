@@ -11,17 +11,24 @@ const categoryAssetsSchema = new mongoose.Schema(
       ref: "location",
       required: [true, "location is required"],
     },
-    category: [{
+    assets: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: "location",
-      required: [true, "location is required"],
+      ref: "assets",
+      required: [true, "assets is required"],
     }],
   },
   {
     timestamps: true,
   }
 );
+categoryAssetsSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "assets",
+    select: "name"
+  });
 
+  next();
+});
 const createCategoryAssetsModel = mongoose.model(
   "maincategoryassets",
   categoryAssetsSchema

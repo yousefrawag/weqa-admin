@@ -26,13 +26,5 @@ const assetSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-assetSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: "category",
-    select: "name",
-  })
-
-  next();
-});
 const createAssetsnModel = mongoose.model("assets", assetSchema);
 module.exports = createAssetsnModel;

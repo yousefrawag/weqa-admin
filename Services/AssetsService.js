@@ -7,9 +7,9 @@ exports.createAssets = expressAsyncHandler(async (req, res, next) => {
   const { name, category, subCategory } = req.body;
 
   // إنشاء نموذج الأصول
-  const assets = new createAssetsnModel({
+  const assetsModel = new createAssetsnModel({
     name: name,
-    category: category,
+    category,
     subCategory: subCategory,
   });
 
@@ -21,19 +21,31 @@ exports.createAssets = expressAsyncHandler(async (req, res, next) => {
   }
 
   // إضافة الـ asset إلى الفئة الرئيسية
-  mainCategoryAssets.category.push(assets._id);
+  mainCategoryAssets.assets.push(assetsModel._id);
   await mainCategoryAssets.save();
 
   // حفظ الـ asset
-  await assets.save();
+  await assetsModel.save();
 
   // إرجاع الاستجابة بنجاح
-  res.status(201).json({ status: "Success", data: assets });
+  res.status(201).json({ status: "Success", data: assetsModel });
 });
 
-
-
-exports.getAssetss = factory.getAll(createAssetsnModel);
-exports.getAssets = factory.getOne(createAssetsnModel);
+exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
+  const mainCategoriesAssets = await createAssetsnModel.find().populate({
+    path: "category",
+    select: "name ",
+  });
+  return res.json({ status: "Success", data: mainCategoriesAssets });
+});
+exports.getAssets = expressAsyncHandler(async (req, res, next) => {
+  const mainCategoriesAssets = await createAssetsnModel
+    .findById(req.params.id)
+    .populate({
+      path: "category",
+      select: "name ",
+    });
+  return res.json({ status: "Success", data: mainCategoriesAssets });
+});
 exports.updateAssets = factory.updateOne(createAssetsnModel);
 exports.deleteAssets = factory.deleteOne(createAssetsnModel);
