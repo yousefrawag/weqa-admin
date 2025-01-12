@@ -5,13 +5,17 @@ const createLocationModel = require("../Models/createLocation");
 const createBuildingModel = require("../Models/createBuilding");
 
 exports.createLocation = expressAsyncHandler(async (req, res, next) => {
+  const { name, location, kind, floors, building } = req.body;
+  const createLocation = new createLocationModel({
+    name,
+    location,
+    kind,
+    floors,
+    building,
+  });
 
-  const createLocation = new createLocationModel(
-    req.body
-  );
-  
-  const parentBuilding = await createBuildingModel.findById(req.body.building);
-  
+  const parentBuilding = await createBuildingModel.findById(building);
+
   if (!parentBuilding) {
     return res.status(404).json({ msg: "Not Found Building" });
   }

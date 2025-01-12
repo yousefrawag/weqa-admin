@@ -1,4 +1,42 @@
-const mongoose = require("mongoose");
+const { default: mongoose } = require("mongoose");
+
+const roomSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  roomId: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: function() {
+      return new mongoose.Types.ObjectId();  // استخدام new لإنشاء ObjectId
+    }
+  },
+});
+
+const sectionSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  sectionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: function() {
+      return new mongoose.Types.ObjectId();  // استخدام new لإنشاء ObjectId
+    }
+  },
+  rooms: [roomSchema],
+});
+
+const areaSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  areaId: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: function() {
+      return new mongoose.Types.ObjectId();  // استخدام new لإنشاء ObjectId
+    }
+  },
+  sections: [sectionSchema],
+});
+
+const floorSchema = new mongoose.Schema({
+  floorName: { type: String, required: true },
+  areas: [areaSchema],
+});
+
 const createLocation = new mongoose.Schema(
   {
     name: {
@@ -28,77 +66,10 @@ const createLocation = new mongoose.Schema(
       ref: "building",
       required: [true, "Required Building ID"],
     },
-
-    kind: {
-      type: String,
-      enum: ["indoor", "outdoor"],
-      default: "indoor",
-    },
-    buildingcount: {
-      type: Number,
-      required: [
-        function () {
-          return this.kind === "indoor";
-        },
-        'The "buildingcount" field is required for indoor kind.',
-      ],
-    },
-    floorscount: {
-      type: Number,
-      required: [
-        function () {
-          return this.kind === "indoor";
-        },
-        'The "floorscount" field is required for indoor kind.',
-      ],
-    },
-    placenumber: {
-      type: Number,
-      required: [
-        function () {
-          return this.kind === "indoor";
-        },
-        'The "placenumber" field is required for indoor kind.',
-      ],
-    },
-    placename: {
-      type: String,
-      required: [
-        function () {
-          return this.kind === "indoor";
-        },
-        'The "placename" field is required for indoor kind.',
-      ],
-    },
-    roomnumber: {
-      type: Number,
-      required: [
-        function () {
-          return this.kind === "indoor";
-        },
-        'The "roomnumber" field is required for indoor kind.',
-      ],
-    },
-    details: {
-      type: String,
-      required: [
-        function () {
-          return this.kind === "indoor";
-        },
-        'The "details" field is required for indoor kind.',
-      ],
-    },
+    floors: [floorSchema],
   },
   { timestamps: true }
 );
-createLocation.pre(/^find/, function (next) {
-  this.populate({
-    path: "building",
-    select: { location: 0 },
-    populate: "levels",
-  });
 
-  next();
-});
 const createLocationModel = mongoose.model("location", createLocation);
 module.exports = createLocationModel;

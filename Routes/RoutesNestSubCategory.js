@@ -9,9 +9,8 @@ const {
   updateNestSubCategory,
   getNestSubCategory,
 } = require("../Services/NestSubCategoryService");
-const {
-  createNestsubCategoryValidator,
-} = require("../Resuble/nestSubCategoryValidatorErrorr copy");
+const { createNestsubCategoryValidator } = require("../Resuble/NestSubCategoryValidatorErrorr");
+
 
 const Routes = Router();
 // Routes.use(protect);

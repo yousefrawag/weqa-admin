@@ -19,7 +19,7 @@ exports.createNestSubCategory = expressAsyncHandler(async (req, res, next) => {
   await subCategory.save();
   res.status(201).json({ status: "Success", data: nestSubCategory });
 });
-exports.getNestSubCategories = factory.getAll(createSubCategoryModel);
-exports.getNestSubCategory = factory.getOne(createSubCategoryModel);
-exports.updateNestSubCategory = factory.updateOne(createSubCategoryModel);
-exports.deleteNestSubCategory = factory.deleteOne(createSubCategoryModel);
+exports.getNestSubCategories = factory.getAll(createNestSubCategoryModel);
+exports.getNestSubCategory = factory.getOne(createNestSubCategoryModel);
+exports.updateNestSubCategory = factory.updateOne(createNestSubCategoryModel);
+exports.deleteNestSubCategory = factory.deleteOne(createNestSubCategoryModel);
