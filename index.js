@@ -15,6 +15,8 @@ const RoutesNestSubCategory = require("./Routes/RoutesNestSubCategory");
 const RoutesSubNestSubCategory = require("./Routes/RoutesSubNestSubCategory");
 const RoutesBuilding = require("./Routes/RoutesBuilding");
 const RoutesLocation = require("./Routes/RoutesLocation");
+const RoutesMainCategoryAssets = require("./Routes/RoutesMainCategoryAssets");
+const RoutesAssets = require("./Routes/RoutesAssets");
 const { createFirstOwnerAccount } = require("./Services/AuthService");
 
 const corsOptions = {
@@ -38,6 +40,8 @@ app.use("/api/v1/nestSubCategory", RoutesNestSubCategory);
 app.use("/api/v1/subNestSubCategory", RoutesSubNestSubCategory);
 app.use("/api/v1/building", RoutesBuilding);
 app.use("/api/v1/location", RoutesLocation);
+app.use("/api/v1/mainCategoryAssets", RoutesMainCategoryAssets);
+app.use("/api/v1/assets", RoutesAssets);
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "*");
