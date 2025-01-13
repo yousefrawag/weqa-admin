@@ -12,8 +12,8 @@ const {
 
 const Routes = Router();
 Routes.use(protect);
-Routes.route("/").post(createAssets).get(getAssetss);
-Routes.route("/:id")
+Routes.route("/").get(getAssetss);
+Routes.route("/:id").post(createAssets)
   .get(UtilsValidator, getAssets)
   .delete(UtilsValidator, deleteAssets)
   .put(UtilsValidator, updateAssets);

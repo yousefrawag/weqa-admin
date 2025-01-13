@@ -57,9 +57,15 @@ createLocation.pre(/^find/, function (next) {
   this.populate({
     path: "building",
     select: "name kind",
+  }).populate({
+    path: "floors.areas.sections.rooms.assets",
+    populate: {
+      path: "assets",
+    },
   });
 
   next();
 });
+
 const createLocationModel = mongoose.model("location", createLocation);
 module.exports = createLocationModel;
