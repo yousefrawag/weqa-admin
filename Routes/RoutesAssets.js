@@ -11,7 +11,7 @@ const {
 } = require("../Services/AssetsService");
 
 const Routes = Router();
-Routes.use(protect);
+// Routes.use(protect);
 Routes.route("/").post(createAssets).get(getAssetss);
 Routes.route("/:id")
   .get(UtilsValidator, getAssets)

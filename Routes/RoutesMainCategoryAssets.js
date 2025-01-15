@@ -12,7 +12,7 @@ const {
 } = require("../Services/MainCategoryAssetsService");
 
 const Routes = Router();
-Routes.use(protect);
+// Routes.use(protect);
 Routes.route("/").post(createMainCategoryAssets).get(getMainCategoriesAssets);
 Routes.route("/:id")
   .get(UtilsValidator, getMainCategoryAsset)
