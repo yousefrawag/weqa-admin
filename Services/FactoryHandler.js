@@ -43,9 +43,9 @@ exports.getOne = (Model, populateOpt) =>
     }
     const getDocById = await query;
     if (!getDocById)
-      next(
-        new ApiError(`Sorry Can't get This ID From ID :${req.params.id}`, 404)
-      );
+      if (!deleteDoc) {
+        return res.status(400).json({ msg: `Sorry Can't Update This ID :${req.params.id}` });
+      }
     res.status(200).json({ data: getDocById });
   });
 
@@ -54,9 +54,7 @@ exports.deleteOne = (Model) =>
     const deleteDoc = await Model.findByIdAndDelete(req.params.id);
 
     if (!deleteDoc) {
-      return next(
-        new ApiError(`Sorry Can't Delete This ID :${req.params.id}`, 404)
-      );
+      return res.status(400).json({ msg: `Sorry Can't Delete This ID :${req.params.id}` });
     }
     res.status(200).json({ message: "Delete Success", data: deleteDoc });
   });
