@@ -16,7 +16,7 @@ const {
 } = require("../Services/CategoryAssetsService");
 
 const Routes = Router();
-Routes.use(protect);
+// Routes.use(protect);
 Routes.route("/")
   .post(
     uploadImage,

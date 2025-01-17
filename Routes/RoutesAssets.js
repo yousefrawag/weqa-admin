@@ -12,7 +12,7 @@ const {
 const { uploadImage, resizeImage } = require("../Utils/imagesHandler");
 
 const Routes = Router();
-Routes.use(protect);
+// Routes.use(protect);
 Routes.route("/")
   .post(uploadImage, resizeImage("assets"), createAssets)
   .get(getAssetss);

@@ -15,7 +15,7 @@ const {
 } = require("../Resuble/SubNestSubCategoryValidatorErrorr");
 
 const Routes = Router();
-Routes.use(protect);
+// Routes.use(protect);
 Routes.route("/")
   .post(createSubNestSubCategoryValidator, createSubNestSubCategory)
   .get(getSubNestSubCategories);

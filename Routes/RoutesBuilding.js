@@ -14,7 +14,7 @@ const {
 } = require("../Services/BuildingService");
 
 const Routes = Router();
-Routes.use(protect);
+// Routes.use(protect);
 Routes.route("/")
   .post(createBuildingValidator, createBuilding)
   .get(getbuildings);

@@ -19,8 +19,7 @@ const categoryAssetsSchema = new mongoose.Schema(
     },
     mainCategoryAssets: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "maincategoryassets",
-      required: [true, "Main Category Asset required"],
+      ref: "maincategoryassets"
     },
   },
   {

@@ -22,7 +22,7 @@ const {
 } = require("../Services/SubCategoryAssetsService");
 
 const Routes = Router();
-Routes.use(protect);
+// Routes.use(protect);
 Routes.route("/")
   .post(
     uploadImage,

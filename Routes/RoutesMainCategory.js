@@ -14,7 +14,7 @@ const {
 } = require("../Resuble/MainCategoryValidatorErrorr");
 
 const Routes = Router();
-Routes.use(protect);
+// Routes.use(protect);
 Routes.route("/")
   .post(createMainCategoryValidator, createMainCategory)
   .get(getMainCategories);

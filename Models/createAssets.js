@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 
 const assetSchema = new mongoose.Schema(
   {
-    building: {
+    building:[ {
       type: mongoose.Schema.Types.ObjectId,
       ref: "building", // يجب أن يكون اسم الموديل المرتبط هنا
-    },
+    }],
   },
   {
     strict: false, // يسمح بإضافة بيانات غير محددة

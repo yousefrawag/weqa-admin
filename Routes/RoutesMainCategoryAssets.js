@@ -13,7 +13,7 @@ const { uploadImage, resizeImage } = require("../Utils/imagesHandler");
 const { createAssetsValidator } = require("../Resuble/AssetsValidatorErrorr");
 
 const Routes = Router();
-Routes.use(protect);
+// Routes.use(protect);
 Routes.route("/")
   .post(
     uploadImage,
