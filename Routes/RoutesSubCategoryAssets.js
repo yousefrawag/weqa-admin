@@ -10,25 +10,34 @@ const {
   getMainCategoriesAssets,
 } = require("../Services/MainCategoryAssetsService");
 const { uploadImage, resizeImage } = require("../Utils/imagesHandler");
-const { createAssetsValidator } = require("../Resuble/AssetsValidatorErrorr");
+const {
+  createSubCategoryAssetsValidator,
+} = require("../Resuble/AssetsValidatorErrorr");
+const {
+  createSubCategoryAssets,
+  getSubCategoryAsset,
+  getSubCategoriesAssets,
+  deleteSubCategoryAssets,
+  updateSubCategoryAssets,
+} = require("../Services/SubCategoryAssetsService");
 
 const Routes = Router();
 // Routes.use(protect);
 Routes.route("/")
   .post(
     uploadImage,
-    createAssetsValidator,
-    resizeImage("mainCategoryAssets"),
-    createMainCategoryAssets
+    createSubCategoryAssetsValidator,
+    resizeImage("subCategoryAssets"),
+    createSubCategoryAssets
   )
-  .get(getMainCategoriesAssets);
+  .get(getSubCategoriesAssets);
 Routes.route("/:id")
-  .get(UtilsValidator, getMainCategoryAsset)
-  .delete(UtilsValidator, deleteMainCategoryAssets)
+  .get(UtilsValidator, getSubCategoryAsset)
+  .delete(UtilsValidator, deleteSubCategoryAssets)
   .put(
     uploadImage,
     UtilsValidator,
-    resizeImage("mainCategoryAssets"),
-    updateMainCategoryAssets
+    resizeImage("subCategoryAssets"),
+    updateSubCategoryAssets
   );
 module.exports = Routes;

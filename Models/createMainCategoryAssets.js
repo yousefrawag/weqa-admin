@@ -1,27 +1,52 @@
 const mongoose = require("mongoose");
 
-const categoryAssetsSchema = new mongoose.Schema(
+const mainCategoryAssetsSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: [true, "Assets Name required"],
     },
+    slug: {
+      type: String,
+    },
+    image: {
+      type: String,
+    },
 
-    assets: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "assets",
-        required: [true, "assets is required"],
-      },
-    ],
+    categoryAssets: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "categoryassets",
+    },
   },
   {
     timestamps: true,
   }
 );
 
-const createCategoryAssetsModel = mongoose.model(
+mainCategoryAssetsSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "categoryAssets",
+  });
+
+  next();
+});
+const ImageURL = (doc) => {
+  if (
+    doc.image &&
+    !doc.image.includes(`${process.env.BASE_URL}/mainCategoryAssets`)
+  ) {
+    const image = `${process.env.BASE_URL}/mainCategoryAssets/${doc.image}`;
+    doc.image = image;
+  }
+};
+mainCategoryAssetsSchema.post("init", (doc) => {
+  ImageURL(doc);
+});
+mainCategoryAssetsSchema.post("save", (doc) => {
+  ImageURL(doc);
+});
+const createMainCategoryAssetsModel = mongoose.model(
   "maincategoryassets",
-  categoryAssetsSchema
+  mainCategoryAssetsSchema
 );
-module.exports = createCategoryAssetsModel;
+module.exports = createMainCategoryAssetsModel;

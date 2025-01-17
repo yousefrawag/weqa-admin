@@ -2,48 +2,40 @@ const mongoose = require("mongoose");
 
 const assetSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
-    location: {
+    building: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "location",
-      required: [true, "location is required"],
+      ref: "building", // يجب أن يكون اسم الموديل المرتبط هنا
     },
-    room: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: [true, "Room is required"],
-    },
-    category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "maincategoryassets",
-      required: true,
-    },
-    subCategory: [
-      {
-        name: { type: String, required: true },
-        subCategoryItems: {
-          type: Map,
-          of: new mongoose.Schema({
-            _id: {
-              type: mongoose.Schema.Types.ObjectId,
-              default: () => new mongoose.Types.ObjectId(), // إنشاء _id فريد تلقائيًا
-            },
-            name: {
-              type: String,
-              required: true,
-            },
-          }),
-          required: true,
-        },
-      },
-    ],
   },
   {
-    timestamps: true,
+    strict: false, // يسمح بإضافة بيانات غير محددة
+    timestamps: true, // يضيف حقول createdAt و updatedAt تلقائيًا
   }
 );
 
+assetSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "building",
+    select: "-location",
+    populate:"levels"
+  });
+
+  next();
+});
+const ImageURL = (doc) => {
+  if (
+    doc.image &&
+    !doc.image.includes(`${process.env.BASE_URL}/assets`)
+  ) {
+    const image = `${process.env.BASE_URL}/assets/${doc.image}`;
+    doc.image = image;
+  }
+};
+assetSchema.post("init", (doc) => {
+  ImageURL(doc);
+});
+assetSchema.post("save", (doc) => {
+  ImageURL(doc);
+});
 const createAssetsnModel = mongoose.model("assets", assetSchema);
 module.exports = createAssetsnModel;

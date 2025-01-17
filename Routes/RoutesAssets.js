@@ -9,13 +9,16 @@ const {
   deleteAssets,
   updateAssets,
 } = require("../Services/AssetsService");
+const { uploadImage, resizeImage } = require("../Utils/imagesHandler");
 
 const Routes = Router();
 // Routes.use(protect);
-Routes.route("/").get(getAssetss);
-Routes.route("/:id").post(createAssets)
+Routes.route("/")
+  .post(uploadImage, resizeImage("assets"), createAssets)
+  .get(getAssetss);
+Routes.route("/:id")
   .get(UtilsValidator, getAssets)
   .delete(UtilsValidator, deleteAssets)
-  .put(UtilsValidator, updateAssets);
+  .put(uploadImage, UtilsValidator, resizeImage("assets"), updateAssets);
 
 module.exports = Routes;
