@@ -22,7 +22,7 @@ assetSchema.pre(/^find/, function (next) {
     path: "building",
     select: "-location",
     populate:"levels"
-  }).populate("subCategoryAssets");
+  })
 
   next();
 });

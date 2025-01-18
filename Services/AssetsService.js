@@ -13,7 +13,7 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
         $push: { assets: assetsModel._id },
       },
       { new: true }
-    );
+    ); 
     await assetsModel.save();
     res.status(201).json({ status: "Success", data: assetsModel });
   } catch (error) {

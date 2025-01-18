@@ -25,13 +25,13 @@ const SubCategoryAssetsSchema = new mongoose.Schema(
   }
 );
 
-// SubCategoryAssetsSchema.pre(/^find/, function (next) {
-//   this.populate({
-//     path: "assets",
-//   });
+SubCategoryAssetsSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "assets",
+  });
 
-//   next();
-// });
+  next();
+});
 const ImageURL = (doc) => {
   if (
     doc.image &&
