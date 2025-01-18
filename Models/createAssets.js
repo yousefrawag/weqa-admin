@@ -6,6 +6,10 @@ const assetSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "building", // يجب أن يكون اسم الموديل المرتبط هنا
     }],
+    subCategoryAssets:[ {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "subcategoryassets", // يجب أن يكون اسم الموديل المرتبط هنا
+    }],
   },
   {
     strict: false, // يسمح بإضافة بيانات غير محددة
@@ -18,7 +22,7 @@ assetSchema.pre(/^find/, function (next) {
     path: "building",
     select: "-location",
     populate:"levels"
-  });
+  })
 
   next();
 });

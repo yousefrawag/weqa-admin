@@ -13,20 +13,25 @@ const SubCategoryAssetsSchema = new mongoose.Schema(
       type: String,
     },
 
-    categoryAssets: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "categoryassets",
-      required: [true, "categoryAssets is required"],
-    },
-    assets: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "assets",
-    },
+    assets: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "assets",
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
+
+SubCategoryAssetsSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "assets",
+  });
+
+  next();
+});
 const ImageURL = (doc) => {
   if (
     doc.image &&
