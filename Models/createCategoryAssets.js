@@ -13,10 +13,10 @@ const categoryAssetsSchema = new mongoose.Schema(
       type: String,
     },
 
-    subCategoryAssets: {
+    subCategoryAssets: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "subcategoryassets",
-    },
+    }],
     mainCategoryAssets: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "maincategoryassets"

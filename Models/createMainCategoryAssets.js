@@ -13,10 +13,12 @@ const mainCategoryAssetsSchema = new mongoose.Schema(
       type: String,
     },
 
-    categoryAssets: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "categoryassets",
-    },
+    categoryAssets: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "categoryassets",
+      },
+    ],
   },
   {
     timestamps: true,
