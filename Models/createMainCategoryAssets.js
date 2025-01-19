@@ -19,6 +19,13 @@ const mainCategoryAssetsSchema = new mongoose.Schema(
         ref: "categoryassets",
       },
     ],
+    assets: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "assets",
+            default:null
+          },
+        ],
   },
   {
     timestamps: true,
@@ -28,7 +35,7 @@ const mainCategoryAssetsSchema = new mongoose.Schema(
 mainCategoryAssetsSchema.pre(/^find/, function (next) {
   this.populate({
     path: "categoryAssets",
-  });
+  }).populate("assets");
 
   next();
 });
