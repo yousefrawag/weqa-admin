@@ -4,6 +4,7 @@ const createAssetsnModel = require("../Models/createAssets");
 const createSubCategoryAssetsModel = require("../Models/createSubCategoryAssets");
 const createCategoryAssetsModel = require("../Models/createCategoryAssets");
 const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
+const ApiError = require("../Resuble/ApiErrors");
 exports.resizeImage = expressAsyncHandler(async (req, res, next) => {
   if (req.file) {
     req.body.pdf = req.file.filename;
@@ -188,6 +189,45 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
   });
 
   res.status(200).json({ data: getDocById });
+});
+
+exports.getAssetsByCategory = expressAsyncHandler(async (req, res, next) => {
+  const { assetsId } = req.params;
+  let assets = await createAssetsnModel
+    .find({
+      subCategoryAssets: { $in: assetsId },
+    })
+    .select("-floor -area -room -subCategoryAssets")
+    .populate({
+      path: "location",
+      select: "name kind building",
+      populate: {
+        path: "building",
+        select: "name kind",
+      },
+      options: {
+        lean: true,
+      },
+    })
+    .exec();
+
+  assets = assets.map((doc) => {
+    if (doc.location) {
+      doc.location = doc.location.map((location) => {
+        delete location.floors;
+        return location;
+      });
+    }
+    return doc;
+  });
+
+  // التحقق من أن النتائج موجودة
+  if (!assets || assets.length === 0) {
+    return res.status(401).json({ msg: "Assets not found" });
+  }
+
+  // إرجاع النتيجة بنجاح
+  res.status(200).json({ data: assets });
 });
 
 exports.updateAssets = factory.updateOne(createAssetsnModel);
