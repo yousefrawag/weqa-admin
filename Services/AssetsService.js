@@ -20,7 +20,6 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
   try {
     let category;
 
-    // معالجة الـ category بناءً على قيمة "continued"
     if (continued === "first") {
       category = await createMainCategoryAssetsModel.findByIdAndUpdate(
         subCategoryAssets,
@@ -66,32 +65,26 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
         .json({ status: "Error", msg: "Invalid 'continued' value" });
     }
 
-    // حفظ النموذج بعد تحديث الـ category
     await assetsModel.save();
-
-    // إضافة populate هنا بعد حفظ البيانات
     let populatedAssets = await assetsModel.populate({
       path: "location",
-      select: "name kind building", // تضمين الحقول المطلوبة فقط
+      select: "name kind building",
       populate: {
         path: "building",
-        select: "name kind", // تضمين الحقول الخاصة بالبناء فقط
+        select: "name kind",
       },
       options: {
-        lean: true, // استخدام lean لتحسين الأداء
+        lean: true,
       },
     });
 
-    // حذف الحقول غير المطلوبة من populatedAssets
     if (populatedAssets.location) {
       populatedAssets.location = populatedAssets.location.map((location) => {
-        // حذف الحقول غير المطلوبة داخل الـ location
         delete location.floors;
         return location;
       });
     }
 
-    // إرجاع النتيجة بعد التعديل
     res.status(201).json({ status: "Success", data: populatedAssets });
   } catch (error) {
     res.status(400).json({ status: "Error", msg: error.message });
@@ -101,54 +94,79 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
 exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
   let getDocById = await createAssetsnModel
     .find()
-    .select("-floor -area -room -subCategoryAssets") // استبعاد الحقول في الاستعلام الرئيسي
+    .select("-subCategoryAssets")
     .populate({
       path: "location",
-      select: "name kind building", // تضمين الحقول المطلوبة فقط
+      select: "name floors",
       populate: {
-        path: "building",
-        select: "name kind", // تضمين الحقول الخاصة بالبناء فقط
-      },
-      // استبعاد الـ floors بشكل صريح
-      options: {
-        lean: true, // يمكن استخدام lean لتحسين الأداء في حالة عدم الحاجة إلى الخصائص الإضافية للـ Mongoose Documents
+        path: "floors",
+        select: "floorName areas",
+        populate: {
+          path: "areas",
+          select: "name sections",
+          populate: {
+            path: "sections.rooms",
+            select: "name assets",
+          },
+        },
       },
     })
+    .lean()
     .exec();
 
   if (!getDocById) {
-    return next(
-      new ApiError(`Sorry, can't get this ID from ID: ${req.params.id}`, 404)
-    );
+    return next(new ApiError(`Sorry, no data found`, 404));
   }
-  getDocById = getDocById.map((doc) => {
-    if (doc.location) {
-      doc.location = doc.location.map((location) => {
-        // حذف floors من كل location
-        delete location.floors;
-        return location;
-      });
-    }
-    return doc;
-  });
-  res.status(200).json({ data: getDocById });
-});
-exports.getAssets = expressAsyncHandler(async (req, res, next) => {
-  const { floorId, areaId, roomId } = req.query;
 
+  const enrichedData = getDocById.map((doc) => {
+    const locationData = doc.location.map((loc) => {
+      const floor = loc.floors.find(
+        (floor) => floor._id.toString() === doc.floor.toString()
+      );
+      const area = floor?.areas.find(
+        (area) => area._id.toString() === doc.area.toString()
+      );
+      const room = area?.sections
+        .flatMap((section) => section.rooms)
+        .find((room) => room._id.toString() === doc.room.toString());
+
+      return {
+        locationName: loc.name,
+        floorName: floor?.floorName,
+        areaName: area?.name,
+        roomName: room?.name,
+      };
+    });
+    delete doc.floor;
+    delete doc.area;
+    delete doc.room;
+    const simplifiedLocation = doc.location.map((loc) => ({
+      _id: loc._id,
+      name: loc.name,
+      kind: loc.kind,
+      build: loc.building,
+    }));
+    return {
+      ...doc,
+      location: simplifiedLocation,
+      locationDetails: locationData,
+    };
+  });
+
+  res.status(200).json({ data: enrichedData });
+});
+
+exports.getAssets = expressAsyncHandler(async (req, res, next) => {
   let getDocById = await createAssetsnModel.findById(req.params.id).populate({
     path: "location",
     populate: {
       path: "floors",
-      match: { _id: floorId },
       populate: {
         path: "areas",
-        match: { _id: areaId },
         populate: {
           path: "sections",
           populate: {
             path: "rooms",
-            match: { _id: roomId },
             select: "name",
           },
         },
@@ -162,73 +180,115 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
     );
   }
 
-  // فلترة البيانات بحيث لا يتم إرجاع الـ floors بعد تصفيتها
+  let locationDetails = [];
+
   getDocById.location.forEach((location) => {
-    if (location.floors) {
-      location.floors = location.floors.filter(
-        (floor) => floor._id.toString() === floorId.toString()
-      );
-      location.floors.forEach((floor) => {
-        if (floor.areas) {
-          floor.areas = floor.areas.filter(
-            (area) => area._id.toString() === areaId.toString()
-          );
-          floor.areas.forEach((area) => {
-            if (area.sections) {
-              area.sections.forEach((section) => {
-                // تصفية الغرف داخل القسم حسب roomId
-                section.rooms = section.rooms.filter(
-                  (room) => room._id.toString() === roomId.toString()
-                );
+    location.floors.forEach((floor) => {
+      if (floor._id.toString() === getDocById.floor.toString()) {
+        floor.areas.forEach((area) => {
+          if (area._id.toString() === getDocById.area.toString()) {
+            area.sections.forEach((section) => {
+              section.rooms.forEach((room) => {
+                if (room._id.toString() === getDocById.room.toString()) {
+                  locationDetails.push({
+                    locationName: location.name,
+                    floorName: floor.name,
+                    areaName: area.name,
+                    roomName: room.name,
+                  });
+                }
               });
-            }
-          });
-        }
-      });
-    }
+            });
+          }
+        });
+      }
+    });
   });
 
-  res.status(200).json({ data: getDocById });
+  if (locationDetails.length === 0) {
+    return res.status(404).json({ msg: "No matching location details found" });
+  }
+  delete getDocById.floor;
+  delete getDocById.area;
+  delete getDocById.room;
+
+  getDocById.location.forEach((loc) => {
+    delete loc.floors;
+    loc.building = loc.building ? { name: loc.building.name } : {};
+  });
+
+  res.status(200).json({
+    data: getDocById,
+    locationDetails: locationDetails,
+  });
 });
 
 exports.getAssetsByCategory = expressAsyncHandler(async (req, res, next) => {
   const { assetsId } = req.params;
-  let assets = await createAssetsnModel
+  let getDocById = await createAssetsnModel
     .find({
       subCategoryAssets: { $in: assetsId },
     })
-    .select("-floor -area -room -subCategoryAssets")
+    .select("-subCategoryAssets")
     .populate({
       path: "location",
-      select: "name kind building",
+      select: "name floors",
       populate: {
-        path: "building",
-        select: "name kind",
-      },
-      options: {
-        lean: true,
+        path: "floors",
+        select: "floorName areas",
+        populate: {
+          path: "areas",
+          select: "name sections",
+          populate: {
+            path: "sections.rooms",
+            select: "name assets",
+          },
+        },
       },
     })
+    .lean()
     .exec();
 
-  assets = assets.map((doc) => {
-    if (doc.location) {
-      doc.location = doc.location.map((location) => {
-        delete location.floors;
-        return location;
-      });
-    }
-    return doc;
-  });
-
-  // التحقق من أن النتائج موجودة
-  if (!assets || assets.length === 0) {
-    return res.status(401).json({ msg: "Assets not found" });
+  if (!getDocById) {
+    return next(new ApiError(`Sorry, no data found`, 404));
   }
 
-  // إرجاع النتيجة بنجاح
-  res.status(200).json({ data: assets });
-});
+  const enrichedData = getDocById.map((doc) => {
+    const locationData = doc.location.map((loc) => {
+      const floor = loc.floors.find(
+        (floor) => floor._id.toString() === doc.floor.toString()
+      );
+      const area = floor?.areas.find(
+        (area) => area._id.toString() === doc.area.toString()
+      );
+      const room = area?.sections
+        .flatMap((section) => section.rooms)
+        .find((room) => room._id.toString() === doc.room.toString());
 
+      return {
+        locationName: loc.name,
+        floorName: floor?.floorName,
+        areaName: area?.name,
+        roomName: room?.name,
+      };
+    });
+    delete doc.floor;
+    delete doc.area;
+    delete doc.room;
+    const simplifiedLocation = doc.location.map((loc) => ({
+      _id: loc._id,
+      name: loc.name,
+      kind: loc.kind,
+      build: loc.building,
+    }));
+    return {
+      ...doc,
+      location: simplifiedLocation,
+      locationDetails: locationData,
+    };
+  });
+
+  res.status(200).json({ data: enrichedData });
+});
 exports.updateAssets = factory.updateOne(createAssetsnModel);
 exports.deleteAssets = factory.deleteOne(createAssetsnModel);
