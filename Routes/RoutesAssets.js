@@ -9,6 +9,7 @@ const {
   deleteAssets,
   updateAssets,
   resizeImage,
+  getAssetsByCategory,
 } = require("../Services/AssetsService");
 const { uploadPDF } = require("../Utils/imagesHandler");
 
@@ -19,5 +20,5 @@ Routes.route("/:id")
   .get(UtilsValidator, getAssets)
   .delete(UtilsValidator, deleteAssets)
   .put(uploadPDF, UtilsValidator, resizeImage, updateAssets);
-
+Routes.route("/category/:assetsId").get(getAssetsByCategory);
 module.exports = Routes;
