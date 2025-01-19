@@ -2,37 +2,30 @@ const mongoose = require("mongoose");
 
 const assetSchema = new mongoose.Schema(
   {
-    building:[ {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "building", // يجب أن يكون اسم الموديل المرتبط هنا
-    }],
-    subCategoryAssets:[ {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "subcategoryassets", // يجب أن يكون اسم الموديل المرتبط هنا
-    }],
+    location: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "location",
+        required: [true, "Location is required"],
+      },
+    ],
+    subCategoryAssets: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "subcategoryassets", // يجب أن يكون اسم الموديل المرتبط هنا
+      },
+    ],
   },
   {
-    strict: false, // يسمح بإضافة بيانات غير محددة
-    timestamps: true, // يضيف حقول createdAt و updatedAt تلقائيًا
+    strict: false,
+    timestamps: true,
   }
 );
 
-assetSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: "building",
-    select: "-location",
-    populate:"levels"
-  })
-
-  next();
-});
 const ImageURL = (doc) => {
-  if (
-    doc.image &&
-    !doc.image.includes(`${process.env.BASE_URL}/assets`)
-  ) {
-    const image = `${process.env.BASE_URL}/assets/${doc.image}`;
-    doc.image = image;
+  if (doc.pdf && !doc.pdf.includes(`${process.env.BASE_URL}/assets`)) {
+    const pdf = `${process.env.BASE_URL}/assets/${doc.pdf}`;
+    doc.pdf = pdf;
   }
 };
 assetSchema.post("init", (doc) => {

@@ -17,6 +17,7 @@ const SubCategoryAssetsSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "assets",
+        default: null,
       },
     ],
   },

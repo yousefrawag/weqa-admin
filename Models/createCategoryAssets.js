@@ -12,14 +12,22 @@ const categoryAssetsSchema = new mongoose.Schema(
     image: {
       type: String,
     },
-
-    subCategoryAssets: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "subcategoryassets",
-    }],
+    assets: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "assets",
+        default: null,
+      },
+    ],
+    subCategoryAssets: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "subcategoryassets",
+      },
+    ],
     mainCategoryAssets: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "maincategoryassets"
+      ref: "maincategoryassets",
     },
   },
   {
@@ -30,7 +38,7 @@ const categoryAssetsSchema = new mongoose.Schema(
 categoryAssetsSchema.pre(/^find/, function (next) {
   this.populate({
     path: "subCategoryAssets",
-  });
+  }).populate("assets");
 
   next();
 });
