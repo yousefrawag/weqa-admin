@@ -2,13 +2,11 @@ const mongoose = require("mongoose");
 
 const assetSchema = new mongoose.Schema(
   {
-    location: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "location",
-        required: [true, "Location is required"],
-      },
-    ],
+    location: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "location",
+      required: [true, "Location is required"],
+    }],
     subCategoryAssets: [
       {
         type: mongoose.Schema.Types.ObjectId,

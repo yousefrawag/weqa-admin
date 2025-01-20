@@ -57,7 +57,7 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
       if (!main) {
         return res
           .status(404)
-          .json({ status: "Error", msg: "Main category asset not found" });
+          .json({ status: "Error", msg: " subCategory asset not found" });
       }
     } else {
       return res
@@ -105,8 +105,12 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
           path: "areas",
           select: "name sections",
           populate: {
-            path: "sections.rooms",
-            select: "name assets",
+            path: "sections",
+            select: "name rooms",
+            populate: {
+              path: "rooms",
+              select: "name assets",
+            },
           },
         },
       },
@@ -126,14 +130,20 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
       const area = floor?.areas.find(
         (area) => area._id.toString() === doc.area.toString()
       );
-      const room = area?.sections
-        .flatMap((section) => section.rooms)
-        .find((room) => room._id.toString() === doc.room.toString());
+
+      const section = area?.sections.find(
+        (area) => area._id.toString() === doc.section.toString()
+      );
+
+      const room = section?.rooms.find(
+        (room) => room._id.toString() === doc.room.toString()
+      );
 
       return {
         locationName: loc.name,
         floorName: floor?.floorName,
         areaName: area?.name,
+        sectionName: section?.name,
         roomName: room?.name,
       };
     });
@@ -159,6 +169,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
 exports.getAssets = expressAsyncHandler(async (req, res, next) => {
   let getDocById = await createAssetsnModel.findById(req.params.id).populate({
     path: "location",
+    select: "name floors",
     populate: {
       path: "floors",
       populate: {
@@ -192,8 +203,9 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
                 if (room._id.toString() === getDocById.room.toString()) {
                   locationDetails.push({
                     locationName: location.name,
-                    floorName: floor.name,
+                    floorName: floor.floorName,
                     areaName: area.name,
+                    sectionName: section.name,
                     roomName: room.name,
                   });
                 }
@@ -240,8 +252,12 @@ exports.getAssetsByCategory = expressAsyncHandler(async (req, res, next) => {
           path: "areas",
           select: "name sections",
           populate: {
-            path: "sections.rooms",
-            select: "name assets",
+            path: "sections",
+            select: "name rooms",
+            populate: {
+              path: "rooms",
+              select: "name assets",
+            },
           },
         },
       },
@@ -258,17 +274,22 @@ exports.getAssetsByCategory = expressAsyncHandler(async (req, res, next) => {
       const floor = loc.floors.find(
         (floor) => floor._id.toString() === doc.floor.toString()
       );
+
       const area = floor?.areas.find(
         (area) => area._id.toString() === doc.area.toString()
       );
-      const room = area?.sections
-        .flatMap((section) => section.rooms)
-        .find((room) => room._id.toString() === doc.room.toString());
+      const section = area?.sections.find(
+        (section) => section._id.toString() === doc.section.toString()
+      );
+      const room = section?.rooms.find(
+        (room) => room._id.toString() === doc.room.toString()
+      );
 
       return {
         locationName: loc.name,
         floorName: floor?.floorName,
         areaName: area?.name,
+        sectionName: section.name,
         roomName: room?.name,
       };
     });
