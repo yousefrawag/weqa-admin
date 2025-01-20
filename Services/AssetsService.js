@@ -14,7 +14,13 @@ exports.resizeImage = expressAsyncHandler(async (req, res, next) => {
 });
 exports.createAssets = expressAsyncHandler(async (req, res) => {
   const { subCategoryAssets, continued } = req.body;
-
+  const levelsModel =
+    continued === "first"
+      ? "maincategoryassets"
+      : continued === "second"
+      ? "categoryassets"
+      : "subcategoryassets";
+  req.body.levelsModel = levelsModel;
   const assetsModel = new createAssetsnModel(req.body);
 
   try {
@@ -93,8 +99,7 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
 
 exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
   let getDocById = await createAssetsnModel
-    .find()
-    .select("-subCategoryAssets")
+    .find().populate({ path: "subCategoryAssets", select: {assets:0} })
     .populate({
       path: "location",
       select: "name floors",
@@ -167,23 +172,26 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
 });
 
 exports.getAssets = expressAsyncHandler(async (req, res, next) => {
-  let getDocById = await createAssetsnModel.findById(req.params.id).populate({
-    path: "location",
-    select: "name floors",
-    populate: {
-      path: "floors",
+  let getDocById = await createAssetsnModel
+    .findById(req.params.id)
+    .populate({ path: "subCategoryAssets", select: {assets:0} })
+    .populate({
+      path: "location",
+      select: "name floors",
       populate: {
-        path: "areas",
+        path: "floors",
         populate: {
-          path: "sections",
+          path: "areas",
           populate: {
-            path: "rooms",
-            select: "name",
+            path: "sections",
+            populate: {
+              path: "rooms",
+              select: "name",
+            },
           },
         },
       },
-    },
-  });
+    });
 
   if (!getDocById) {
     return next(
@@ -241,7 +249,7 @@ exports.getAssetsByCategory = expressAsyncHandler(async (req, res, next) => {
     .find({
       subCategoryAssets: { $in: assetsId },
     })
-    .select("-subCategoryAssets")
+    .populate({ path: "subCategoryAssets", select: {assets:0} })
     .populate({
       path: "location",
       select: "name floors",
