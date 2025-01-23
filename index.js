@@ -19,15 +19,17 @@ const RoutesMainCategoryAssets = require("./Routes/RoutesMainCategoryAssets");
 const RoutesCategoryAssets = require("./Routes/RoutesCategoryAssets");
 const RoutesSubCategoryAssets = require("./Routes/RoutesSubCategoryAssets");
 const RoutesAssets = require("./Routes/RoutesAssets");
-const { createFirstOwnerAccount } = require("./Services/AuthService");
+const { createFirstOwnerAccount, protect } = require("./Services/AuthService");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
 app.use(cors());
 app.use(express.json({ limit: "50kb" }));
 dotenv.config({ path: "config.env" });
+
 dbCollection();
 createFirstOwnerAccount();
 app.use("/api/v1/auth", RoutesAuth);
+app.use(protect);
 app.use("/api/v1/employee", RoutesEmployee);
 app.use("/api/v1/mainCategory", RoutesMainCategory);
 app.use("/api/v1/category", RoutesCategory);

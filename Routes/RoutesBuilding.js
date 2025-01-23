@@ -1,6 +1,6 @@
 const { Router } = require("express");
 
-const { protect } = require("../Services/AuthService");
+const { protect, allowedTo } = require("../Services/AuthService");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 const {
   createBuildingValidator,
@@ -14,10 +14,13 @@ const {
 } = require("../Services/BuildingService");
 
 const Routes = Router();
-// Routes.use(protect);
 Routes.route("/")
-  .post(createBuildingValidator, createBuilding)
-  .get(getbuildings);
+  .post(
+    allowedTo("facility_manager", "owner", "manager"),
+    createBuildingValidator,
+    createBuilding
+  )
+  .get(allowedTo("facility_manager", "owner", "manager"),getbuildings);
 Routes.route("/:id")
   .get(UtilsValidator, getBuilding)
   .delete(UtilsValidator, deleteBuilding)

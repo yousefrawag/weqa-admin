@@ -67,6 +67,54 @@ exports.createEmployeeValidator = [
         }
       })
     ),
+
+  check("building").custom((value, { req }) => {
+    const exemptRoles = [
+      "owner",
+      "manager",
+      "facilitys_manager",
+      "safety_manager",
+      "security_manager",
+      "contracts_manager",
+    ];
+
+    if (exemptRoles.includes(req.body.role)) {
+      return true;
+    }
+
+    if (!value) {
+      throw new Error("The building field is required for this role.");
+    }
+    if (!/^[0-9a-fA-F]{24}$/.test(value)) {
+      throw new Error("Invalid building ID format.");
+    }
+    return true;
+  }),
+  check("continued")
+    .custom((value, { req }) => {
+      const exemptRoles = [
+        "owner",
+        "manager",
+        "facilitys_manager",
+        "safety_manager",
+        "security_manager",
+        "contracts_manager",
+      ];
+
+      if (exemptRoles.includes(req.body.role)) {
+        return true;
+      }
+
+      if (!value) {
+        throw new Error("The continued field is required for this role.");
+      }
+      return true;
+    })
+    .bail()
+    .isIn(["building", "location", "assets"])
+    .withMessage(
+      "The continued field must be one of: building, location, assets."
+    ),
   MiddlewareValidator,
 ];
 

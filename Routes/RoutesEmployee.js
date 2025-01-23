@@ -11,13 +11,11 @@ const {
   updateEmployee,
   createEmployee,
 } = require("../Services/EmployeeService");
-const { protect } = require("../Services/AuthService");
+const { allowedTo } = require("../Services/AuthService");
 
 const Routes = Router();
-// Routes.use(protect);
-
 Routes.route("/")
-  .post(createEmployeeValidator, createEmployee)
+  .post(allowedTo("owner", "manager"), createEmployeeValidator, createEmployee)
   .get(getEmployees);
 Routes.route("/:id")
   .get(UtilsValidator, getEmployee)

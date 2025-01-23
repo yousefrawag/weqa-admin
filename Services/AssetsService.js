@@ -5,6 +5,7 @@ const createSubCategoryAssetsModel = require("../Models/createSubCategoryAssets"
 const createCategoryAssetsModel = require("../Models/createCategoryAssets");
 const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
 const ApiError = require("../Resuble/ApiErrors");
+const FeatureApi = require("../Utils/Feature");
 exports.resizeImage = expressAsyncHandler(async (req, res, next) => {
   if (req.file) {
     req.body.pdf = req.file.filename;
@@ -98,83 +99,117 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
 });
 
 exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
-  let getDocById = await createAssetsnModel
-    .find().populate({ path: "subCategoryAssets", select: {assets:0} })
-    .populate({
-      path: "location",
-      select: "name floors",
-      populate: {
-        path: "floors",
-        select: "floorName areas",
+  try {
+    let filter = req.filterObject || {};
+
+    const { limit = 10, page = 1, sort = "-createdAt", fields = "" } = req.query;
+
+    const skip = (page - 1) * limit;
+    const getDocById = await createAssetsnModel
+      .find({}) 
+      .sort(sort)
+      .select(fields)
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: "subCategoryAssets",
+        select: { assets: 0 },
+      })
+      .populate({
+        path: "location",
+        select: "name floors",
         populate: {
-          path: "areas",
-          select: "name sections",
+          path: "floors",
+          select: "floorName areas",
           populate: {
-            path: "sections",
-            select: "name rooms",
+            path: "areas",
+            select: "name sections",
             populate: {
-              path: "rooms",
-              select: "name assets",
+              path: "sections",
+              select: "name rooms",
+              populate: {
+                path: "rooms",
+                select: "name assets",
+              },
             },
           },
         },
-      },
-    })
-    .lean()
-    .exec();
+      })
+      .lean()
+      .exec();
+    if (!getDocById || getDocById.length === 0) {
+      return next(new ApiError(`Sorry, no data found`, 404));
+    }
+    const filteredData = getDocById.filter(doc => {
 
-  if (!getDocById) {
-    return next(new ApiError(`Sorry, no data found`, 404));
-  }
+      if (filter['location.build._id']) {
+        return doc.location.some(loc => 
+          loc.build && loc.build._id.toString() === filter['location.build._id'].toString()
+        );
+      }
+      return true;
+    });
 
-  const enrichedData = getDocById.map((doc) => {
-    const locationData = doc.location.map((loc) => {
-      const floor = loc.floors.find(
-        (floor) => floor._id.toString() === doc.floor.toString()
-      );
-      const area = floor?.areas.find(
-        (area) => area._id.toString() === doc.area.toString()
-      );
 
-      const section = area?.sections.find(
-        (area) => area._id.toString() === doc.section.toString()
-      );
+    const enrichedData = filteredData.map((doc) => {
+      const locationDetails = doc.location.map((loc) => {
+        const floor = loc.floors?.find(
+          (floor) => floor._id.toString() === doc.floor?.toString()
+        );
+        const area = floor?.areas?.find(
+          (area) => area._id.toString() === doc.area?.toString()
+        );
+        const section = area?.sections?.find(
+          (section) => section._id.toString() === doc.section?.toString()
+        );
+        const room = section?.rooms?.find(
+          (room) => room._id.toString() === doc.room?.toString()
+        );
 
-      const room = section?.rooms.find(
-        (room) => room._id.toString() === doc.room.toString()
-      );
+        return {
+          locationName: loc.name,
+          floorName: floor?.floorName || null,
+          areaName: area?.name || null,
+          sectionName: section?.name || null,
+          roomName: room?.name || null,
+        };
+      });
+
+      const simplifiedLocation = doc.location.map((loc) => ({
+        _id: loc._id,
+        name: loc.name,
+        kind: loc.kind,
+        build: loc.building,
+      }));
+
+      delete doc.floor;
+      delete doc.area;
+      delete doc.room;
 
       return {
-        locationName: loc.name,
-        floorName: floor?.floorName,
-        areaName: area?.name,
-        sectionName: section?.name,
-        roomName: room?.name,
+        ...doc,
+        location: simplifiedLocation,
+        locationDetails,
       };
     });
-    delete doc.floor;
-    delete doc.area;
-    delete doc.room;
-    const simplifiedLocation = doc.location.map((loc) => ({
-      _id: loc._id,
-      name: loc.name,
-      kind: loc.kind,
-      build: loc.building,
-    }));
-    return {
-      ...doc,
-      location: simplifiedLocation,
-      locationDetails: locationData,
-    };
-  });
-
-  res.status(200).json({ data: enrichedData });
+    res.status(200).json({
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(getDocById.length / limit), 
+        totalDocs: getDocById.length, 
+      },
+      data: enrichedData,
+   
+    });
+  } catch (error) {
+    next(error); // تمرير الخطأ إلى معالج الأخطاء
+  }
 });
 
 exports.getAssets = expressAsyncHandler(async (req, res, next) => {
   let getDocById = await createAssetsnModel
     .findById(req.params.id)
-    .populate({ path: "subCategoryAssets", select: {assets:0} })
+    .populate({ path: "subCategoryAssets", select: { assets: 0 } })
     .populate({
       path: "location",
       select: "name floors",
@@ -249,7 +284,7 @@ exports.getAssetsByCategory = expressAsyncHandler(async (req, res, next) => {
     .find({
       subCategoryAssets: { $in: assetsId },
     })
-    .populate({ path: "subCategoryAssets", select: {assets:0} })
+    .populate({ path: "subCategoryAssets", select: { assets: 0 } })
     .populate({
       path: "location",
       select: "name floors",
