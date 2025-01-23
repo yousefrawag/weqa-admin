@@ -9,10 +9,15 @@ const assetSchema = new mongoose.Schema(
         required: [true, "Location is required"],
       },
     ],
+    levelsModel: {
+      type: String,
+      enum: ["maincategoryassets", "categoryassets", "subcategoryassets"],
+      required: true,
+    },
     subCategoryAssets: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "subcategoryassets", // يجب أن يكون اسم الموديل المرتبط هنا
+        refPath: "levelsModel",
       },
     ],
   },

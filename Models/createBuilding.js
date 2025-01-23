@@ -15,7 +15,7 @@ const createBuilding = new mongoose.Schema(
 
     levels: {
       type: mongoose.Schema.Types.ObjectId,
-      refPath: "levelsModel", // تحديد المرجع بناءً على الحقل levelsModel
+      refPath: "levelsModel", 
     },
     levelsModel: {
       type: String,
