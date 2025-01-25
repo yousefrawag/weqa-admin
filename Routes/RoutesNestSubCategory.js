@@ -1,6 +1,5 @@
 const { Router } = require("express");
 
-const { protect } = require("../Services/AuthService");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 const {
   createNestSubCategory,
@@ -13,9 +12,8 @@ const { createNestsubCategoryValidator } = require("../Resuble/NestSubCategoryVa
 
 
 const Routes = Router();
-// Routes.use(protect);
 Routes.route("/")
-  .post(createNestsubCategoryValidator, createNestSubCategory)
+  .post( allowedTo("owner", "manager", "facilitys_manager"),createNestsubCategoryValidator, createNestSubCategory)
   .get(getNestSubCategories);
 Routes.route("/:id")
   .get(UtilsValidator, getNestSubCategory)

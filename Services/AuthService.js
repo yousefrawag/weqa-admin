@@ -18,7 +18,7 @@ exports.createFirstOwnerAccount = async () => {
     phone: "01000000000",
     role: "owner",
     grander: "male",
-    identity: 123456789, 
+    identity: 123456789,
     employeeNumber: 1997,
     address: {
       area: "North-Sina",
@@ -59,7 +59,10 @@ exports.Login = expressAsyncHandler(async (req, res, next) => {
 
 exports.allowedTo = (...roles) =>
   expressAsyncHandler(async (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    if (
+      !roles.includes(req.user.role) ||
+      !req.user.permission.includes(req.method.toLowerCase())
+    ) {
       return next(
         res.status(403).json({
           status: "Error",
@@ -127,4 +130,43 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
       });
     }
   }
+});
+
+exports.permission = expressAsyncHandler(async (req, res, next) => {
+  const allowedRoles = [
+    "owner",
+    "manager",
+    "facilitys_manager",
+    "safety_manager",
+    "security_manager",
+    "contracts_manager",
+  ];
+
+  if (!req.user) {
+    return res.status(401).json({
+      status: "Error",
+      msg: "غير مصرح بالوصول",
+    });
+  }
+
+  if (allowedRoles.includes(req.user.role)) {
+    return next();
+  }
+
+  req.user.permission = req.user.permission || [];
+
+  if (
+    !req.user.permission.includes(req.method.toLowerCase()) ||
+    req.params.id?.toString() !== req.user.building?.toString()
+  ) {
+    console.log(req.params.id?.toString(), req.user.building?.toString());
+
+    return res.status(403).json({
+      status: "Error",
+      msg: "ليس لديك صلاحيه الوصول",
+    });
+  }
+
+  // إذا كان كل شيء تمام
+  next();
 });

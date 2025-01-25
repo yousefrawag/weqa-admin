@@ -146,6 +146,7 @@ exports.updateEmployeeValidator = [
       })
     ),
   check("email")
+    .optional()
     .isEmail()
     .withMessage("Must be at E-mail Address")
     .custom((val) =>

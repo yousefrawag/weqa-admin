@@ -1,6 +1,6 @@
 const { Router } = require("express");
 
-const { protect } = require("../Services/AuthService");
+const { allowedTo } = require("../Services/AuthService");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 const {
   createCategory,
@@ -14,12 +14,15 @@ const {
 } = require("../Resuble/CategoryValidatorErrorr");
 
 const Routes = Router();
-// Routes.use(protect);
 Routes.route("/")
-  .post(createCategoryValidator, createCategory)
+  .post(
+    allowedTo("owner", "manager", "facilitys_manager"),
+    createCategoryValidator,
+    createCategory
+  )
   .get(getCategories);
 Routes.route("/:id")
   .get(UtilsValidator, getCategory)
   .delete(UtilsValidator, deleteCategory)
   .put(UtilsValidator, updateCategory);
-module.exports = Routes; 
+module.exports = Routes;

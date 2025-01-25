@@ -19,7 +19,7 @@ const RoutesMainCategoryAssets = require("./Routes/RoutesMainCategoryAssets");
 const RoutesCategoryAssets = require("./Routes/RoutesCategoryAssets");
 const RoutesSubCategoryAssets = require("./Routes/RoutesSubCategoryAssets");
 const RoutesAssets = require("./Routes/RoutesAssets");
-const { createFirstOwnerAccount, protect } = require("./Services/AuthService");
+const { createFirstOwnerAccount, protect, permission } = require("./Services/AuthService");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
 app.use(cors());

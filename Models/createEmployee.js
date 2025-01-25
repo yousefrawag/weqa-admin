@@ -44,6 +44,11 @@ const createEmployee = new mongoose.Schema(
       street: String,
       build: String,
     },
+    permission: {
+      type: [String],
+      required: [true, "permission is required"],
+      default: ["post", "put", "delete", "get"],
+    },
     continued: {
       type: String,
       enum: ["building", "location", "assets"],

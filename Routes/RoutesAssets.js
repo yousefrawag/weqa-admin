@@ -1,6 +1,6 @@
 const { Router } = require("express");
 
-const { protect } = require("../Services/AuthService");
+const { permission } = require("../Services/AuthService");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 const {
   createAssets,
@@ -14,11 +14,13 @@ const {
 const { uploadPDF } = require("../Utils/imagesHandler");
 
 const Routes = Router();
-// Routes.use(protect);
-Routes.route("/").post(uploadPDF, resizeImage, createAssets).get(getAssetss);
+
+Routes.route("/")
+  .post(permission, uploadPDF, resizeImage, createAssets)
+  .get(getAssetss);
 Routes.route("/:id")
-  .get(UtilsValidator, getAssets)
-  .delete(UtilsValidator, deleteAssets)
-  .put(uploadPDF, UtilsValidator, resizeImage, updateAssets);
-Routes.route("/category/:assetsId").get(getAssetsByCategory);
+  .get(permission, UtilsValidator, getAssets)
+  .delete(permission, UtilsValidator, deleteAssets)
+  .put(permission, uploadPDF, UtilsValidator, resizeImage, updateAssets);
+Routes.route("/category/:assetsId").get(permission, getAssetsByCategory);
 module.exports = Routes;

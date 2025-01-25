@@ -7,16 +7,19 @@ const {
   getMainCategory,
   getMainCategories,
 } = require("../Services/MainCategoryService");
-const { protect } = require("../Services/AuthService");
+const {  allowedTo } = require("../Services/AuthService");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 const {
   createMainCategoryValidator,
 } = require("../Resuble/MainCategoryValidatorErrorr");
 
 const Routes = Router();
-// Routes.use(protect);
 Routes.route("/")
-  .post(createMainCategoryValidator, createMainCategory)
+  .post(
+    allowedTo("owner", "manager", "facilitys_manager"),
+    createMainCategoryValidator,
+    createMainCategory
+  )
   .get(getMainCategories);
 Routes.route("/:id")
   .get(UtilsValidator, getMainCategory)

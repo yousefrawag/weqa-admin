@@ -1,6 +1,5 @@
 const { Router } = require("express");
 
-const { protect } = require("../Services/AuthService");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 const {
   createSubCategory,
@@ -14,7 +13,7 @@ const {
 } = require("../Resuble/subCategoryValidatorErrorr");
 
 const Routes = Router();
-// Routes.use(protect);
+Routes.use(allowedTo("owner", "manager", "facilitys_manager"));
 Routes.route("/")
   .post(createsubCategoryValidator, createSubCategory)
   .get(getSubCategories);
