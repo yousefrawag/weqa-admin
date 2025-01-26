@@ -12,17 +12,18 @@ const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 const {
   createMainCategoryValidator,
 } = require("../Resuble/MainCategoryValidatorErrorr");
+const { permission } = require("../Services/PermissionService");
 
 const Routes = Router();
 Routes.route("/")
-  .post(
+  .post(permission,
     allowedTo("owner", "manager", "facilitys_manager"),
     createMainCategoryValidator,
     createMainCategory
   )
-  .get(getMainCategories);
+  .get(permission,getMainCategories);
 Routes.route("/:id")
-  .get(UtilsValidator, getMainCategory)
-  .delete(UtilsValidator, deleteMainCategory)
-  .put(UtilsValidator, updateMainCategory);
+  .get(permission,UtilsValidator, getMainCategory)
+  .delete(permission,UtilsValidator, deleteMainCategory)
+  .put(permission,UtilsValidator, updateMainCategory);
 module.exports = Routes;

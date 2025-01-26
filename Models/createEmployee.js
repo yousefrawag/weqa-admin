@@ -44,19 +44,6 @@ const createEmployee = new mongoose.Schema(
       street: String,
       build: String,
     },
-    permission: {
-      type: [String],
-      required: [true, "permission is required"],
-      default: ["post", "put", "delete", "get"],
-    },
-    continued: {
-      type: String,
-      enum: ["building", "location", "assets"],
-    },
-    building: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "continued",
-    },
 
     role: {
       type: String,
@@ -75,6 +62,10 @@ const createEmployee = new mongoose.Schema(
       ],
       required: [true, "Required role employee"],
     },
+    permissions: [{ 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'Permission' 
+    }]
   },
   { timestamps: true }
 );

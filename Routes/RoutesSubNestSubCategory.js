@@ -1,6 +1,4 @@
 const { Router } = require("express");
-
-const { protect } = require("../Services/AuthService");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 
 const {
@@ -13,14 +11,14 @@ const {
 const {
   createSubNestSubCategoryValidator,
 } = require("../Resuble/SubNestSubCategoryValidatorErrorr");
+const { permission } = require("../Services/PermissionService");
 
 const Routes = Router();
-// Routes.use(protect);
 Routes.route("/")
-  .post(createSubNestSubCategoryValidator, createSubNestSubCategory)
-  .get(getSubNestSubCategories);
+  .post(permission,createSubNestSubCategoryValidator, createSubNestSubCategory)
+  .get(permission,getSubNestSubCategories);
 Routes.route("/:id")
-  .get(UtilsValidator, getSubNestSubCategory)
-  .delete(UtilsValidator, deleteSubNestSubCategory)
-  .put(UtilsValidator, updateSubNestSubCategory);
+  .get(permission,UtilsValidator, getSubNestSubCategory)
+  .delete(permission,UtilsValidator, deleteSubNestSubCategory)
+  .put(permission,UtilsValidator, updateSubNestSubCategory);
 module.exports = Routes;

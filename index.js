@@ -8,6 +8,7 @@ const dbCollection = require("./config/config");
 const ApiError = require("./Resuble/ApiErrors");
 const RoutesAuth = require("./Routes/RoutesAuth");
 const RoutesEmployee = require("./Routes/RoutesEmployee");
+const RoutesPermission = require("./Routes/RoutesPermission");
 const RoutesMainCategory = require("./Routes/RoutesMainCategory");
 const RoutesCategory = require("./Routes/RoutesCategory");
 const RoutessubCategory = require("./Routes/RoutesSubCategory");
@@ -19,7 +20,8 @@ const RoutesMainCategoryAssets = require("./Routes/RoutesMainCategoryAssets");
 const RoutesCategoryAssets = require("./Routes/RoutesCategoryAssets");
 const RoutesSubCategoryAssets = require("./Routes/RoutesSubCategoryAssets");
 const RoutesAssets = require("./Routes/RoutesAssets");
-const { createFirstOwnerAccount, protect, permission } = require("./Services/AuthService");
+const { createFirstOwnerAccount, protect } = require("./Services/AuthService");
+const { permission } = require("./Services/PermissionService");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
 app.use(cors());
@@ -31,6 +33,7 @@ createFirstOwnerAccount();
 app.use("/api/v1/auth", RoutesAuth);
 app.use(protect);
 app.use("/api/v1/employee", RoutesEmployee);
+app.use("/api/v1/permission", RoutesPermission)
 app.use("/api/v1/mainCategory", RoutesMainCategory);
 app.use("/api/v1/category", RoutesCategory);
 app.use("/api/v1/subCategory", RoutessubCategory);
@@ -42,6 +45,7 @@ app.use("/api/v1/mainCategoryAssets", RoutesMainCategoryAssets);
 app.use("/api/v1/categoryAssets", RoutesCategoryAssets);
 app.use("/api/v1/subCategoryAssets", RoutesSubCategoryAssets);
 app.use("/api/v1/assets", RoutesAssets);
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "*");

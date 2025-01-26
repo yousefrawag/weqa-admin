@@ -1,5 +1,4 @@
 const { Router } = require("express");
-
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 const {
   createNestSubCategory,
@@ -8,15 +7,22 @@ const {
   updateNestSubCategory,
   getNestSubCategory,
 } = require("../Services/NestSubCategoryService");
-const { createNestsubCategoryValidator } = require("../Resuble/NestSubCategoryValidatorErrorr");
-
-
+const {
+  createNestsubCategoryValidator,
+} = require("../Resuble/NestSubCategoryValidatorErrorr");
+const { allowedTo } = require("../Services/AuthService");
+const { permission } = require("../Services/PermissionService");
 const Routes = Router();
 Routes.route("/")
-  .post( allowedTo("owner", "manager", "facilitys_manager"),createNestsubCategoryValidator, createNestSubCategory)
-  .get(getNestSubCategories);
+  .post(
+    allowedTo("owner", "manager", "facilitys_manager"),
+    permission,
+    createNestsubCategoryValidator,
+    createNestSubCategory
+  )
+  .get(permission, getNestSubCategories);
 Routes.route("/:id")
-  .get(UtilsValidator, getNestSubCategory)
-  .delete(UtilsValidator, deleteNestSubCategory)
-  .put(UtilsValidator, updateNestSubCategory);
+  .get(permission, UtilsValidator, getNestSubCategory)
+  .delete(permission, UtilsValidator, deleteNestSubCategory)
+  .put(permission, UtilsValidator, updateNestSubCategory);
 module.exports = Routes;

@@ -1,6 +1,6 @@
 const { Router } = require("express");
 
-const { permission } = require("../Services/AuthService");
+const { permission } = require("../Services/PermissionService");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 const {
   createAssets,
@@ -14,10 +14,9 @@ const {
 const { uploadPDF } = require("../Utils/imagesHandler");
 
 const Routes = Router();
-
 Routes.route("/")
   .post(permission, uploadPDF, resizeImage, createAssets)
-  .get(getAssetss);
+  .get(permission, getAssetss);
 Routes.route("/:id")
   .get(permission, UtilsValidator, getAssets)
   .delete(permission, UtilsValidator, deleteAssets)
