@@ -4,11 +4,14 @@ const factory = require("./FactoryHandler");
 const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
 
 exports.createMainCategoryAssets = expressAsyncHandler(async (req, res) => {
-  const { name, image } = req.body;
+  const { name, image  } = req.body;
+
+ 
 
   const mainCategoryAssets = new createMainCategoryAssetsModel({
     name,
     image,
+  
   });
 
   await mainCategoryAssets.save();
