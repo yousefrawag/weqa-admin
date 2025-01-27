@@ -14,19 +14,31 @@ const {
   deleteCategoryAssets,
   updateCategoryAssets,
 } = require("../Services/CategoryAssetsService");
-const { permission } = require("../Services/PermissionService");
+const {
+  permission,
+  permissionManager,
+} = require("../Services/PermissionService");
 
 const Routes = Router();
 Routes.route("/")
-  .post(permission,
+  .post(
+    permissionManager,
+    permission,
     uploadImage,
     createCategoryAssetsValidator,
     resizeImage("categoryAssets"),
     createCategoryAssets
   )
-  .get(permission,getCategoriesAssets);
+  .get(permissionManager, permission, getCategoriesAssets);
 Routes.route("/:id")
-  .get(permission,UtilsValidator, getCategoryAsset)
-  .delete(permission,UtilsValidator, deleteCategoryAssets)
-  .put(permission,uploadImage, UtilsValidator, resizeImage("class"), updateCategoryAssets);
+  .get(permissionManager, permission, UtilsValidator, getCategoryAsset)
+  .delete(permissionManager, permission, UtilsValidator, deleteCategoryAssets)
+  .put(
+    permissionManager,
+    permission,
+    uploadImage,
+    UtilsValidator,
+    resizeImage("class"),
+    updateCategoryAssets
+  );
 module.exports = Routes;

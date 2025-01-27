@@ -11,19 +11,19 @@ const {
 } = require("../Services/MainCategoryAssetsService");
 const { uploadImage, resizeImage } = require("../Utils/imagesHandler");
 const { createAssetsValidator } = require("../Resuble/AssetsValidatorErrorr");
-const { permission } = require("../Services/PermissionService");
+const { permission, permissionManager } = require("../Services/PermissionService");
 
 const Routes = Router();
 Routes.route("/")
-  .post(permission,
+  .post(permissionManager,permission,
     uploadImage,
     createAssetsValidator,
     resizeImage("mainCategoryAssets"),
     createMainCategoryAssets
   )
-  .get(permission,getMainCategoriesAssets);
+  .get(permissionManager,permission,getMainCategoriesAssets);
 Routes.route("/:id")
-  .get(permission,UtilsValidator, getMainCategoryAsset)
+  .get(permissionManager,permission,UtilsValidator, getMainCategoryAsset)
   .delete(permission,UtilsValidator, deleteMainCategoryAssets)
   .put(permission,
     uploadImage,

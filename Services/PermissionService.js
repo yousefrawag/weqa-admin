@@ -1,26 +1,18 @@
 const expressAsyncHandler = require("express-async-handler");
+const factory = require("./FactoryHandler");
+
 const createEmployeeModel = require("../Models/createEmployee");
 const createPermissionModel = require("../Models/createPermission");
+const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
 exports.createPermission = expressAsyncHandler(async (req, res, next) => {
   try {
-    const { employee } = req.params; // الـ ID الخاص بالموظف
-    const { building, assets, location, maincategories } = req.body; // البيانات الواردة
-
-    // التحقق من وجود الموظف
+    const { employee } = req.params;
     const user = await createEmployeeModel.findById(employee);
     if (!user) {
       throw new Error("Employee not found");
     }
 
-    // إنشاء الصلاحية
-    const permission = await createPermissionModel.create({
-      employee,
-      building,
-      assets,
-      location,
-      maincategories,
-    });
-
+    const permission = await createPermissionModel.create(req.body);
 
     res.status(201).json({
       status: "success",
@@ -28,33 +20,29 @@ exports.createPermission = expressAsyncHandler(async (req, res, next) => {
       data: permission,
     });
   } catch (error) {
-    // معالجة الأخطاء
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 });
 exports.permission = expressAsyncHandler(async (req, res, next) => {
   const url = req.originalUrl;
   const resource = url.split("/")[3];
-  const method = req.method.toLowerCase(); 
+  const method = req.method.toLowerCase();
+
+  const roles = ["owner", "manager"];
+
+  if (roles.includes(req.user.role)) {
+    return next();
+  }
 
   try {
-  
-    console.log("Resource:", resource);
-    console.log("Method:", method);
-    console.log("Employee ID:", req.user._id);
-    console.log("Requested ID:", req.params.id);
-
-    if (!resource || !req.params.id) {
-      return res.status(400).json({ msg: "بيانات ناقصة" });
-    }
-
-   
-    const permissions = await createPermissionModel.findOne({
+    const query = {
       employee: req.user._id,
-      "assets.actions": { $in: [method] }, 
-      "assets.allowedIds": { $in: [req.params.id] }, 
-    });
+      [`${resource}.actions`]: { $in: [method] },
+      [`${resource}.allowedIds`]: { $in: [req.params.id] },
+    };
 
+    const permissions = await createPermissionModel.findOne(query);
+    console.log(query);
 
     if (!permissions) {
       return res.status(403).json({ msg: "ليس لديك صلاحية" });
@@ -67,3 +55,74 @@ exports.permission = expressAsyncHandler(async (req, res, next) => {
       .json({ message: "خطأ في السيرفر", error: error.message });
   }
 });
+exports.permissionManager = expressAsyncHandler(async (req, res, next) => {
+  const url = req.originalUrl;
+  const resource = url.split("/")[3]; // استخراج المورد من الرابط
+  const method = req.method.toLowerCase();
+
+  const roles = [
+    "facilitys_manager",
+    "safety_manager",
+    "security_manager",
+    "contracts_manager",
+  ];
+
+  if (roles.includes(req.user.role)) {
+    try {
+      if (resource === "mainCategoryAssets") {
+        await createMainCategoryAssetsModel.find().populate({
+          path: "categoryAssets",
+          populate: {
+            path: "subCategoryAssets",
+            populate: {
+              path: "assets",
+              select: "name description",
+            },
+          },
+        });
+        return next();
+      } else if (resource === "categoryAssets") {
+        await createMainCategoryAssetsModel
+          .findOne({ "categoryAssets._id": req.params.id })
+          .populate({
+            path: "categoryAssets",
+            populate: {
+              path: "subCategoryAssets",
+              populate: {
+                path: "assets",
+                select: "name description",
+              },
+            },
+          });
+        return next();
+      } else if (resource === "subCategoryAssets") {
+        await createMainCategoryAssetsModel
+          .findOne({ "categoryAssets.subCategoryAssets._id": req.params.id })
+          .populate({
+            path: "categoryAssets",
+            populate: {
+              path: "subCategoryAssets",
+              populate: {
+                path: "assets",
+                select: "name description",
+              },
+            },
+          });
+        return next();
+      }
+
+      // في حالة المورد غير معروف
+      return res.status(400).json({ message: "Invalid resource type" });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  // إذا لم يكن للمستخدم صلاحية الوصول
+  return res.status(403).json({ message: "Access denied" });
+});
+
+exports.getPermissions = factory.getAll(createPermissionModel);
+exports.getPermission = factory.getOne(createPermissionModel);
+exports.updatePermission = factory.updateOne(createPermissionModel);
+exports.deletePermission = factory.deleteOne(createPermissionModel);
