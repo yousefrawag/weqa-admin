@@ -76,13 +76,78 @@ exports.getbuildings = expressAsyncHandler(async (req, res, next) => {
 exports.getBuilding = expressAsyncHandler(async (req, res, next) => {
   const building = await createBuildingModel
     .findById(req.params.id)
-    .populate("levels") // تعبئة الحقل levels
+    .populate("levels")
     .populate({
       path: "location",
       select: { building: 0 },
     });
 
-  res.status(201).json({ status: "Success", data: building });
+  let relatedBuildings = [];
+
+  if (building.levels.maincategories) {
+    const mainCategory = await createMainCategoryModel
+      .findById(building.levels.maincategories)
+      .populate({
+        path: "categories",
+        populate: {
+          path: "subcategories",
+        },
+      });
+
+    for (const category of mainCategory.categories) {
+      const categoryBuildings = await createBuildingModel.find({
+        levelsModel: "categories",
+        levels: category._id,
+      });
+      const subcategoryBuildings = await createBuildingModel.find({
+        levelsModel: "subcategories",
+        levels: category._id,
+      });
+      const nestsubcategoryBuildings = await createBuildingModel.find({
+        levelsModel: "nestsubcategories",
+        levels: category._id,
+      });
+      const subnestsubcategoriesBuildings = await createBuildingModel.find({
+        levelsModel: "subnestsubcategories",
+        levels: category._id,
+      });
+      relatedBuildings.push(
+        ...categoryBuildings,
+        ...subcategoryBuildings,
+        ...nestsubcategoryBuildings,
+        ...subnestsubcategoriesBuildings
+      );
+    }
+  }
+
+  if (building.category) {
+    const category = await createCategoryModel
+      .findById(building.category)
+      .populate("subcategories");
+    const subcategoryBuildings = await createBuildingModel.find({
+      subcategory: { $in: category.subcategories },
+    });
+    relatedBuildings.push(...subcategoryBuildings);
+  }
+  if (building.subcategory) {
+    const subcategoryBuildings = await createBuildingModel.find({
+      subcategory: building.subcategory,
+    });
+    relatedBuildings.push(...subcategoryBuildings);
+  }
+
+  relatedBuildings = [
+    ...new Set(relatedBuildings.map((b) => b._id.toString())),
+  ];
+
+  res.status(200).json({
+    building,
+    relatedBuildings: await createBuildingModel.find({
+      _id: { $in: relatedBuildings },
+    }),
+  });
 });
 exports.updateBuilding = factory.updateOne(createBuildingModel);
 exports.deleteBuilding = factory.deleteOne(createBuildingModel);
+
+

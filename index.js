@@ -21,19 +21,30 @@ const RoutesCategoryAssets = require("./Routes/RoutesCategoryAssets");
 const RoutesSubCategoryAssets = require("./Routes/RoutesSubCategoryAssets");
 const RoutesAssets = require("./Routes/RoutesAssets");
 const { createFirstOwnerAccount, protect } = require("./Services/AuthService");
-const { permission } = require("./Services/PermissionService");
+const { createPermissions } = require("./Services/PermissionService");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
-app.use(cors());
+
 app.use(express.json({ limit: "50kb" }));
 dotenv.config({ path: "config.env" });
-
+const corsOptions = {
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+  ], // specify the origin that you want to allow
+  methods: "GET,POST,PUT,DELETE , PATCH ", // specify the methods you want to allow
+  allowedHeaders: "Content-Type,Authorization", // specify the headers you want to allow
+  credentials: true, // Allow credentials to be included in the request
+};
+app.use(cors(corsOptions));
 dbCollection();
 createFirstOwnerAccount();
+createPermissions()
 app.use("/api/v1/auth", RoutesAuth);
 app.use(protect);
 app.use("/api/v1/employee", RoutesEmployee);
-app.use("/api/v1/permission", RoutesPermission)
+app.use("/api/v1/permission", RoutesPermission);
 app.use("/api/v1/mainCategory", RoutesMainCategory);
 app.use("/api/v1/category", RoutesCategory);
 app.use("/api/v1/subCategory", RoutessubCategory);
@@ -46,12 +57,6 @@ app.use("/api/v1/categoryAssets", RoutesCategoryAssets);
 app.use("/api/v1/subCategoryAssets", RoutesSubCategoryAssets);
 app.use("/api/v1/assets", RoutesAssets);
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "*");
-  next();
-});
-// MiddleWare
 if (process.env.NODE_ENV === "devolopment") {
   app.use(morgan("dev"));
 }

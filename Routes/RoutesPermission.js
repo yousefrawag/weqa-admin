@@ -9,8 +9,7 @@ const {
 const { allowedTo } = require("../Services/AuthService");
 
 const Routes = Router();
-Routes.use(allowedTo("owner"));
-Routes.route("/:employee").post(createPermission);
+
 Routes.route("/").post(getPermissions);
 Routes.route("/:id")
   .get(getPermission)

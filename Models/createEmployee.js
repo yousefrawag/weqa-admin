@@ -44,28 +44,12 @@ const createEmployee = new mongoose.Schema(
       street: String,
       build: String,
     },
-
-    role: {
-      type: String,
-      enum: [
-        "owner", // مالك المنصه
-        "manager", //مدير المنصه
-        "facilitys_manager", //مدير المنشأت
-        "safety_manager", //مدير السلامه
-        "security_manager", //مدين الامن
-        "contracts_manager", //مدير العقود
-        "safety_officer", //مسؤول السلامه
-        "security_manager", //مسؤول الامن
-        "facility_manager",
-        "health_manager", //مدير المركز الصحي
-        "Security Guard", //حارس الامن
-      ],
-      required: [true, "Required role employee"],
-    },
-    permissions: [{ 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: 'Permission' 
-    }]
+    permissions: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Permission",
+      },
+    ],
   },
   { timestamps: true }
 );

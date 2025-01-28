@@ -1,28 +1,41 @@
 const expressAsyncHandler = require("express-async-handler");
 const factory = require("./FactoryHandler");
-
-const createEmployeeModel = require("../Models/createEmployee");
 const createPermissionModel = require("../Models/createPermission");
-const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
-exports.createPermission = expressAsyncHandler(async (req, res, next) => {
+exports.createPermissions = async () => {
+  const roles = [
+    { ar: "مالك المنصه", en: "owner" },
+    { ar: "مدير المنصه", en: "manager" },
+    { ar: "مدير المنشأت", en: "facilitys_manager" },
+    { ar: "مدير السلامه", en: "safety_manager" },
+    { ar: "مدير الامن", en: "security_manager" },
+    { ar: "مدير العقود", en: "contracts_manager" },
+    { ar: "مسؤول السلامه", en: "safety_officer" },
+    { ar: "مسؤول الامن", en: "security_officer" },
+    { ar: "مدير المنشأه", en: "facility_manager" },
+    { ar: "مدير المركز الصحي", en: "health_manager" },
+    { ar: "حارس الامن", en: "security_guard" },
+  ];
+
   try {
-    const { employee } = req.params;
-    const user = await createEmployeeModel.findById(employee);
-    if (!user) {
-      throw new Error("Employee not found");
+    for (const role of roles) {
+      const existingRole = await createPermissionModel.findOne({
+        "roles.ar": role.ar,
+        "roles.en": role.en,
+      });
+
+      if (!existingRole) {
+        await createPermissionModel.create({
+          roles: role, 
+        });
+        console.log(`Role added: ${role.ar} - ${role.en}`);
+      }
     }
-
-    const permission = await createPermissionModel.create(req.body);
-
-    res.status(201).json({
-      status: "success",
-      message: "Permission created successfully",
-      data: permission,
-    });
+    console.log("Roles initialization complete.");
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error("Error initializing roles:", error.message);
   }
-});
+};
+
 exports.permission = expressAsyncHandler(async (req, res, next) => {
   const url = req.originalUrl;
   const resource = url.split("/")[3];

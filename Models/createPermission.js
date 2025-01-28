@@ -4,17 +4,21 @@ const permissionSubSchema = new mongoose.Schema({
   actions: {
     type: [String],
     enum: ["get", "post", "put", "delete"],
-    required: true,
   },
   allowedIds: [mongoose.Schema.Types.ObjectId],
 });
 
 const permissionSchema = new mongoose.Schema(
   {
-    employee: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "employee",
-      required: true,
+    roles: {
+      ar: {
+        type: String,
+        required: true,
+      },
+      en: {
+        type: String,
+        required: true,
+      },
     },
     mainCategory: permissionSubSchema,
     category: permissionSubSchema,
