@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const assetSchema = new mongoose.Schema(
   {
+    data:[],
     location: [
       {
         type: mongoose.Schema.Types.ObjectId,

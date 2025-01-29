@@ -5,6 +5,7 @@ const {
   MiddlewareValidator,
 } = require("../Middlewares/MiddlewareValidatorError");
 const createEmployeeModel = require("../Models/createEmployee");
+const createPermissionModel = require("../Models/createPermission");
 
 exports.createEmployeeValidator = [
   check("username")
@@ -43,9 +44,6 @@ exports.createEmployeeValidator = [
         }
       })
     ),
-
-  check("role").notEmpty().withMessage("role required"),
-
   check("email").notEmpty().withMessage("is required E-mail"),
   check("email")
     .isEmail()
@@ -67,7 +65,17 @@ exports.createEmployeeValidator = [
         }
       })
     ),
-
+    check("permissions")
+    .notEmpty()
+    .withMessage("الصلاحية مطلوبة")
+    .custom(async (val) => {
+      const permission = await createPermissionModel.findOne({ _id: val });
+  
+      if (!permission) {
+        throw new Error("الصلاحية غير موجودة");
+      }
+    }),
+  
   MiddlewareValidator,
 ];
 

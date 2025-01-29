@@ -48,11 +48,20 @@ const createEmployee = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Permission",
+        required: [true, "Required permission"],
       },
     ],
   },
   { timestamps: true }
 );
+createEmployee.pre(/^find/, function (next) {
+  this.populate({
+    path: "permissions",
+    select: "roles"
+  });
+
+  next();
+});
 
 const createEmployeeModel = mongoose.model("employee", createEmployee);
 module.exports = createEmployeeModel;

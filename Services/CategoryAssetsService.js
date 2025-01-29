@@ -5,12 +5,13 @@ const createCategoryAssetsModel = require("../Models/createCategoryAssets");
 const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
 
 exports.createCategoryAssets = expressAsyncHandler(async (req, res) => {
-  const { name, image, mainCategoryAssets } = req.body;
+  const { name, image, mainCategoryAssets, data } = req.body;
 
   try {
     const subCategory = new createCategoryAssetsModel({
       name,
       image,
+      data
     });
     await createMainCategoryAssetsModel.findByIdAndUpdate(
       mainCategoryAssets,
@@ -29,9 +30,7 @@ exports.createCategoryAssets = expressAsyncHandler(async (req, res) => {
   }
 });
 
-exports.getCategoriesAssets = factory.getAll(createCategoryAssetsModel)
-exports.getCategoryAsset = factory.getOne(createCategoryAssetsModel)
+exports.getCategoriesAssets = factory.getAll(createCategoryAssetsModel);
+exports.getCategoryAsset = factory.getOne(createCategoryAssetsModel);
 exports.updateCategoryAssets = factory.updateOne(createCategoryAssetsModel);
 exports.deleteCategoryAssets = factory.deleteOne(createCategoryAssetsModel);
-
-

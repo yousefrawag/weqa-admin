@@ -12,15 +12,14 @@ const {
   createsubCategoryValidator,
 } = require("../Resuble/subCategoryValidatorErrorr");
 const { allowedTo } = require("../Services/AuthService");
-const { permission } = require("../Services/PermissionService");
 
 const Routes = Router();
 Routes.use(allowedTo("owner", "manager", "facilitys_manager"));
 Routes.route("/")
-  .post(permission,createsubCategoryValidator, createSubCategory)
-  .get(permission,getSubCategories);
+  .post(createsubCategoryValidator, createSubCategory)
+  .get(getSubCategories);
 Routes.route("/:id")
-  .get(permission,UtilsValidator, getSubCategory)
-  .delete(permission,UtilsValidator, deleteSubCategory)
-  .put(permission,UtilsValidator, updateSubCategory);
+  .get(UtilsValidator, getSubCategory)
+  .delete(UtilsValidator, deleteSubCategory)
+  .put(UtilsValidator, updateSubCategory);
 module.exports = Routes;

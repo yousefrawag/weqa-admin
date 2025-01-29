@@ -2,39 +2,27 @@ const expressAsyncHandler = require("express-async-handler");
 const factory = require("./FactoryHandler");
 const createPermissionModel = require("../Models/createPermission");
 exports.createPermissions = async () => {
-  const roles = [
-    { ar: "مالك المنصه", en: "owner" },
-    { ar: "مدير المنصه", en: "manager" },
-    { ar: "مدير المنشأت", en: "facilitys_manager" },
-    { ar: "مدير السلامه", en: "safety_manager" },
-    { ar: "مدير الامن", en: "security_manager" },
-    { ar: "مدير العقود", en: "contracts_manager" },
-    { ar: "مسؤول السلامه", en: "safety_officer" },
-    { ar: "مسؤول الامن", en: "security_officer" },
-    { ar: "مدير المنشأه", en: "facility_manager" },
-    { ar: "مدير المركز الصحي", en: "health_manager" },
-    { ar: "حارس الامن", en: "security_guard" },
-  ];
+  const roles = { ar: "مالك المنصه", en: "owner" };
 
   try {
-    for (const role of roles) {
-      const existingRole = await createPermissionModel.findOne({
-        "roles.ar": role.ar,
-        "roles.en": role.en,
-      });
+    const existingRole = await createPermissionModel.findOne({
+      "roles.ar": roles.ar, // استبدال `role` بـ `roles`
+      "roles.en": roles.en, // استبدال `role` بـ `roles`
+    });
 
-      if (!existingRole) {
-        await createPermissionModel.create({
-          roles: role, 
-        });
-        console.log(`Role added: ${role.ar} - ${role.en}`);
-      }
+    if (!existingRole) {
+      await createPermissionModel.create({
+        roles: roles, // استبدال `role` بـ `roles`
+      });
+      console.log(`Role added: ${roles.ar} - ${roles.en}`);
     }
+
     console.log("Roles initialization complete.");
   } catch (error) {
     console.error("Error initializing roles:", error.message);
   }
 };
+
 
 exports.permission = expressAsyncHandler(async (req, res, next) => {
   const url = req.originalUrl;
@@ -134,7 +122,7 @@ exports.permissionManager = expressAsyncHandler(async (req, res, next) => {
   // إذا لم يكن للمستخدم صلاحية الوصول
   return res.status(403).json({ message: "Access denied" });
 });
-
+exports.createPermission = factory.createOne(createPermissionModel);
 exports.getPermissions = factory.getAll(createPermissionModel);
 exports.getPermission = factory.getOne(createPermissionModel);
 exports.updatePermission = factory.updateOne(createPermissionModel);

@@ -5,12 +5,13 @@ const createCategoryAssetsModel = require("../Models/createCategoryAssets");
 const createSubCategoryAssetsModel = require("../Models/createSubCategoryAssets");
 
 exports.createSubCategoryAssets = expressAsyncHandler(async (req, res) => {
-  const { name, image, categoryAssets } = req.body;
+  const { name, image, categoryAssets,data } = req.body;
 
   try {
     const subCategory = new createSubCategoryAssetsModel({
       name,
       image,
+      data
     });
     await createCategoryAssetsModel.findByIdAndUpdate(
       categoryAssets,

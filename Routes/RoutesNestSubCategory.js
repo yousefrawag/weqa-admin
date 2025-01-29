@@ -11,18 +11,17 @@ const {
   createNestsubCategoryValidator,
 } = require("../Resuble/NestSubCategoryValidatorErrorr");
 const { allowedTo } = require("../Services/AuthService");
-const { permission } = require("../Services/PermissionService");
 const Routes = Router();
 Routes.route("/")
   .post(
     allowedTo("owner", "manager", "facilitys_manager"),
-    permission,
+    
     createNestsubCategoryValidator,
     createNestSubCategory
   )
-  .get(permission, getNestSubCategories);
+  .get( getNestSubCategories);
 Routes.route("/:id")
-  .get(permission, UtilsValidator, getNestSubCategory)
-  .delete(permission, UtilsValidator, deleteNestSubCategory)
-  .put(permission, UtilsValidator, updateNestSubCategory);
+  .get( UtilsValidator, getNestSubCategory)
+  .delete( UtilsValidator, deleteNestSubCategory)
+  .put( UtilsValidator, updateNestSubCategory);
 module.exports = Routes;

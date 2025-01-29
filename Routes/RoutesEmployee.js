@@ -3,7 +3,7 @@ const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 const {
   createEmployeeValidator,
   updateEmployeeValidator,
-} = require("../Resuble/EmployeevalidatorError");
+} = require("../Resuble/EmployeeValidatorError");
 const {
   getEmployees,
   getEmployee,
@@ -11,11 +11,10 @@ const {
   updateEmployee,
   createEmployee,
 } = require("../Services/EmployeeService");
-const { allowedTo } = require("../Services/AuthService");
 
 const Routes = Router();
 Routes.route("/")
-  .post(allowedTo("owner", "manager"), createEmployeeValidator, createEmployee)
+  .post( createEmployeeValidator, createEmployee)
   .get(getEmployees);
 Routes.route("/:id")
   .get(UtilsValidator, getEmployee)

@@ -11,14 +11,13 @@ const {
 const {
   createSubNestSubCategoryValidator,
 } = require("../Resuble/SubNestSubCategoryValidatorErrorr");
-const { permission } = require("../Services/PermissionService");
 
 const Routes = Router();
 Routes.route("/")
-  .post(permission,createSubNestSubCategoryValidator, createSubNestSubCategory)
-  .get(permission,getSubNestSubCategories);
+  .post(createSubNestSubCategoryValidator, createSubNestSubCategory)
+  .get(getSubNestSubCategories);
 Routes.route("/:id")
-  .get(permission,UtilsValidator, getSubNestSubCategory)
-  .delete(permission,UtilsValidator, deleteSubNestSubCategory)
-  .put(permission,UtilsValidator, updateSubNestSubCategory);
+  .get(UtilsValidator, getSubNestSubCategory)
+  .delete(UtilsValidator, deleteSubNestSubCategory)
+  .put(UtilsValidator, updateSubNestSubCategory);
 module.exports = Routes;

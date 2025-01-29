@@ -12,19 +12,18 @@ const {
   updateBuilding,
   getbuildings,
 } = require("../Services/BuildingService");
-const { permission } = require("../Services/PermissionService");
 
 const Routes = Router();
 Routes.route("/")
   .post(
     allowedTo("facility_manager", "owner", "manager"),
-    permission,
+
     createBuildingValidator,
     createBuilding
   )
-  .get(allowedTo("facility_manager", "owner", "manager"),permission,getbuildings);
+  .get(allowedTo("facility_manager", "owner", "manager"), getbuildings);
 Routes.route("/:id")
-  .get(permission,UtilsValidator, getBuilding)
-  .delete(permission,UtilsValidator, deleteBuilding)
-  .put(permission,UtilsValidator, updateBuilding);
+  .get(UtilsValidator, getBuilding)
+  .delete(UtilsValidator, deleteBuilding)
+  .put(UtilsValidator, updateBuilding);
 module.exports = Routes;

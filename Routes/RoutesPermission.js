@@ -6,11 +6,10 @@ const {
   updatePermission,
   deletePermission,
 } = require("../Services/PermissionService");
-const { allowedTo } = require("../Services/AuthService");
 
 const Routes = Router();
 
-Routes.route("/").post(getPermissions);
+Routes.route("/").post(createPermission).get(getPermissions);
 Routes.route("/:id")
   .get(getPermission)
   .put(updatePermission)

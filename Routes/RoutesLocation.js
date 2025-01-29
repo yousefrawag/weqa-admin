@@ -6,15 +6,14 @@ const {
   createLocationValidator,
 } = require("../Resuble/LocationValidatorErrorr");
 const { createLocation, getLocations, getLocation, deleteLocation, updateLocation } = require("../Services/LocationService");
-const { permission } = require("../Services/PermissionService");
 
 
 const Routes = Router();
 Routes.route("/")
-  .post(permission,createLocationValidator, createLocation)
-  .get(permission,getLocations);
+  .post(createLocationValidator, createLocation)
+  .get(getLocations);
 Routes.route("/:id")
-  .get(permission,UtilsValidator, getLocation)
-  .delete(permission,UtilsValidator, deleteLocation)
-  .put(permission,UtilsValidator, updateLocation);
+  .get(UtilsValidator, getLocation)
+  .delete(UtilsValidator, deleteLocation)
+  .put(UtilsValidator, updateLocation);
 module.exports = Routes;

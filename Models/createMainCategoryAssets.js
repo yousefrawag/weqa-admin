@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 
 const mainCategoryAssetsSchema = new mongoose.Schema(
   {
+    data:[],
+
     name: {
       type: String,
       required: [true, "Assets Name required"],
