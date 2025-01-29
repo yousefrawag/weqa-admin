@@ -1,9 +1,6 @@
 const { Router } = require("express");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
-const {
-  createEmployeeValidator,
-  updateEmployeeValidator,
-} = require("../Resuble/EmployeevalidatorError");
+
 const {
   getEmployees,
   getEmployee,
@@ -17,10 +14,10 @@ const Routes = Router();
 // Routes.use(protect);
 
 Routes.route("/")
-  .post(createEmployeeValidator, createEmployee)
+  .post(createEmployee)
   .get(getEmployees);
 Routes.route("/:id")
   .get(UtilsValidator, getEmployee)
   .delete(UtilsValidator, deleteEmployee)
-  .put(updateEmployeeValidator, updateEmployee);
+  .put( updateEmployee);
 module.exports = Routes;
