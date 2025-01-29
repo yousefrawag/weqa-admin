@@ -8,9 +8,10 @@
   },
   "author": "yousefrawag908@gmail.com",
   "license": "ISC",
-  "engines": {
-    "node": "v22.12.0"
-  },
+"engines": {
+  "node": ">=18 <23"
+},
+
   "description": "This Application Made by yousefrawag908@gmail.com",
   "dependencies": {
     "async-handler-express": "^0.2.4",
