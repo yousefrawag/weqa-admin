@@ -8,7 +8,7 @@ const {
   getEmployees,
   getEmployee,
   deleteEmployee,
-  updateEmployee,
+  updateEmployee, 
   createEmployee,
 } = require("../Services/EmployeeService");
 const { permissionEmployee } = require("../Services/Middleware");
