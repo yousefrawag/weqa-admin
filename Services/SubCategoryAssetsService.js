@@ -33,7 +33,7 @@ exports.createSubCategoryAssets = expressAsyncHandler(async (req, res) => {
 exports.getSubCategoriesAssets = factory.getAll(createSubCategoryAssetsModel);
 exports.getSubCategoryAsset = factory.getOne(createSubCategoryAssetsModel);
 exports.updateSubCategoryAssets = factory.updateOne(
-  createSubCategoryAssetsModel,
+  createSubCategoryAssetsModel, 
   "subCategoryAssets"
 );
 exports.deleteSubCategoryAssets = factory.deleteOne(

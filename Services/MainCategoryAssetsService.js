@@ -4,12 +4,12 @@ const factory = require("./FactoryHandler");
 const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
 
 exports.createMainCategoryAssets = expressAsyncHandler(async (req, res) => {
-  const { name, image,data } = req.body;
+  const { name, image, data } = req.body;
 
   const mainCategoryAssets = new createMainCategoryAssetsModel({
     name,
     image,
-    data
+    data,
   });
 
   await mainCategoryAssets.save();
@@ -21,8 +21,10 @@ exports.getMainCategoriesAssets = factory.getAll(createMainCategoryAssetsModel);
 exports.getMainCategoryAsset = factory.getOne(createMainCategoryAssetsModel);
 
 exports.updateMainCategoryAssets = factory.updateOne(
-  createMainCategoryAssetsModel , "mainCategoryAssets"
+  createMainCategoryAssetsModel,
+  "mainCategoryAssets"
 );
 exports.deleteMainCategoryAssets = factory.deleteOne(
-  createMainCategoryAssetsModel ,"mainCategoryAssets"
+  createMainCategoryAssetsModel,
+  "mainCategoryAssets"
 );

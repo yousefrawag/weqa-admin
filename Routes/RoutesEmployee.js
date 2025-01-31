@@ -11,13 +11,13 @@ const {
   updateEmployee,
   createEmployee,
 } = require("../Services/EmployeeService");
-
+const { permissionEmployee } = require("../Services/Middleware");
 const Routes = Router();
 Routes.route("/")
-  .post( createEmployeeValidator, createEmployee)
-  .get(getEmployees);
+  .post(permissionEmployee, createEmployeeValidator, createEmployee)
+  .get(permissionEmployee, getEmployees);
 Routes.route("/:id")
-  .get(UtilsValidator, getEmployee)
-  .delete(UtilsValidator, deleteEmployee)
-  .put(updateEmployeeValidator, updateEmployee);
+  .get(permissionEmployee, UtilsValidator, getEmployee)
+  .delete(permissionEmployee, UtilsValidator, deleteEmployee)
+  .put(permissionEmployee, updateEmployeeValidator, updateEmployee);
 module.exports = Routes;

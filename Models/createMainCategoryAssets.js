@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const mainCategoryAssetsSchema = new mongoose.Schema(
   {
-    data:[],
+    data: [],
 
     name: {
       type: String,
@@ -22,12 +22,12 @@ const mainCategoryAssetsSchema = new mongoose.Schema(
       },
     ],
     assets: [
-          {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "assets",
-            default:null
-          },
-        ],
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "assets",
+        default: null,
+      },
+    ],
   },
   {
     timestamps: true,

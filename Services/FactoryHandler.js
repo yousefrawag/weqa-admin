@@ -19,7 +19,10 @@ exports.createOne = (Model) =>
   });
 exports.getAll = (Model, keyword) =>
   expressAsyncHandler(async (req, res) => {
-    let fillter = {};
+    const url = req.originalUrl;
+    const resource = url.split("/")[3];
+
+    let fillter = { _id: req.user.permissions[resource].allowedIds };
     if (req.filterObject) {
       fillter = req.filterObject;
     }

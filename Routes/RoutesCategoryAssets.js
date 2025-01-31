@@ -14,6 +14,7 @@ const {
   deleteCategoryAssets,
   updateCategoryAssets,
 } = require("../Services/CategoryAssetsService");
+const { permissionCategory } = require("../Services/Middleware");
 
 const Routes = Router();
 Routes.route("/")
@@ -25,7 +26,7 @@ Routes.route("/")
   )
   .get(getCategoriesAssets);
 Routes.route("/:id")
-  .get(UtilsValidator, getCategoryAsset)
-  .delete(UtilsValidator, deleteCategoryAssets)
-  .put(uploadImage, UtilsValidator, resizeImage("class"), updateCategoryAssets);
+  .get(permissionCategory,UtilsValidator, getCategoryAsset)
+  .delete(permissionCategory,UtilsValidator, deleteCategoryAssets)
+  .put(permissionCategory,uploadImage, UtilsValidator, resizeImage("class"), updateCategoryAssets);
 module.exports = Routes;

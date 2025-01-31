@@ -22,11 +22,12 @@ exports.createFirstOwnerAccount = async () => {
     employeeNumber: 1997,
     address: {
       area: "North-Sina",
-      city: "El-Arish",
+      city: "El-Arish", 
       area: "",
       street: "125 atef Street",
       build: "16",
     },
+    permissions:"679b67fb61d0b10a06c02f1a",
     password: await bcrypt.hash("123456789", 12),
     confirmPassword: await bcrypt.hash("123456789", 12),
   });

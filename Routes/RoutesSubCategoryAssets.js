@@ -20,6 +20,7 @@ const {
   deleteSubCategoryAssets,
   updateSubCategoryAssets,
 } = require("../Services/SubCategoryAssetsService");
+const { permissionCategory } = require("../Services/Middleware");
 
 const Routes = Router();
 Routes.route("/")
@@ -29,11 +30,12 @@ Routes.route("/")
     resizeImage("subCategoryAssets"),
     createSubCategoryAssets
   )
-  .get(getSubCategoriesAssets);
+  .get(permissionCategory, getSubCategoriesAssets);
 Routes.route("/:id")
-  .get(UtilsValidator, getSubCategoryAsset)
-  .delete(UtilsValidator, deleteSubCategoryAssets)
+  .get(permissionCategory, UtilsValidator, getSubCategoryAsset)
+  .delete(permissionCategory, UtilsValidator, deleteSubCategoryAssets)
   .put(
+    permissionCategory,
     uploadImage,
     UtilsValidator,
     resizeImage("subCategoryAssets"),

@@ -7,7 +7,12 @@ const permissionSubSchema = new mongoose.Schema({
   },
   allowedIds: [mongoose.Schema.Types.ObjectId],
 });
-
+const permissionSubSchemaWithoutAllowed = new mongoose.Schema({
+  actions: {
+    type: [String],
+    enum: ["get", "post", "put", "delete"],
+  },
+});
 const permissionSchema = new mongoose.Schema(
   {
     roles: {
@@ -20,17 +25,13 @@ const permissionSchema = new mongoose.Schema(
         required: true,
       },
     },
-    mainCategory: permissionSubSchema,
-    category: permissionSubSchema,
-    subCategory: permissionSubSchema,
-    nestSubCategory: permissionSubSchema,
-    subNestSubCategory: permissionSubSchema,
+    mainCategory: permissionSubSchemaWithoutAllowed,
+    employee: permissionSubSchemaWithoutAllowed,
     mainCategoryAssets: permissionSubSchema,
-    categoryAssets: permissionSubSchema,
-    subCategoryAssets: permissionSubSchema,
-    assets: permissionSubSchema,
-    building: permissionSubSchema,
-    location: permissionSubSchema,
+    building: {
+      type: mongoose.Schema.Types.Mixed,
+      default: "all",
+    },
   },
   { timestamps: true }
 );

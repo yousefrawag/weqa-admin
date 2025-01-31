@@ -5,7 +5,6 @@ const createSubCategoryAssetsModel = require("../Models/createSubCategoryAssets"
 const createCategoryAssetsModel = require("../Models/createCategoryAssets");
 const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
 const ApiError = require("../Resuble/ApiErrors");
-const FeatureApi = require("../Utils/Feature");
 exports.resizeImage = expressAsyncHandler(async (req, res, next) => {
   if (req.file) {
     req.body.pdf = req.file.filename;

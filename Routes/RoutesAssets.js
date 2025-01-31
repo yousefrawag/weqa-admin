@@ -11,14 +11,25 @@ const {
   getAssetsByCategory,
 } = require("../Services/AssetsService");
 const { uploadPDF } = require("../Utils/imagesHandler");
+const { permissionBuilding } = require("../Services/Middleware");
 
 const Routes = Router();
+
 Routes.route("/")
-  .post( uploadPDF, resizeImage, createAssets)
-  .get( getAssetss);
+  .post(permissionBuilding, uploadPDF, resizeImage, createAssets)
+  .get(permissionBuilding, getAssetss);
 Routes.route("/:id")
-  .get( UtilsValidator, getAssets)
-  .delete( UtilsValidator, deleteAssets)
-  .put( uploadPDF, UtilsValidator, resizeImage, updateAssets);
-Routes.route("/category/:assetsId").get( getAssetsByCategory);
+  .get(permissionBuilding, UtilsValidator, getAssets)
+  .delete(permissionBuilding, UtilsValidator, deleteAssets)
+  .put(
+    permissionBuilding,
+    uploadPDF,
+    UtilsValidator,
+    resizeImage,
+    updateAssets
+  );
+Routes.route("/category/:assetsId").get(
+  permissionBuilding,
+  getAssetsByCategory
+);
 module.exports = Routes;

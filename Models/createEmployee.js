@@ -44,20 +44,23 @@ const createEmployee = new mongoose.Schema(
       street: String,
       build: String,
     },
-    permissions: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Permission",
-        required: [true, "Required permission"],
-      },
-    ],
+    building: {
+      type: mongoose.Schema.Types.Mixed,
+      ref: "building",
+      default: "all",
+    },
+
+    permissions: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Permission",
+      required: [true, "Required permission"],
+    },
   },
   { timestamps: true }
 );
 createEmployee.pre(/^find/, function (next) {
   this.populate({
     path: "permissions",
-    select: "roles"
   });
 
   next();

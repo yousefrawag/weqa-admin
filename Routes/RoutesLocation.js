@@ -1,19 +1,25 @@
 const { Router } = require("express");
 
-const { protect } = require("../Services/AuthService");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 const {
   createLocationValidator,
 } = require("../Resuble/LocationValidatorErrorr");
-const { createLocation, getLocations, getLocation, deleteLocation, updateLocation } = require("../Services/LocationService");
-
+const {
+  createLocation,
+  getLocations,
+  getLocation,
+  deleteLocation,
+  updateLocation,
+} = require("../Services/LocationService");
+const { permissionBuilding } = require("../Services/Middleware");
 
 const Routes = Router();
+
 Routes.route("/")
-  .post(createLocationValidator, createLocation)
-  .get(getLocations);
+  .post(permissionBuilding, createLocationValidator, createLocation)
+  .get(permissionBuilding, getLocations);
 Routes.route("/:id")
-  .get(UtilsValidator, getLocation)
-  .delete(UtilsValidator, deleteLocation)
-  .put(UtilsValidator, updateLocation);
+  .get(permissionBuilding, UtilsValidator, getLocation)
+  .delete(permissionBuilding, UtilsValidator, deleteLocation)
+  .put(permissionBuilding, UtilsValidator, updateLocation);
 module.exports = Routes;
