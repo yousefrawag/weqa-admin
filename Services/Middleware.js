@@ -8,7 +8,7 @@ exports.permissionBuilding = expressAsyncHandler(async (req, res, next) => {
   const url = req.originalUrl;
   const resource = url.split("/")[3];
   const method = req.method.toLowerCase();
-  if (req.user.building === "all") {
+  if (req.user.building === "all" || req.user.roles.owner === "owner") {
     return next();
   }
   if (
@@ -48,7 +48,7 @@ exports.permissionCategory = expressAsyncHandler(async (req, res, next) => {
   const url = req.originalUrl;
   const resource = url.split("/")[3];
   const method = req.method.toLowerCase();
-  if (req.user.building === "all") {
+  if (req.user.building === "all" || req.user.roles.owner === "owner") {
     return next();
   }
   if (
@@ -103,9 +103,11 @@ exports.permissionCategory = expressAsyncHandler(async (req, res, next) => {
 });
 
 exports.permissionEmployee = expressAsyncHandler((req, res, next) => {
+  if (req.user.building === "all" || req.user.roles.owner === "owner") {
+    return next();
+  }
   const userBuilding = req.user.building;
   const requestBuilding = req.body.building;
-  const url = req.originalUrl;
   const method = req.method.toLowerCase();
   if (!userBuilding || !requestBuilding) {
     return res.status(400).json({ msg: "بيانات المبنى غير صحيحة" });

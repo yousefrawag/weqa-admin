@@ -39,7 +39,6 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 dbCollection();
-createFirstOwnerAccount();
 createPermissions()
 app.use("/api/v1/auth", RoutesAuth);
 app.use(protect);

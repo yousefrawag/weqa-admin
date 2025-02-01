@@ -1,20 +1,56 @@
 const expressAsyncHandler = require("express-async-handler");
 const factory = require("./FactoryHandler");
+const bcrypt = require("bcryptjs");
 const createPermissionModel = require("../Models/createPermission");
+const createEmployeeModel = require("../Models/createEmployee");
+const createFirstOwnerAccount = async (permission) => {
+  const existingManager = await createEmployeeModel.findOne({
+    email: "owner@gmail.com",
+  });
+  if (existingManager) {
+    console.log("owner account already exists");
+    return;
+  }
+
+  await createEmployeeModel.create({
+    username: "owner",
+    email: "owner@gmail.com",
+    phone: "01000000000",
+    role: "owner",
+    grander: "male",
+    identity: 123456789,
+    employeeNumber: 1997,
+    address: {
+      area: "North-Sina",
+      city: "El-Arish",
+      area: "",
+      street: "125 atef Street",
+      build: "16",
+    },
+    permissions: permission,
+    password: await bcrypt.hash("123456789", 12),
+    confirmPassword: await bcrypt.hash("123456789", 12),
+  });
+
+  console.log("Manager account created successfully");
+};
 exports.createPermissions = async () => {
   const roles = { ar: "مالك المنصه", en: "owner" };
 
   try {
-    const existingRole = await createPermissionModel.findOne({
-      "roles.ar": roles.ar, // استبدال `role` بـ `roles`
-      "roles.en": roles.en, // استبدال `role` بـ `roles`
-    });
+    const existingRole = await createPermissionModel
+      .findOne({
+        "roles.ar": roles.ar, 
+        "roles.en": roles.en,
+      })
+      .then(async (e) => {
+        await createFirstOwnerAccount(e._id);
+      });
 
     if (!existingRole) {
       await createPermissionModel.create({
         roles: roles, // استبدال `role` بـ `roles`
       });
-      console.log(`Role added: ${roles.ar} - ${roles.en}`);
     }
 
     console.log("Roles initialization complete.");
@@ -22,7 +58,6 @@ exports.createPermissions = async () => {
     console.error("Error initializing roles:", error.message);
   }
 };
-
 
 exports.permission = expressAsyncHandler(async (req, res, next) => {
   const url = req.originalUrl;
@@ -43,7 +78,6 @@ exports.permission = expressAsyncHandler(async (req, res, next) => {
     };
 
     const permissions = await createPermissionModel.findOne(query);
-    console.log(query);
 
     if (!permissions) {
       return res.status(403).json({ msg: "ليس لديك صلاحية" });

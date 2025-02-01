@@ -6,13 +6,16 @@ const {
   updatePermission,
   deletePermission,
 } = require("../Services/PermissionService");
+const { permissionEmployee } = require("../Services/Middleware");
 
 const Routes = Router();
 
-Routes.route("/").post(createPermission).get(getPermissions);
+Routes.route("/")
+  .post(permissionEmployee, createPermission)
+  .get(permissionEmployee, getPermissions);
 Routes.route("/:id")
-  .get(getPermission)
-  .put(updatePermission)
-  .delete(deletePermission);
+  .get(permissionEmployee, getPermission)
+  .put(permissionEmployee, updatePermission)
+  .delete(permissionEmployee, deletePermission);
 
 module.exports = Routes;
