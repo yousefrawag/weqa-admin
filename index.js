@@ -24,7 +24,6 @@ const { createFirstOwnerAccount, protect } = require("./Services/AuthService");
 const { createPermissions } = require("./Services/PermissionService");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
-
 app.use(express.json({ limit: "50kb" }));
 dotenv.config({ path: "config.env" });
 const corsOptions = {

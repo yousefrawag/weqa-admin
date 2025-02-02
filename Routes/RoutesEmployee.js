@@ -19,5 +19,5 @@ Routes.route("/")
 Routes.route("/:id")
   .get(UtilsValidator, getEmployee)
   .delete(UtilsValidator, deleteEmployee)
-  .put(updateEmployeeValidator, updateEmployee);
+  .put( updateEmployee);
 module.exports = Routes;

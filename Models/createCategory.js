@@ -11,7 +11,10 @@ const createCategory = new mongoose.Schema(
     building: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "building",
+      required: false, // Make it optional
     },
+    
+  
     maincategories: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "maincategories",

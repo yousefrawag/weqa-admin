@@ -4,14 +4,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "node index.js"
   },
   "author": "yousefrawag908@gmail.com",
   "license": "ISC",
-  "engines": {
+"engines": {
   "node": ">=18 <23"
 },
-  "description": "This Application Made by Eng:yousefrawag908@gmail.com",
+
+  "description": "This Application Made by yousefrawag908@gmail.com",
   "dependencies": {
     "async-handler-express": "^0.2.4",
     "bcryptjs": "^2.4.3",

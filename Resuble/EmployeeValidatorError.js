@@ -1,21 +1,29 @@
-const { check, body } = require("express-validator");
-const { default: slugify } = require("slugify");
-
+const { Router } = require("express");
+const { UtilsValidator } = require("../Resuble/UtilsValidationError");
+// const {
+//   createEmployeeValidator,
+//   updateEmployeeValidator,
+// } = require("../Resuble/EmployeevalidatorError");
 const {
+<<<<<<< HEAD
   MiddlewareValidator,
 } = require("../Middlewares/MiddlewareValidatorError");
 const createEmployeeModel = require("../Models/createEmployee");
 const createPermissionModel = require("../Models/createPermission");
+=======
+  getEmployees,
+  getEmployee,
+  deleteEmployee,
+  updateEmployee,
+  createEmployee,
+} = require("../Services/EmployeeService");
+const { protect } = require("../Services/AuthService");
+>>>>>>> 431b25b3a8fa2cc0a178818a7e7df3402dabf4c1
 
-exports.createEmployeeValidator = [
-  check("username")
-    .notEmpty()
-    .withMessage("is required Name")
-    .custom((val, { req }) => {
-      req.body.slug = slugify(val);
-      return true;
-    }),
+const Routes = Router();
+// Routes.use(protect);
 
+<<<<<<< HEAD
   check("password")
     .notEmpty()
     .withMessage("is required Password")
@@ -128,3 +136,13 @@ exports.updateEmployeeValidator = [
     ),
   MiddlewareValidator,
 ];
+=======
+Routes.route("/")
+  .post( createEmployee)
+  .get(getEmployees);
+Routes.route("/:id")
+  .get(UtilsValidator, getEmployee)
+  .delete(UtilsValidator, deleteEmployee)
+  .put( updateEmployee);
+module.exports = Routes;
+>>>>>>> 431b25b3a8fa2cc0a178818a7e7df3402dabf4c1

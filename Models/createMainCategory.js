@@ -8,10 +8,10 @@ const createMainCategory = new mongoose.Schema(
     slug: {
       type: String,
     },
-    building: {
+    building: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "building",
-    },
+    }],
     categories: [
       {
         type: mongoose.Schema.Types.ObjectId,
