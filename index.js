@@ -26,15 +26,24 @@ const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
 app.use(express.json({ limit: "50kb" }));
 dotenv.config({ path: "config.env" });
+const allowedOrigins = [
+  "https://weqa-admin-6sn5.vercel.app",
+  "https://weqa-admin.vercel.app"
+];
+
 app.use(cors({
-  origin: "https://weqa-admin-6sn5.vercel.app",
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: "GET,POST,PUT,DELETE,PATCH",
   allowedHeaders: "Content-Type,Authorization",
   credentials: true
 }));
 
-// Preflight request handling
-app.options("*", cors());
 
 dbCollection();
 createFirstOwnerAccount();
