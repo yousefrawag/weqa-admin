@@ -27,7 +27,7 @@ app.use(express.static(uploadsPath));
 app.use(express.json({ limit: "50kb" }));
 dotenv.config({ path: "config.env" });
 const corsOptions = {
-  origin: "https://weqa-admin-6sn5.vercel.app", // specify the origin that you want to allow
+  origin: "*", // specify the origin that you want to allow
   methods: "GET,POST,PUT,DELETE , PATCH ", // specify the methods you want to allow
   allowedHeaders: "Content-Type,Authorization", // specify the headers you want to allow
   credentials: true, // Allow credentials to be included in the request
