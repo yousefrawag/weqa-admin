@@ -16,12 +16,14 @@ const {
 const Routes = Router();
 Routes.route("/")
   .post(
-    allowedTo("facility_manager", "owner", "manager"),
+    // allowedTo("facility_manager", "owner", "manager"),
 
     createBuildingValidator,
     createBuilding
   )
-  .get(allowedTo("facility_manager", "owner", "manager"), getbuildings);
+  .get(
+    // allowedTo("facility_manager", "owner", "manager"),
+   getbuildings);
 Routes.route("/:id")
   .get(UtilsValidator, getBuilding)
   .delete(UtilsValidator, deleteBuilding)

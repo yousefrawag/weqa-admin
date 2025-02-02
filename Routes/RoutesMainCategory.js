@@ -16,7 +16,7 @@ const {
 const Routes = Router();
 Routes.route("/")
   .post(
-    allowedTo("owner", "manager", "facilitys_manager"),
+    // allowedTo("owner", "manager", "facilitys_manager"),
     createMainCategoryValidator,
     createMainCategory
   )

@@ -14,7 +14,7 @@ const { allowedTo } = require("../Services/AuthService");
 const Routes = Router();
 Routes.route("/")
   .post(
-    allowedTo("owner", "manager", "facilitys_manager"),
+    // allowedTo("owner", "manager", "facilitys_manager"),
     
     createNestsubCategoryValidator,
     createNestSubCategory

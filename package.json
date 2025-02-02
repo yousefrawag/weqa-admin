@@ -6,9 +6,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js"
   },
-  "author": "eslamkhial1997@gmail.com",
+  "author": "yousefrawag908@gmail.com",
   "license": "ISC",
-  "description": "This Application Made by Eng:eslamkhial1997@gmail.com",
+  "engines": {
+  "node": ">=18 <23"
+},
+  "description": "This Application Made by Eng:yousefrawag908@gmail.com",
   "dependencies": {
     "async-handler-express": "^0.2.4",
     "bcryptjs": "^2.4.3",

@@ -5,11 +5,13 @@ const createMainCategoryAssetsModel = require("../Models/createMainCategoryAsset
 
 exports.createMainCategoryAssets = expressAsyncHandler(async (req, res) => {
   const { name, image,data } = req.body;
+const jsondata = JSON.parse(data)
+console.log(jsondata);
 
   const mainCategoryAssets = new createMainCategoryAssetsModel({
     name,
     image,
-    data
+    data:jsondata
   });
 
   await mainCategoryAssets.save();
