@@ -1,9 +1,6 @@
 const { Router } = require("express");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
-const {
-  createEmployeeValidator,
-  updateEmployeeValidator,
-} = require("../Resuble/EmployeeValidatorError");
+
 const {
   getEmployees,
   getEmployee,
@@ -14,7 +11,7 @@ const {
 
 const Routes = Router();
 Routes.route("/")
-  .post( createEmployeeValidator, createEmployee)
+  .post(  createEmployee)
   .get(getEmployees);
 Routes.route("/:id")
   .get(UtilsValidator, getEmployee)
