@@ -33,6 +33,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Preflight request handling
+app.options("*", cors());
+
 dbCollection();
 createFirstOwnerAccount();
 createPermissions()
