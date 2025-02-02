@@ -23,28 +23,18 @@ const RoutesAssets = require("./Routes/RoutesAssets");
 const { createFirstOwnerAccount, protect } = require("./Services/AuthService");
 const { createPermissions } = require("./Services/PermissionService");
 const uploadsPath = path.join(__dirname, "../uploads");
+
+const corsOptions = {
+  origin: ['http://localhost:5173' , 'http://localhost:5174' , "http://localhost:5175" , "https://weqa-admin-6sn5.vercel.app"], // specify the origin that you want to allow
+  methods: 'GET,POST,PUT,DELETE , PATCH ', // specify the methods you want to allow
+  allowedHeaders: 'Content-Type,Authorization', // specify the headers you want to allow
+  credentials: true // Allow credentials to be included in the request
+
+};
+app.use(cors(corsOptions));
 app.use(express.static(uploadsPath));
 app.use(express.json({ limit: "50kb" }));
 dotenv.config({ path: "config.env" });
-const allowedOrigins = [
-  "https://weqa-admin-6sn5.vercel.app",
-  "https://weqa-admin.vercel.app"
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: "GET,POST,PUT,DELETE,PATCH",
-  allowedHeaders: "Content-Type,Authorization",
-  credentials: true
-}));
-
-
 dbCollection();
 createFirstOwnerAccount();
 createPermissions()
