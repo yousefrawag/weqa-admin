@@ -84,7 +84,7 @@ exports.getBuilding = expressAsyncHandler(async (req, res, next) => {
 
   let relatedBuildings = [];
 
-  if (building.levels.maincategories) {
+  if (building.levels?.maincategories) {
     const mainCategory = await createMainCategoryModel
       .findById(building.levels.maincategories)
       .populate({

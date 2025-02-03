@@ -44,8 +44,6 @@ exports.allowedTo = (...roles) =>
 
 exports.protect = expressAsyncHandler(async (req, res, next) => {
   let token;
-
-  // استخراج التوكن من الهيدر
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
@@ -59,7 +57,6 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
   }
 
   try {
-    // التحقق من صحة التوكن
     const decoded = jwt.verify(token, process.env.DB_URL);
     if (!decoded) {
       return res.status(401).json({
@@ -68,7 +65,6 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
       });
     }
 
-    // العثور على المستخدم بناءً على الـID المستخرج من التوكن
     const currentUser = await createEmployeeModel.findById(decoded.userId);
 
     if (!currentUser) {
@@ -81,7 +77,6 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
     req.user = currentUser;
     next();
   } catch (error) {
-    // التحقق من نوع الخطأ وتخصيص الرسالة
     if (error.name === "JsonWebTokenError") {
       return res.status(401).json({
         statusCode: "Error",

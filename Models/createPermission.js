@@ -7,6 +7,23 @@ const permissionSubSchema = new mongoose.Schema({
   },
   allowedIds: [mongoose.Schema.Types.ObjectId],
 });
+const permissionAssetsSchema = new mongoose.Schema({
+  actions: {
+    type: [String],
+    enum: ["get", "post", "put", "delete"],
+  },
+  financial: {
+    financial: {
+      type: Boolean,
+      default: false,
+    },
+    reports: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  allowedIds: [mongoose.Schema.Types.ObjectId],
+});
 const permissionSubSchemaWithoutAllowed = new mongoose.Schema({
   actions: {
     type: [String],
@@ -27,6 +44,7 @@ const permissionSchema = new mongoose.Schema(
     },
     mainCategory: permissionSubSchemaWithoutAllowed,
     employee: permissionSubSchemaWithoutAllowed,
+    assets: permissionAssetsSchema,
     mainCategoryAssets: permissionSubSchema,
     building: {
       type: mongoose.Schema.Types.Mixed,

@@ -99,13 +99,13 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
 
 exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
   try {
-    let filter = req.filterObject || {};
+    let filter = req.query || {};
 
     const { limit = 10, page = 1, sort = "-createdAt", fields = "" } = req.query;
 
     const skip = (page - 1) * limit;
     const getDocById = await createAssetsnModel
-      .find({}) 
+      .find(filter) 
       .sort(sort)
       .select(fields)
       .skip(skip)

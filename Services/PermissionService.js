@@ -38,22 +38,18 @@ exports.createPermissions = async () => {
   const roles = { ar: "مالك المنصه", en: "owner" };
 
   try {
-    const existingRole = await createPermissionModel
-      .findOne({
-        "roles.ar": roles.ar, 
-        "roles.en": roles.en,
-      })
-      .then(async (e) => {
-        await createFirstOwnerAccount(e._id);
-      });
+    const existingRole = await createPermissionModel.findOne({
+      "roles.en": roles.en,
+    });
 
-    if (!existingRole) {
-      await createPermissionModel.create({
-        roles: roles, // استبدال `role` بـ `roles`
-      });
+    if (existingRole) {
+      console.log("The role already exists:");
+      await createFirstOwnerAccount(existingRole._id);
+    } else {
+      const newRole = await createPermissionModel.create({ roles });
+      console.log("Role added:", newRole);
+      await createFirstOwnerAccount(newRole._id);
     }
-
-    console.log("Roles initialization complete.");
   } catch (error) {
     console.error("Error initializing roles:", error.message);
   }
@@ -61,7 +57,7 @@ exports.createPermissions = async () => {
 
 exports.permission = expressAsyncHandler(async (req, res, next) => {
   const url = req.originalUrl;
-  const resource = url.split("/")[3];
+  const resource = url.split("/")[3]; 
   const method = req.method.toLowerCase();
 
   const roles = ["owner", "manager"];
