@@ -20,7 +20,7 @@ const RoutesMainCategoryAssets = require("./Routes/RoutesMainCategoryAssets");
 const RoutesCategoryAssets = require("./Routes/RoutesCategoryAssets");
 const RoutesSubCategoryAssets = require("./Routes/RoutesSubCategoryAssets");
 const RoutesAssets = require("./Routes/RoutesAssets");
-const { createFirstOwnerAccount, protect } = require("./Services/AuthService");
+const {  protect } = require("./Services/AuthService");
 const { createPermissions } = require("./Services/PermissionService");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
