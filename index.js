@@ -1,4 +1,5 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
 const app = express();
@@ -24,7 +25,8 @@ const {  protect } = require("./Services/AuthService");
 const { createPermissions } = require("./Services/PermissionService");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json({ limit: "50kb" }));
 dotenv.config({ path: "config.env" });
 const corsOptions = {
