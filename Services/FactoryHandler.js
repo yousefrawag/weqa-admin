@@ -21,25 +21,43 @@ exports.getAll = (Model, keyword) =>
   expressAsyncHandler(async (req, res) => {
     const url = req.originalUrl;
     const resource = url.split("/")[3];
+    if (req.user.building === "all") {
+      
+      const countDocs = await Model.countDocuments();
+      const ApiFeatures = new FeatureApi(Model.find(), req.query)
+        .Fillter(Model)
+        .Sort()
+        .Fields()
+        .Search(keyword)
+        .Paginate(countDocs);
+      const { MongooseQueryApi, PaginateResult } = ApiFeatures;
+      const getDoc = await MongooseQueryApi;
 
-    let fillter = { _id: req.user.permissions[resource].allowedIds };
-    if (req.filterObject) {
-      fillter = req.filterObject;
+      res
+        .status(201)
+        .json({ results: getDoc.length, PaginateResult, data: getDoc });
+    }else{
+      let fillter = { _id: req.user.permissions[resource].allowedIds };
+
+      if (req.filterObject) {
+        fillter = req.filterObject;
+      }
+  
+      const countDocs = await Model.countDocuments();
+      const ApiFeatures = new FeatureApi(Model.find(fillter), req.query)
+        .Fillter(Model)
+        .Sort()
+        .Fields()
+        .Search(keyword)
+        .Paginate(countDocs);
+      const { MongooseQueryApi, PaginateResult } = ApiFeatures;
+      const getDoc = await MongooseQueryApi;
+  
+      res
+        .status(201)
+        .json({ results: getDoc.length, PaginateResult, data: getDoc });
     }
-
-    const countDocs = await Model.countDocuments();
-    const ApiFeatures = new FeatureApi(Model.find(fillter), req.query)
-      .Fillter(Model)
-      .Sort()
-      .Fields()
-      .Search(keyword)
-      .Paginate(countDocs);
-    const { MongooseQueryApi, PaginateResult } = ApiFeatures;
-    const getDoc = await MongooseQueryApi;
-
-    res
-      .status(201)
-      .json({ results: getDoc.length, PaginateResult, data: getDoc });
+ 
   });
 
 exports.getOne = (Model, populateOpt) =>

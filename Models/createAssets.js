@@ -2,7 +2,17 @@ const mongoose = require("mongoose");
 
 const assetSchema = new mongoose.Schema(
   {
-    data:[],
+    data: [],
+    createBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "employee",
+      required: [true, "employee is required"],
+    },
+    pdf: [
+      {
+        pdf: String,
+      },
+    ],
     location: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -10,6 +20,12 @@ const assetSchema = new mongoose.Schema(
         required: [true, "Location is required"],
       },
     ],
+    building: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "building",
+      required: [true, "building is required"],
+    },
+
     levelsModel: {
       type: String,
       enum: ["maincategoryassets", "categoryassets", "subcategoryassets"],
@@ -27,18 +43,13 @@ const assetSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+assetSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "createBy",
+  });
 
-const ImageURL = (doc) => {
-  if (doc.pdf && !doc.pdf.includes(`${process.env.BASE_URL}/assets`)) {
-    const pdf = `${process.env.BASE_URL}/assets/${doc.pdf}`;
-    doc.pdf = pdf;
-  }
-};
-assetSchema.post("init", (doc) => {
-  ImageURL(doc);
+  next();
 });
-assetSchema.post("save", (doc) => {
-  ImageURL(doc);
-});
+
 const createAssetsnModel = mongoose.model("assets", assetSchema);
 module.exports = createAssetsnModel;
