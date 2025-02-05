@@ -43,6 +43,7 @@ const permissionSchema = new mongoose.Schema(
       },
     },
     mainCategory: permissionSubSchemaWithoutAllowed,
+    location: permissionAssetsSchema,
     employee: permissionSubSchemaWithoutAllowed,
     assets: permissionAssetsSchema,
     mainCategoryAssets: permissionSubSchema,
