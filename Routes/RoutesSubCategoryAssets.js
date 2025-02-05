@@ -32,10 +32,14 @@ Routes.route("/")
   )
   .get(permissionCategory, getSubCategoriesAssets);
 Routes.route("/:id")
-  .get(permissionCategory, UtilsValidator, getSubCategoryAsset)
-  .delete(permissionCategory, UtilsValidator, deleteSubCategoryAssets)
+  .get(
+    // permissionCategory, 
+    UtilsValidator, getSubCategoryAsset)
+  .delete(
+    // permissionCategory, 
+    UtilsValidator, deleteSubCategoryAssets)
   .put(
-    permissionCategory,
+    // permissionCategory,
     uploadImage,
     UtilsValidator,
     resizeImage("subCategoryAssets"),

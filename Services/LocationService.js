@@ -13,9 +13,9 @@ exports.createLocation = expressAsyncHandler(async (req, res, next) => {
     floors,
     building,
   });
-  if (req.body.building.toString() !== req.user.building.toString()) {
-    return res.status(404).json({ msg: "ليس لديك صلاحيه وصول" });
-  }
+  // if (req.body.building.toString() !== req.user.building.toString()) {
+  //   return res.status(404).json({ msg: "ليس لديك صلاحيه وصول" });
+  // }
   const parentBuilding = await createBuildingModel.findById(building);
 
   if (!parentBuilding) {

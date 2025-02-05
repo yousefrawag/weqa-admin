@@ -26,7 +26,13 @@ Routes.route("/")
   )
   .get(getCategoriesAssets);
 Routes.route("/:id")
-  .get(permissionCategory,UtilsValidator, getCategoryAsset)
-  .delete(permissionCategory,UtilsValidator, deleteCategoryAssets)
-  .put(permissionCategory,uploadImage, UtilsValidator, resizeImage("class"), updateCategoryAssets);
+  .get(
+    // permissionCategory,
+    UtilsValidator, getCategoryAsset)
+  .delete(
+    // permissionCategory,
+    UtilsValidator, deleteCategoryAssets)
+  .put(
+    // permissionCategory,
+    uploadImage, UtilsValidator, resizeImage("class"), updateCategoryAssets);
 module.exports = Routes;

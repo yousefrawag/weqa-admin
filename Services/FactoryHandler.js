@@ -22,13 +22,13 @@ exports.getAll = (Model, keyword) =>
     const url = req.originalUrl;
     const resource = url.split("/")[3];
 
-    let fillter = { _id: req.user.permissions[resource].allowedIds };
-    if (req.filterObject) {
-      fillter = req.filterObject;
-    }
+    // let fillter = { _id: req.user.permissions[resource].allowedIds };
+    // if (req.filterObject) {
+    //   fillter = req.filterObject;
+    // }
 
     const countDocs = await Model.countDocuments();
-    const ApiFeatures = new FeatureApi(Model.find(fillter), req.query)
+    const ApiFeatures = new FeatureApi(Model.find(), req.query)
       .Fillter(Model)
       .Sort()
       .Fields()

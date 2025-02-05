@@ -16,20 +16,28 @@ const { permissionBuilding } = require("../Services/Middleware");
 const Routes = Router();
 
 Routes.route("/")
-  .post(permissionBuilding, uploadPDF, resizeImage, createAssets)
-  .get(permissionBuilding, getAssetss);
+  .post(
+    // permissionBuilding,
+    
+    uploadPDF, resizeImage, createAssets)
+  .get(
+    // permissionBuilding,
+     getAssetss);
 Routes.route("/:id")
-  .get(permissionBuilding, UtilsValidator, getAssets)
+  .get(
+    // permissionBuilding,
+    
+    UtilsValidator, getAssets)
   .delete(permissionBuilding, UtilsValidator, deleteAssets)
   .put(
-    permissionBuilding,
+    // permissionBuilding,
     uploadPDF,
     UtilsValidator,
     resizeImage,
     updateAssets
   );
 Routes.route("/category/:assetsId").get(
-  permissionBuilding,
+  // permissionBuilding,
   getAssetsByCategory
 );
 module.exports = Routes;

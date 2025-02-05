@@ -17,9 +17,17 @@ const { permissionBuilding } = require("../Services/Middleware");
 const Routes = Router();
 Routes.route("/")
   .post(createBuildingValidator, createBuilding)
-  .get(permissionBuilding, getbuildings);
+  .get(
+    // permissionBuilding, 
+    getbuildings);
 Routes.route("/:id")
-  .get(permissionBuilding, UtilsValidator, getBuilding)
-  .delete(permissionBuilding, UtilsValidator, deleteBuilding)
-  .put(permissionBuilding, UtilsValidator, updateBuilding);
+  .get(
+    // permissionBuilding,
+     UtilsValidator, getBuilding)
+  .delete(
+    // permissionBuilding,
+     UtilsValidator, deleteBuilding)
+  .put(
+    // permissionBuilding, 
+    UtilsValidator, updateBuilding);
 module.exports = Routes;

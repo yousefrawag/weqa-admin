@@ -16,10 +16,20 @@ const { permissionBuilding } = require("../Services/Middleware");
 const Routes = Router();
 
 Routes.route("/")
-  .post(permissionBuilding, createLocationValidator, createLocation)
-  .get(permissionBuilding, getLocations);
+  .post(
+    // permissionBuilding, 
+    createLocationValidator, createLocation)
+  .get(
+    // permissionBuilding,
+     getLocations);
 Routes.route("/:id")
-  .get(permissionBuilding, UtilsValidator, getLocation)
-  .delete(permissionBuilding, UtilsValidator, deleteLocation)
-  .put(permissionBuilding, UtilsValidator, updateLocation);
+  .get(
+    // permissionBuilding,
+     UtilsValidator, getLocation)
+  .delete(
+    // permissionBuilding,
+     UtilsValidator, deleteLocation)
+  .put(
+    // permissionBuilding,
+     UtilsValidator, updateLocation);
 module.exports = Routes;

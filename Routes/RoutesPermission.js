@@ -11,11 +11,21 @@ const { permissionEmployee } = require("../Services/Middleware");
 const Routes = Router();
 
 Routes.route("/")
-  .post(permissionEmployee, createPermission)
-  .get(permissionEmployee, getPermissions);
+  .post(
+    // permissionEmployee, 
+    createPermission)
+  .get(
+    // permissionEmployee, 
+    getPermissions);
 Routes.route("/:id")
-  .get(permissionEmployee, getPermission)
-  .put(permissionEmployee, updatePermission)
-  .delete(permissionEmployee, deletePermission);
+  .get(
+    // permissionEmployee,
+     getPermission)
+  .put(
+    // permissionEmployee,
+     updatePermission)
+  .delete(
+    // permissionEmployee,
+     deletePermission);
 
 module.exports = Routes;

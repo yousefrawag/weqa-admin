@@ -16,20 +16,26 @@ const { permissionCategory } = require("../Services/Middleware");
 const Routes = Router();
 Routes.route("/")
   .post(
-    permissionCategory,
+    // permissionCategory,
     uploadImage,
     createAssetsValidator,
     resizeImage("mainCategoryAssets"),
     createMainCategoryAssets
   )
-  .get(permissionCategory, getMainCategoriesAssets);
+  .get(
+    // permissionCategory,
+     getMainCategoriesAssets);
 Routes.route("/:id")
-  .get(permissionCategory, UtilsValidator, getMainCategoryAsset)
-  .delete(permissionCategory, UtilsValidator, deleteMainCategoryAssets)
+  .get(
+    // permissionCategory,
+     UtilsValidator, getMainCategoryAsset)
+  .delete(
+    permissionCategory, 
+    UtilsValidator, deleteMainCategoryAssets)
   .put(
-    permissionCategory,
+    // permissionCategory,
     uploadImage,
-    permissionCategory,
+    // permissionCategory,
     UtilsValidator,
     resizeImage("mainCategoryAssets"),
     updateMainCategoryAssets

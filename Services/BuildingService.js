@@ -63,7 +63,7 @@ exports.createBuilding = expressAsyncHandler(async (req, res, next) => {
 
 exports.getbuildings = expressAsyncHandler(async (req, res, next) => {
   const building = await createBuildingModel
-    .find({ _id: req.user.building })
+    .find()
     .populate("levels") // تعبئة الحقل levels
     .populate({
       path: "location",
