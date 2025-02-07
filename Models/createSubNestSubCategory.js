@@ -14,7 +14,7 @@ const createSubNestSubCategory = new mongoose.Schema({
     ref: "nestsubcategory",
     required: true,
   },
-});
+} ,{ timestamps: true });
 createSubNestSubCategory.pre(/^find/, function (next) {
   this.populate({
     path: "building",

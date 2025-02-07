@@ -2,6 +2,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
+const http = require("http");
+
 const app = express();
 const morgan = require("morgan");
 const dotenv = require("dotenv");
@@ -21,8 +23,11 @@ const RoutesMainCategoryAssets = require("./Routes/RoutesMainCategoryAssets");
 const RoutesCategoryAssets = require("./Routes/RoutesCategoryAssets");
 const RoutesSubCategoryAssets = require("./Routes/RoutesSubCategoryAssets");
 const RoutesAssets = require("./Routes/RoutesAssets");
-const {  protect } = require("./Services/AuthService");
+const RoutesTickets = require("./Routes/RoutesTicket");
+const { protect } = require("./Services/AuthService");
+const { Server } = require("socket.io");
 const { createPermissions } = require("./Services/PermissionService");
+const createTicketModel = require("./Models/createTicket");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
 app.use(bodyParser.json());
@@ -34,14 +39,24 @@ const corsOptions = {
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:5175",
-  ], // specify the origin that you want to allow
-  methods: "GET,POST,PUT,DELETE , PATCH ", // specify the methods you want to allow
-  allowedHeaders: "Content-Type,Authorization", // specify the headers you want to allow
-  credentials: true, // Allow credentials to be included in the request
+  ],
+  methods: "GET,POST,PUT,DELETE , PATCH ",
+  allowedHeaders: "Content-Type,Authorization",
+  credentials: true,
 };
 app.use(cors(corsOptions));
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:5175",
+    ],
+  },
+});
 dbCollection();
-createPermissions()
+createPermissions();
 app.use("/api/v1/auth", RoutesAuth);
 app.use(protect);
 app.use("/api/v1/employee", RoutesEmployee);
@@ -57,22 +72,35 @@ app.use("/api/v1/mainCategoryAssets", RoutesMainCategoryAssets);
 app.use("/api/v1/categoryAssets", RoutesCategoryAssets);
 app.use("/api/v1/subCategoryAssets", RoutesSubCategoryAssets);
 app.use("/api/v1/assets", RoutesAssets);
+app.use("/api/v1/tickets", RoutesTickets);
 
 if (process.env.NODE_ENV === "devolopment") {
   app.use(morgan("dev"));
 }
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.id}`);
+
+  socket.on("joinRoom", (ticketId) => {
+    socket.join(ticketId);
+  });
+
+  socket.on("sendMessage", async (data) => {
+    const ticket = await createTicketModel.findById(data.ticketId);
+    ticket.messages.push({ senderId: data.senderId, text: data.text });
+    await ticket.save();
+    io.to(data.ticketId).emit("receiveMessage", data);
+    io.to(data.ticketId).emit("newNotification", "رسالة جديدة وصلت");
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected");
+  });
+});
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Listen on the ${PORT}`);
 });
 
 app.all("*", (req, res, next) => {
   next(new ApiError(`Sorry Can't find This url:${req.originalUrl}`, 400));
-});
-
-process.on("unhandledRejection", (err) => {
-  console.log(`Server rejected ${err.name}`);
-  server.close(() => {
-    process.exit(1);
-  });
 });
