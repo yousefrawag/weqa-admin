@@ -4,7 +4,10 @@ const sharp = require("sharp");
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const path = require("path");
-const { UploadSingleImage ,UploadSinglePDF } = require("../Middlewares/UploadImageMiddleware");
+const {
+  UploadSingleImage,
+  UploadMultiPDF,
+} = require("../Middlewares/UploadImageMiddleware");
 const ensureUploadDirExists = (type) => {
   const dir = `../uploads/${type}`; // تأكد من استخدام المسار الصحيح
   if (!fs.existsSync(dir)) {
@@ -27,9 +30,8 @@ exports.resizeImage = (type) =>
     }
     next();
   });
-
+exports.UploadPdfService = UploadMultiPDF([{ name: "pdf", maxCount: 8 }]);
 exports.uploadImage = UploadSingleImage("image");
-exports.uploadPDF = UploadSinglePDF("pdf");
 exports.fsRemove = async (filePath) => {
   if (!filePath) return;
 

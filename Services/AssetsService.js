@@ -5,15 +5,31 @@ const createSubCategoryAssetsModel = require("../Models/createSubCategoryAssets"
 const createCategoryAssetsModel = require("../Models/createCategoryAssets");
 const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
 const ApiError = require("../Resuble/ApiErrors");
-exports.resizeImage = expressAsyncHandler(async (req, res, next) => {
-  if (req.file) {
-    req.body.pdf = req.file.filename;
-  }
+const fs = require("fs");
+const createLocationModel = require("../Models/createLocation");
+const { filePathImage } = require("../Utils/imagesHandler");
+const path = require("path");
 
-  next();
-});
+exports.resizepdf = (type) =>
+  expressAsyncHandler(async (req, res, next) => {
+    if (!req.files || req.files.length === 0) {
+      return next();
+    }
+    req.body.createBy = req.user._id;
+    req.body.pdf = [];
+    req.files.pdf.forEach((file) => {
+      req.body.pdf.push({
+        pdf: file.filename,
+      });
+    });
+
+    next();
+  });
+
 exports.createAssets = expressAsyncHandler(async (req, res) => {
   const { subCategoryAssets, continued } = req.body;
+  const building = await createLocationModel.findById(req.body.location);
+  req.body.building = building.building._id;
   const levelsModel =
     continued === "first"
       ? "maincategoryassets"
@@ -101,11 +117,16 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
   try {
     let filter = req.query || {};
 
-    const { limit = 10, page = 1, sort = "-createdAt", fields = "" } = req.query;
+    const {
+      limit = 10,
+      page = 1,
+      sort = "-createdAt",
+      fields = "",
+    } = req.query;
 
     const skip = (page - 1) * limit;
     const getDocById = await createAssetsnModel
-      .find(filter) 
+      .find(filter)
       .sort(sort)
       .select(fields)
       .skip(skip)
@@ -139,16 +160,16 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
     if (!getDocById || getDocById.length === 0) {
       return next(new ApiError(`Sorry, no data found`, 404));
     }
-    const filteredData = getDocById.filter(doc => {
-
-      if (filter['location.build._id']) {
-        return doc.location.some(loc => 
-          loc.build && loc.build._id.toString() === filter['location.build._id'].toString()
+    const filteredData = getDocById.filter((doc) => {
+      if (filter["location.build._id"]) {
+        return doc.location.some(
+          (loc) =>
+            loc.build &&
+            loc.build._id.toString() === filter["location.build._id"].toString()
         );
       }
       return true;
     });
-
 
     const enrichedData = filteredData.map((doc) => {
       const locationDetails = doc.location.map((loc) => {
@@ -194,11 +215,10 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
     res.status(200).json({
       pagination: {
         currentPage: page,
-        totalPages: Math.ceil(getDocById.length / limit), 
-        totalDocs: getDocById.length, 
+        totalPages: Math.ceil(getDocById.length / limit),
+        totalDocs: getDocById.length,
       },
       data: enrichedData,
-   
     });
   } catch (error) {
     next(error); // تمرير الخطأ إلى معالج الأخطاء
@@ -353,5 +373,76 @@ exports.getAssetsByCategory = expressAsyncHandler(async (req, res, next) => {
 
   res.status(200).json({ data: enrichedData });
 });
-exports.updateAssets = factory.updateOne(createAssetsnModel);
+exports.updateAssets = expressAsyncHandler(async (req, res, next) => {
+  try {
+    const findDocument = await createAssetsnModel.findById(req.params.id);
+
+    if (!findDocument) {
+      return next(
+        new ApiError(
+          `Sorry, can't find the document with ID: ${req.params.id}`,
+          404
+        )
+      );
+    }
+
+    const imageKeys = ["pdf"];
+    
+    for (const key of imageKeys) {
+      if (req.body[key] !== undefined || findDocument[key]?.length > 0) {
+        console.log(findDocument[key]);
+        if (
+          findDocument[key].pdf &&
+          findDocument[key].pdf !== req.body[key] &&
+          findDocument[key].length > 0
+        ) {
+          const relativePathImage = findDocument[key];
+          const filePath = path.join(
+            __dirname,
+            "../uploads/assets",
+            "public",
+            relativePathImage
+          );
+         
+          
+          // حذف الصورة القديمة إذا كانت موجودة
+          try {
+            fs.unlinkSync(filePath); // احذف الملف القديم من النظام
+            console.log(`Deleted old image: ${filePath}`);
+          } catch (err) {
+            console.error(`Error deleting file: ${err}`);
+          }
+        }
+      }
+    }
+
+    const updateData = req.body;
+    for (const key of imageKeys) {
+      if (req.body[key] !== undefined) {
+        updateData[key] = req.body[key];
+      }
+    }
+
+    // تحديث المستند بناءً على ID
+    const updateDocById = await createAssetsnModel.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
+
+    if (!updateDocById) {
+      return next(
+        new ApiError(
+          `Sorry, can't update the document with ID: ${req.params.id}`,
+          404
+        )
+      );
+    }
+
+    res.status(200).json({ data: updateDocById });
+  } catch (error) {
+    next(error);
+  }
+});
+
 exports.deleteAssets = factory.deleteOne(createAssetsnModel);

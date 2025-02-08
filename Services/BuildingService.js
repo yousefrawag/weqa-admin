@@ -7,6 +7,9 @@ const createCategoryModel = require("../Models/createCategory");
 const createSubCategoryModel = require("../Models/createSubCategory");
 const createNestSubCategoryModel = require("../Models/createNestSubCategory");
 const createSubNestSubCategoryModel = require("../Models/createSubNestSubCategory");
+const createAssetsnModel = require("../Models/createAssets");
+const { default: mongoose } = require("mongoose");
+const createEmployeeModel = require("../Models/createEmployee");
 
 exports.createBuilding = expressAsyncHandler(async (req, res, next) => {
   const { levels, kind, name, continued } = req.body;
@@ -62,12 +65,14 @@ exports.createBuilding = expressAsyncHandler(async (req, res, next) => {
 });
 
 exports.getbuildings = expressAsyncHandler(async (req, res, next) => {
+  const query = req.user.building !== "all" 
+  ? { building: req.user.building } 
+  : {};
   const building = await createBuildingModel
-    .find()
-    .populate("levels") // تعبئة الحقل levels
+    .find(query)
+    .populate("levels") 
     .populate({
-      path: "location",
-      select: { building: 0 },
+      path: "location"
     });
 
   res.status(201).json({ status: "Success", data: building });
@@ -79,9 +84,14 @@ exports.getBuilding = expressAsyncHandler(async (req, res, next) => {
     .populate("levels")
     .populate({
       path: "location",
-      select: { building: 0 },
     });
 
+  const assetsCount = await createAssetsnModel
+    .find({ building: req.params.id })
+    .countDocuments();
+  const employeeCount = await createEmployeeModel
+    .find({ building: req.params.id })
+    .countDocuments();
   let relatedBuildings = [];
 
   if (building.levels?.maincategories) {
@@ -142,6 +152,8 @@ exports.getBuilding = expressAsyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     building,
+    assetsCount,
+    employeeCount,
     relatedBuildings: await createBuildingModel.find({
       _id: { $in: relatedBuildings },
     }),

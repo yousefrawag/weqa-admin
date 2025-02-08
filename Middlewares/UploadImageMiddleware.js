@@ -17,32 +17,31 @@ const MulterOptions = () => {
 const MulterOptionsPDF = () => {
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, '../uploads/assets'); // تحديد مكان حفظ الملفات
+      const uploadPath = path.resolve(__dirname, "../../uploads/assets");
+      require("fs").mkdirSync(uploadPath, { recursive: true });
+      cb(null, uploadPath);
     },
     filename: function (req, file, cb) {
-  
-      
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      cb(null, "pdf-" + uniqueSuffix + path.extname(file.originalname));
+    },
   });
 
   const fileFilter = function (req, file, cb) {
-    if (file.mimetype === 'application/pdf') {
+    if (file.mimetype === "application/pdf") {
       cb(null, true);
     } else {
-      cb(new Error('File type not allowed. Please upload a PDF file.'), false);
+      cb(new Error("نوع الملف غير مسموح. يرجى رفع ملف PDF فقط"), false);
     }
   };
 
   return multer({
     storage: storage,
     fileFilter: fileFilter,
-    limits: { fileSize: 50 * 1024 * 1024 }, // الحد الأقصى لحجم الملف هو 5 ميجابايت
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
   });
 };
 
 exports.UploadSingleImage = (ImageName) => MulterOptions().single(ImageName);
 
-exports.UploadSinglePDF = (pdf) => MulterOptionsPDF().single(pdf);
-
+exports.UploadMultiPDF = (ArrOfImage) => MulterOptionsPDF().fields(ArrOfImage);
