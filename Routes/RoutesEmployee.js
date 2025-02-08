@@ -8,16 +8,16 @@ const {
   getEmployees,
   getEmployee,
   deleteEmployee,
-  updateEmployee, 
+  updateEmployee,
   createEmployee,
 } = require("../Services/EmployeeService");
-const { permissionEmployee } = require("../Services/Middleware");
+const { getPermissions,permissionMiddleware } = require("../Services/Middleware");
 const Routes = Router();
 Routes.route("/")
-  .post(permissionEmployee, createEmployeeValidator, createEmployee)
-  .get(permissionEmployee, getEmployees);
+  .post(getPermissions, createEmployeeValidator, createEmployee)
+  .get(getPermissions, getEmployees);
 Routes.route("/:id")
-  .get(permissionEmployee, UtilsValidator, getEmployee)
-  .delete(permissionEmployee, UtilsValidator, deleteEmployee)
-  .put(permissionEmployee, updateEmployeeValidator, updateEmployee);
+  .get(getPermissions, UtilsValidator, getEmployee)
+  .delete(getPermissions, UtilsValidator, deleteEmployee)
+  .put(getPermissions, updateEmployeeValidator, updateEmployee);
 module.exports = Routes;

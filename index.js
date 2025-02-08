@@ -24,10 +24,11 @@ const RoutesCategoryAssets = require("./Routes/RoutesCategoryAssets");
 const RoutesSubCategoryAssets = require("./Routes/RoutesSubCategoryAssets");
 const RoutesAssets = require("./Routes/RoutesAssets");
 const RoutesTickets = require("./Routes/RoutesTicket");
-const { protect } = require("./Services/AuthService");
+const { protect, createFirstOwnerAccount } = require("./Services/AuthService");
 const { Server } = require("socket.io");
 const { createPermissions } = require("./Services/PermissionService");
 const createTicketModel = require("./Models/createTicket");
+const { permissionEmployee } = require("./Services/Middleware");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
 app.use(bodyParser.json());
@@ -42,7 +43,7 @@ const corsOptions = {
   ],
   methods: "GET,POST,PUT,DELETE , PATCH ",
   allowedHeaders: "Content-Type,Authorization",
-  credentials: true,
+  credentials: true, 
 };
 app.use(cors(corsOptions));
 const server = http.createServer(app);
@@ -56,7 +57,8 @@ const io = new Server(server, {
   },
 });
 dbCollection();
-createPermissions();
+createFirstOwnerAccount();
+
 app.use("/api/v1/auth", RoutesAuth);
 app.use(protect);
 app.use("/api/v1/employee", RoutesEmployee);

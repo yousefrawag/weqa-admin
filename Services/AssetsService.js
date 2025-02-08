@@ -7,7 +7,6 @@ const createMainCategoryAssetsModel = require("../Models/createMainCategoryAsset
 const ApiError = require("../Resuble/ApiErrors");
 const fs = require("fs");
 const createLocationModel = require("../Models/createLocation");
-const { filePathImage } = require("../Utils/imagesHandler");
 const path = require("path");
 
 exports.resizepdf = (type) =>
@@ -115,7 +114,8 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
 
 exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
   try {
-    let filter = req.query || {};
+    let filter =
+      req.user.role === "user" ? { building: req.user.building } : {};
 
     const {
       limit = 10,
@@ -172,6 +172,21 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
     });
 
     const enrichedData = filteredData.map((doc) => {
+      if (doc.pdf && Array.isArray(doc.pdf)) {
+        doc.pdf = doc.pdf.map((pdfItem) => {
+          if (
+            typeof pdfItem.pdf === "string" &&
+            !pdfItem.pdf.includes(`${process.env.BASE_URL}/assets`)
+          ) {
+            return {
+              ...pdfItem,
+              pdf: `${process.env.BASE_URL}/assets/${pdfItem.pdf}`,
+            };
+          }
+          return pdfItem;
+        });
+      }
+
       const locationDetails = doc.location.map((loc) => {
         const floor = loc.floors?.find(
           (floor) => floor._id.toString() === doc.floor?.toString()
@@ -212,6 +227,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
         locationDetails,
       };
     });
+
     res.status(200).json({
       pagination: {
         currentPage: page,
@@ -290,6 +306,16 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
     delete loc.floors;
     loc.building = loc.building ? { name: loc.building.name } : {};
   });
+  if (getDocById.pdf && Array.isArray(getDocById.pdf)) {
+    getDocById.pdf.forEach((pdfItem) => {
+      if (
+        typeof pdfItem.pdf === "string" &&
+        !pdfItem.pdf.includes(`${process.env.BASE_URL}/assets`)
+      ) {
+        pdfItem.pdf = `${process.env.BASE_URL}/assets/${pdfItem.pdf}`;
+      }
+    });
+  }
 
   res.status(200).json({
     data: getDocById,
@@ -298,10 +324,10 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
 });
 
 exports.getAssetsByCategory = expressAsyncHandler(async (req, res, next) => {
-  const { assetsId } = req.params;
+  const { id } = req.params;
   let getDocById = await createAssetsnModel
     .find({
-      subCategoryAssets: { $in: assetsId },
+      subCategoryAssets: { $in: id },
     })
     .populate({ path: "subCategoryAssets", select: { assets: 0 } })
     .populate({
@@ -387,7 +413,7 @@ exports.updateAssets = expressAsyncHandler(async (req, res, next) => {
     }
 
     const imageKeys = ["pdf"];
-    
+
     for (const key of imageKeys) {
       if (req.body[key] !== undefined || findDocument[key]?.length > 0) {
         console.log(findDocument[key]);
@@ -403,8 +429,7 @@ exports.updateAssets = expressAsyncHandler(async (req, res, next) => {
             "public",
             relativePathImage
           );
-         
-          
+
           // حذف الصورة القديمة إذا كانت موجودة
           try {
             fs.unlinkSync(filePath); // احذف الملف القديم من النظام

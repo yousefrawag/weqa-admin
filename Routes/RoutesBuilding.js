@@ -12,14 +12,14 @@ const {
   updateBuilding,
   getbuildings,
 } = require("../Services/BuildingService");
-const { permissionBuilding } = require("../Services/Middleware");
+const { getPermissions,permissionMiddleware } = require("../Services/Middleware");
 
 const Routes = Router();
 Routes.route("/")
-  .post(createBuildingValidator, createBuilding)
-  .get(permissionBuilding, getbuildings);
+  .post(getPermissions,createBuildingValidator, createBuilding)
+  .get(getPermissions, getbuildings);
 Routes.route("/:id")
-  .get(permissionBuilding, UtilsValidator, getBuilding)
-  .delete(permissionBuilding, UtilsValidator, deleteBuilding)
-  .put(permissionBuilding, UtilsValidator, updateBuilding);
+  .get(permissionMiddleware, UtilsValidator, getBuilding)
+  .delete(permissionMiddleware, UtilsValidator, deleteBuilding)
+  .put(permissionMiddleware, UtilsValidator, updateBuilding);
 module.exports = Routes;

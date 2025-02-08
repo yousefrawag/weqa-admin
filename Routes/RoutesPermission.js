@@ -1,21 +1,23 @@
 const { Router } = require("express");
 const {
   createPermission,
-  getPermission,
-  getPermissions,
+
   updatePermission,
   deletePermission,
+  getPermissionsService,
+  getPermissionService,
 } = require("../Services/PermissionService");
-const { permissionEmployee } = require("../Services/Middleware");
+const { getPermissions } = require("../Services/Middleware");
+const { protect } = require("../Services/AuthService");
 
 const Routes = Router();
-
+Routes.use(protect);
 Routes.route("/")
-  .post(permissionEmployee, createPermission)
-  .get(permissionEmployee, getPermissions);
+  .post(createPermission)
+  .get(getPermissions, getPermissionsService);
 Routes.route("/:id")
-  .get(permissionEmployee, getPermission)
-  .put(permissionEmployee, updatePermission)
-  .delete(permissionEmployee, deletePermission);
+  .get(getPermissions, getPermissionService)
+  .put(getPermissions, updatePermission)
+  .delete(getPermissions, deletePermission);
 
 module.exports = Routes;
