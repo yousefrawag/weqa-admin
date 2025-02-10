@@ -486,7 +486,7 @@ exports.updateAssetsStatus = expressAsyncHandler(async (req, res, next) => {
   try {
     const assets = await createAssetsnModel.findByIdAndUpdate(
       req.params.id,
-      { status: true },
+      { status: req.body.status },
       { new: true }
     );
     res.status(200).json({ data: assets });
