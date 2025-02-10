@@ -61,13 +61,13 @@ const createEmployee = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["owner", "employee", "user"],
+      enum: ["owner","manager", "employee", "user"],
 
       default: "user",
     },
     type: {
       type: String,
-      enum: ["admin", "user"],
+      enum: ["manager", "user"],
       default: "user",
     },
   },

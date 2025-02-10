@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const assetSchema = new mongoose.Schema(
   {
+    status: {
+      type: Boolean,
+      default: false,
+    },
     data: [],
     createBy: {
       type: mongoose.Schema.Types.ObjectId,
