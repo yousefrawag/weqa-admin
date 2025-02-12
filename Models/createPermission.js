@@ -41,6 +41,7 @@ const permissionSchema = new mongoose.Schema(
     employee: permissionSubSchemaWithoutAllowed,
     assets: permissionAssetsSchema,
     mainCategoryAssets: permissionSubSchema,
+    Support: permissionSubSchema,
     building: {
       type: mongoose.Schema.Types.Mixed,
       default: "all",

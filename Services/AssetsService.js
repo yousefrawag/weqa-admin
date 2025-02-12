@@ -8,6 +8,8 @@ const ApiError = require("../Resuble/ApiErrors");
 const fs = require("fs");
 const createLocationModel = require("../Models/createLocation");
 const path = require("path");
+const createNotificationModel = require("../Models/createNotifacation");
+const createEmployeeModel = require("../Models/createEmployee");
 
 exports.resizepdf = (type) =>
   expressAsyncHandler(async (req, res, next) => {
@@ -115,6 +117,16 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
       });
     }
 
+    const owners = await createEmployeeModel.find({
+      $or: [{ role: "owner" }, { building: req.body.building }],
+    });
+    const notifications = owners.map((owner) => ({
+      user: req.user.id,
+      employee: owner._id,
+      type: "request",
+      text: "تم إضافة اصل جديد",
+    }));
+    await createNotificationModel.insertMany(notifications);
     res.status(201).json({ status: "Success", data: populatedAssets });
   } catch (error) {
     res.status(400).json({ status: "Error", msg: error.message });
@@ -494,4 +506,46 @@ exports.updateAssetsStatus = expressAsyncHandler(async (req, res, next) => {
     next(error);
   }
 });
-exports.deleteAssets = factory.deleteOne(createAssetsnModel);
+exports.deleteAssetsStatus = expressAsyncHandler(async (req, res, next) => {
+  try {
+    const assets = await createAssetsnModel.findByIdAndUpdate(
+      req.params.id,
+      { status: "reject" },
+      { new: true }
+    );
+    const owners = await createEmployeeModel.find({
+      $or: [{ role: "owner" }, { building: req.body.building }],
+    });
+    const notifications = owners.map((owner) => ({
+      user: req.user.id,
+      employee: owner._id,
+      type: "request",
+      text: "تم طلب حذف اصل",
+    }));
+    await createNotificationModel.insertMany(notifications);
+    res.status(200).json({ data: assets });
+  } catch (error) {
+    next(error);
+  }
+});
+exports.deleteAssets = expressAsyncHandler(async (req, res, next) => {
+  try {
+    const findDocument = await createAssetsnModel.findById(req.params.id);
+
+    if (!findDocument || findDocument.status !== "reject") {
+      return next(
+        new ApiError(
+          `Sorry, can't find the document with ID: ${req.params.id}`,
+          404
+        )
+      );
+    }
+    await createAssetsnModel.findOneAndDelete({ _id: req.params.id });
+
+    // قائمة بالمفاتيح التي قد تحتوي على مسارات الصور
+
+    res.status(200).json({ status: "تم حذف الاصل بنجاح" });
+  } catch (error) {
+    next(error);
+  }
+});

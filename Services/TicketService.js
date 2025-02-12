@@ -1,54 +1,52 @@
 const expressAsyncHandler = require("express-async-handler");
 const factory = require("./FactoryHandler");
 const createTicketModel = require("../Models/createTicket");
+const createNotificationModel = require("../Models/createNotifacation");
+const createEmployeeModel = require("../Models/createEmployee");
 
 exports.createTicket = expressAsyncHandler(async (req, res, next) => {
+  console.log("asdasd");
   try {
     const newTicket = new createTicketModel({
       user: req.user.id,
       messages: [{ senderId: req.user.id, text: req.body.message }],
       priority: req.body.priority || "low",
     });
+   
     await newTicket.save();
-    res.status(201).json(newTicket);
+
+    const owners = await createEmployeeModel.find({ role: "owner" });
+
+
+    const notifications = owners.map((owner) => ({
+      user: req.user.id,
+      employee: owner._id,
+      type: "support",
+      text: "تم إضافة تذكرة جديدة",
+    }));
+    await createNotificationModel.insertMany(notifications);
+
+   return res.status(201).json(newTicket);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
-exports.sendMessage = expressAsyncHandler(async (req, res, next) => {
-  const { ticketId } = req.params;
-  const { senderId, text } = req.body;
 
+exports.getTickets = factory.getAll(createTicketModel);
+
+exports.getTicket = factory.getOne(createTicketModel);
+exports.getMyTickets = expressAsyncHandler(async (req, res, next) => {
   try {
-    const ticket = await createTicketModel.findById(ticketId);
-    if (!ticket) return res.status(404).json({ error: "Ticket not found" });
+    const userId = req.user._id;
+    const tickets = await createTicketModel.find({ user: userId });
 
-    ticket.messages.push({ senderId, text });
-    ticket.updatedAt = new Date();
-    await ticket.save();
-
-    res.status(200).json(ticket);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(200).json({
+      success: true,
+      data: tickets,
+    });
+  } catch (error) {
+    next(error);
   }
 });
-
-exports.getTicket = expressAsyncHandler(async (req, res, next) => {
-  if (req.user.role !== "admin") return res.status(403).json({ error: "Unauthorized" });
-  try {
-    const tickets = await createTicketModel.find().populate("userId", "name email");
-    res.status(200).json(tickets);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-exports.updateTicket =expressAsyncHandler(async (req, res, next) => {
-  if (req.user.role !== "admin") return res.status(403).json({ error: "Unauthorized" });
-  try {
-    const ticket = await createTicketModel.findByIdAndUpdate(req.params.ticketId, { priority: req.body.priority }, { new: true });
-    res.status(200).json(ticket);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+exports.updateTicket = factory.updateOne(createTicketModel);
 exports.deleteTicket = factory.deleteOne(createTicketModel);

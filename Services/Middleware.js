@@ -29,6 +29,13 @@ const permissionBuilding = async (resource, method, user, res, next) => {
       }
 
       return res.status(200).json({ location });
+    } else if (resource === "tickets") {
+      if (!user.permissions.Support?.actions.includes(method)) {
+        return res
+          .status(403)
+          .json({ msg: "ليس لديك صلاحية وصول إلى خدمة العملاء" });
+      }
+      next();
     } else {
       return res.status(400).json({ msg: "المورد غير معروف" });
     }
@@ -122,8 +129,12 @@ exports.getPermissions = expressAsyncHandler((req, res, next) => {
     (req.user.role === "employee" && !req.user.building)
   ) {
     return next();
-  } else if (req.user.role === "user") {
-    if (resource === "building" || resource === "location") {
+  } else if (req.user.role === "user" || req.user.role === "manager") {
+    if (
+      resource === "building" ||
+      resource === "location" ||
+      resource === "tickets"
+    ) {
       permissionBuilding(resource, method, req.user, res, next);
     } else if (
       resource === "assets" ||
@@ -277,7 +288,7 @@ exports.permissionMiddleware = expressAsyncHandler((req, res, next) => {
     (req.user.role === "employee" && !req.user.building)
   ) {
     return next();
-  } else if (req.user.role === "user") {
+  } else if (req.user.role === "user" || req.user.role === "manager") {
     if (resource === "building" || resource === "location") {
       permissionMiddlewareBuilding(resource, method, req, res, next);
     } else if (
