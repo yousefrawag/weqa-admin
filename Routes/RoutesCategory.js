@@ -12,14 +12,12 @@ const {
 const {
   createCategoryValidator,
 } = require("../Resuble/CategoryValidatorErrorr");
+const { getPermissions } = require("../Services/Middleware");
 
 const Routes = Router();
 Routes.route("/")
-  .post(
-    createCategoryValidator,
-    createCategory
-  )
-  .get(getCategories);
+  .post(getPermissions, createCategoryValidator, createCategory)
+  .get(getPermissions, getCategories);
 Routes.route("/:id")
   .get(UtilsValidator, getCategory)
   .delete(UtilsValidator, deleteCategory)

@@ -7,33 +7,26 @@ const {
   getAssets,
   deleteAssets,
   updateAssets,
-  resizeImage,
   getAssetsByCategory,
   resizepdf,
 } = require("../Services/AssetsService");
-const { uploadPDF, UploadPdfService } = require("../Utils/imagesHandler");
-const { permissionBuilding } = require("../Services/Middleware");
+const { UploadPdfService } = require("../Utils/imagesHandler");
+const { getPermissions,permissionMiddleware } = require("../Services/Middleware");
 
 const Routes = Router();
 
 Routes.route("/")
-  .post(permissionBuilding, UploadPdfService, resizepdf("assets"), createAssets)
-  .get(permissionBuilding, getAssetss);
+  .post(getPermissions, UploadPdfService, resizepdf("assets"), createAssets)
+  .get(getPermissions, getAssetss);
 Routes.route("/:id")
-  .get(
-    // permissionBuilding,
-    
-    UtilsValidator, getAssets)
-  .delete(permissionBuilding, UtilsValidator, deleteAssets)
+  .get(permissionMiddleware, UtilsValidator, getAssets)
+  .delete(permissionMiddleware, UtilsValidator, deleteAssets)
   .put(
-    permissionBuilding,
+    permissionMiddleware,
     UploadPdfService,
     UtilsValidator,
-     resizepdf("assets"),
+    resizepdf("assets"),
     updateAssets
   );
-Routes.route("/category/:assetsId").get(
-  // permissionBuilding,
-  getAssetsByCategory
-);
+Routes.route("/category/:id").get(getPermissions, getAssetsByCategory);
 module.exports = Routes;

@@ -45,15 +45,30 @@ const createEmployee = new mongoose.Schema(
       build: String,
     },
     building: {
-      type: mongoose.Schema.Types.Mixed,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "building",
-      default: "all",
+      required: function () {
+        return this.role === "user";
+      },
     },
 
     permissions: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Permission",
-      required: [true, "Required permission"],
+      required: function () {
+        return this.role === "user";
+      },
+    },
+    role: {
+      type: String,
+      enum: ["owner", "employee", "user"],
+
+      default: "user",
+    },
+    type: {
+      type: String,
+      enum: ["admin", "user"],
+      default: "user",
     },
   },
   { timestamps: true }

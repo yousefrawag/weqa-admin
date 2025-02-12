@@ -65,14 +65,12 @@ exports.createBuilding = expressAsyncHandler(async (req, res, next) => {
 });
 
 exports.getbuildings = expressAsyncHandler(async (req, res, next) => {
-  const query = req.user.building !== "all" 
-  ? { building: req.user.building } 
-  : {};
+  const query = req.building ? { _id: req.building } : {};
   const building = await createBuildingModel
     .find(query)
-    .populate("levels") 
+    .populate("levels")
     .populate({
-      path: "location"
+      path: "location",
     });
 
   res.status(201).json({ status: "Success", data: building });

@@ -11,25 +11,15 @@ const {
   deleteLocation,
   updateLocation,
 } = require("../Services/LocationService");
-const { permissionBuilding } = require("../Services/Middleware");
+const { getPermissions, permissionMiddleware } = require("../Services/Middleware");
 
 const Routes = Router();
 
 Routes.route("/")
-  .post(
-    // permissionBuilding, 
-    createLocationValidator, createLocation)
-  .get(
-    // permissionBuilding,
-     getLocations);
+  .post(getPermissions, createLocationValidator, createLocation)
+  .get(getPermissions, getLocations);
 Routes.route("/:id")
-  .get(
-    // permissionBuilding,
-     UtilsValidator, getLocation)
-  .delete(
-    // permissionBuilding,
-     UtilsValidator, deleteLocation)
-  .put(
-    // permissionBuilding,
-     UtilsValidator, updateLocation);
+  .get(permissionMiddleware, UtilsValidator, getLocation)
+  .delete(permissionMiddleware, UtilsValidator, deleteLocation)
+  .put(permissionMiddleware, UtilsValidator, updateLocation);
 module.exports = Routes;
