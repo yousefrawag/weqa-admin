@@ -16,15 +16,24 @@ exports.resizepdf = (type) =>
     }
     req.body.createBy = req.user._id;
     req.body.pdf = [];
-    req.files.pdf.forEach((file) => {
-      req.body.pdf.push({
-        pdf: file.filename,
+    if (req.files.length > 0) {
+      req.files.pdf.forEach((file) => {
+        req.body.pdf.push({
+          pdf: file.filename,
+        });
       });
-    });
+    }
 
     next();
   });
-
+exports.buildingMiddleware = expressAsyncHandler(async (req, res, next) => {
+  if (req.user.role === "owner" || !req.user.building) {
+    return next();
+  } else if (req.body.building.toString() !== req.user.building.toString()) {
+    return res.status(404).json({ msg: "لا يمكنك انشاء اصل لهذه المنشأه" });
+  }
+  next();
+});
 exports.createAssets = expressAsyncHandler(async (req, res) => {
   const { subCategoryAssets, continued } = req.body;
   const building = await createLocationModel.findById(req.body.location);
@@ -131,6 +140,10 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
       .select(fields)
       .skip(skip)
       .limit(limit)
+      .populate({
+        path: "building",
+        select: "name",
+      })
       .populate({
         path: "subCategoryAssets",
         select: { assets: 0 },
@@ -469,5 +482,16 @@ exports.updateAssets = expressAsyncHandler(async (req, res, next) => {
     next(error);
   }
 });
-
+exports.updateAssetsStatus = expressAsyncHandler(async (req, res, next) => {
+  try {
+    const assets = await createAssetsnModel.findByIdAndUpdate(
+      req.params.id,
+      { status: req.body.status },
+      { new: true }
+    );
+    res.status(200).json({ data: assets });
+  } catch (error) {
+    next(error);
+  }
+});
 exports.deleteAssets = factory.deleteOne(createAssetsnModel);

@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const assetSchema = new mongoose.Schema(
   {
+    status: {
+      type: String,
+      enum: ["pending", "reject", "fulfilled"],
+      required: "pending",
+    },
     data: [],
     createBy: {
       type: mongoose.Schema.Types.ObjectId,

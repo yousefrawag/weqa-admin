@@ -4,7 +4,7 @@ const createMainCategoryAssetsModel = require("../Models/createMainCategoryAsset
 const createCategoryAssetsModel = require("../Models/createCategoryAssets");
 const createSubCategoryAssetsModel = require("../Models/createSubCategoryAssets");
 
-const permissionBuilding = async (resource, method, user, res) => {
+const permissionBuilding = async (resource, method, user, res, next) => {
   try {
     if (!user || !user.permissions || !user.permissions.building) {
       return res.status(403).json({ msg: "صلاحيات المستخدم غير متوفرة" });
@@ -14,6 +14,7 @@ const permissionBuilding = async (resource, method, user, res) => {
       if (!user.permissions.building.actions.includes(method)) {
         return res.status(403).json({ msg: "ليس لديك صلاحية وصول إلى المبنى" });
       }
+      next();
     } else if (resource === "location") {
       if (!user.permissions.building.actions.includes(method)) {
         return res.status(403).json({ msg: "ليس لديك صلاحية وصول إلى الموقع" });
@@ -27,7 +28,7 @@ const permissionBuilding = async (resource, method, user, res) => {
         return res.status(404).json({ msg: "الموقع غير موجود لهذا المبنى" });
       }
 
-      res.status(200).json({ location });
+      return res.status(200).json({ location });
     } else {
       return res.status(400).json({ msg: "المورد غير معروف" });
     }
@@ -44,11 +45,17 @@ const permissionAssets = async (resource, method, user, res, next) => {
         .status(403)
         .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الاصول" });
     }
-    const mainCategoryAssets = await createMainCategoryAssetsModel.find({
-      _id: user.permissions.mainCategoryAssets.allowedIds,
-    });
+    if (user.permissions.mainCategoryAssets.allowedIds) {
+      const mainCategoryAssets = await createMainCategoryAssetsModel.find({
+        _id: user.permissions.mainCategoryAssets.allowedIds,
+      });
 
-    return res.status(200).json({ data: mainCategoryAssets });
+      return res.status(200).json({ data: mainCategoryAssets });
+    } else {
+      const mainCategoryAssets = await createMainCategoryAssetsModel.find();
+
+      return res.status(200).json({ data: mainCategoryAssets });
+    }
   } else if (resource === "categoryAssets") {
     if (!user.permissions.mainCategoryAssets.actions.includes(method)) {
       return res
@@ -117,9 +124,7 @@ exports.getPermissions = expressAsyncHandler((req, res, next) => {
     return next();
   } else if (req.user.role === "user") {
     if (resource === "building" || resource === "location") {
-      permissionBuilding(resource, method, req.user, res);
-      req.building = req.user.building;
-      return next();
+      permissionBuilding(resource, method, req.user, res, next);
     } else if (
       resource === "assets" ||
       resource === "mainCategoryAssets" ||
@@ -236,7 +241,7 @@ const permissionMiddlewareAssets = async (resource, method, req, res, next) => {
         .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الأصول" });
     }
   } else if (resource === "assets") {
-    if (req.user.permissions.mainCategoryAssets.actions.includes(method)) {
+    if (req.user.permissions.assets.actions.includes(method)) {
       const mainCategoryAssets = await createMainCategoryAssetsModel.findOne({
         assets: { $in: [req.params.id] },
       });

@@ -32,7 +32,10 @@ const permissionSubSchemaWithoutAllowed = new mongoose.Schema({
 });
 const permissionSchema = new mongoose.Schema(
   {
-    name:String,
+    name: {
+      type: String,
+      required: [true, "employee is required"],
+    },
     mainCategory: permissionSubSchemaWithoutAllowed,
     location: permissionAssetsSchema,
     employee: permissionSubSchemaWithoutAllowed,

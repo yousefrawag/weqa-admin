@@ -65,7 +65,11 @@ exports.createBuilding = expressAsyncHandler(async (req, res, next) => {
 });
 
 exports.getbuildings = expressAsyncHandler(async (req, res, next) => {
-  const query = req.building ? { _id: req.building } : {};
+  const query =
+    req.user.role === "owner" || !req.user.building
+      ? {}
+      : { _id: req.user.building };
+
   const building = await createBuildingModel
     .find(query)
     .populate("levels")

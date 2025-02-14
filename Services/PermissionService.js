@@ -1,8 +1,8 @@
 const expressAsyncHandler = require("express-async-handler");
 const factory = require("./FactoryHandler");
 const createPermissionModel = require("../Models/createPermission");
-
-
+const FeatureApi = require("../Utils/Feature");
+const createEmployeeModel = require("../Models/createEmployee");
 
 exports.permission = expressAsyncHandler(async (req, res, next) => {
   const url = req.originalUrl;
@@ -102,7 +102,38 @@ exports.permissionManager = expressAsyncHandler(async (req, res, next) => {
   return res.status(403).json({ message: "Access denied" });
 });
 exports.createPermission = factory.createOne(createPermissionModel);
-exports.getPermissionsService = factory.getAll(createPermissionModel);
+exports.getPermissionsService = expressAsyncHandler(async (req, res) => {
+  try {
+    const countDocs = await createPermissionModel.countDocuments();
+
+    const ApiFeatures = new FeatureApi(createPermissionModel.find(), req.query)
+      .Fillter(createPermissionModel)
+      .Sort()
+      .Fields()
+      .Search()
+      .Paginate(countDocs);
+
+    const { MongooseQueryApi, PaginateResult } = ApiFeatures;
+    const getDoc = await MongooseQueryApi;
+    const permissionsWithEmployeeCount = await Promise.all(
+      getDoc.map(async (permission) => {
+        const employeeCount = await createEmployeeModel.countDocuments({
+          permissions: permission._id,
+        });
+        return { ...permission.toObject(), employeeCount };
+      })
+    );
+
+    res.status(201).json({
+      results: getDoc.length,
+      PaginateResult,
+      data: permissionsWithEmployeeCount,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "حدث خطأ في جلب البيانات", error });
+  }
+});
+
 exports.getPermissionService = factory.getOne(createPermissionModel);
 exports.updatePermission = factory.updateOne(createPermissionModel);
 exports.deletePermission = factory.deleteOne(createPermissionModel);
