@@ -1,5 +1,4 @@
 const expressAsyncHandler = require("express-async-handler");
-const factory = require("./FactoryHandler");
 const createAssetsnModel = require("../Models/createAssets");
 const createSubCategoryAssetsModel = require("../Models/createSubCategoryAssets");
 const createCategoryAssetsModel = require("../Models/createCategoryAssets");
@@ -10,6 +9,7 @@ const createLocationModel = require("../Models/createLocation");
 const path = require("path");
 const createNotificationModel = require("../Models/createNotifacation");
 const createEmployeeModel = require("../Models/createEmployee");
+const createnestSubCategoryAssetsModel = require("../Models/createnestSubCategoryAssets");
 
 exports.resizepdf = (type) =>
   expressAsyncHandler(async (req, res, next) => {
@@ -39,13 +39,16 @@ exports.buildingMiddleware = expressAsyncHandler(async (req, res, next) => {
 exports.createAssets = expressAsyncHandler(async (req, res) => {
   const { subCategoryAssets, continued } = req.body;
   const building = await createLocationModel.findById(req.body.location);
+
   req.body.building = building.building._id;
   const levelsModel =
     continued === "first"
       ? "maincategoryassets"
       : continued === "second"
       ? "categoryassets"
-      : "subcategoryassets";
+      : continued === "third"
+      ? "subcategoryassets"
+      : "nestsubcategoryassets";
   req.body.levelsModel = levelsModel;
   const assetsModel = new createAssetsnModel(req.body);
 
@@ -91,7 +94,20 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
           .status(404)
           .json({ status: "Error", msg: " subCategory asset not found" });
       }
-    } else {
+    } else if (continued === "fourth") {
+      const main = await createnestSubCategoryAssetsModel.findByIdAndUpdate(
+        subCategoryAssets,
+        {
+          $push: { assets: assetsModel._id },
+        },
+        { new: true }
+      );
+      if (!main) {
+        return res
+          .status(404)
+          .json({ status: "Error", msg: " nestSubCategory asset not found" });
+      }
+    }else {
       return res
         .status(400)
         .json({ status: "Error", msg: "Invalid 'continued' value" });

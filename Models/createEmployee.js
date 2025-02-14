@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const createEmployee = new mongoose.Schema(
   {
+    status: {
+      type: Boolean,
+      default: false,
+    },
     username: {
       type: String,
       required: [true, "Required employee name"],

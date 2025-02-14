@@ -7,6 +7,12 @@ const assetSchema = new mongoose.Schema(
       enum: ["pending", "reject", "fulfilled"],
       default: "pending",
     },
+    continued: {
+      type: String,
+      enum: ["first", "second", "third", "fourth"],
+      default: "fourth",
+    },
+
     data: [],
     createBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -33,7 +39,12 @@ const assetSchema = new mongoose.Schema(
 
     levelsModel: {
       type: String,
-      enum: ["maincategoryassets", "categoryassets", "subcategoryassets"],
+      enum: [
+        "maincategoryassets",
+        "categoryassets",
+        "subcategoryassets",
+        "nestsubcategoryassets",
+      ],
       required: true,
     },
     subCategoryAssets: [

@@ -91,6 +91,23 @@ const permissionAssets = async (resource, method, user, res, next) => {
     );
 
     return res.status(403).json({ data: subCategoryAssets });
+  }else if (resource === "nestSubCategoryAssets") {
+    if (!user.permissions.mainCategoryAssets.actions.includes(method)) {
+      return res
+        .status(403)
+        .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الاصول" });
+    }
+
+    const mainCategoryAssets = await createMainCategoryAssetsModel
+      .findOne({
+        _id: { $in: user.permissions.mainCategoryAssets.allowedIds },
+      })
+      .select("categoryAssets");
+    const subCategoryAssets = mainCategoryAssets.categoryAssets.map(
+      (category) => category.subCategoryAssets
+    );
+
+    return res.status(403).json({ data: subCategoryAssets });
   } else if (resource === "assets") {
     if (!user.permissions.assets.actions.includes(method)) {
       return res.status(403).json({ msg: "ليس لديك صلاحية وصول إلى الأصول" });
@@ -141,6 +158,7 @@ exports.getPermissions = expressAsyncHandler((req, res, next) => {
       resource === "mainCategoryAssets" ||
       resource === "categoryAssets" ||
       resource === "subCategoryAssets" ||
+      resource === "nestSubCategoryAssets" ||
       resource === "employee"
     ) {
       permissionAssets(resource, method, req.user, res, next);
