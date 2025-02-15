@@ -5,7 +5,7 @@ const assetSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["pending", "reject", "fulfilled"],
-      required: "pending",
+      default: "pending",
     },
     data: [],
     createBy: {

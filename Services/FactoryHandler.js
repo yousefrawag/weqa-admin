@@ -141,7 +141,7 @@ exports.updateOne = (Model, filePath) =>
         );
       }
 
-      res.status(200).json({ data: updateDocById });
+      res.status(200).json({ data: updateDocById ,msg: "تم التعديل بنجاح"});
     } catch (error) {
       next(error);
     }
@@ -175,7 +175,7 @@ exports.deleteOne = (Model, filePath) =>
         }
       }
 
-      res.status(200).json({ status: "Delete Is Success" });
+      res.status(200).json({ msg: "تم الحذف بنجاح" });
     } catch (error) {
       next(error);
     }

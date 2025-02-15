@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
 const http = require("http");
-
+const jwt = require("jsonwebtoken");
 const app = express();
 const morgan = require("morgan");
 const dotenv = require("dotenv");
@@ -24,11 +24,11 @@ const RoutesCategoryAssets = require("./Routes/RoutesCategoryAssets");
 const RoutesSubCategoryAssets = require("./Routes/RoutesSubCategoryAssets");
 const RoutesAssets = require("./Routes/RoutesAssets");
 const RoutesTickets = require("./Routes/RoutesTicket");
+const RoutesNotifacations = require("./Routes/RoutesNotifacation");
 const { protect, createFirstOwnerAccount } = require("./Services/AuthService");
 const { Server } = require("socket.io");
-const { createPermissions } = require("./Services/PermissionService");
 const createTicketModel = require("./Models/createTicket");
-const { permissionEmployee } = require("./Services/Middleware");
+const createEmployeeModel = require("./Models/createEmployee");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
 app.use(bodyParser.json());
@@ -43,7 +43,7 @@ const corsOptions = {
   ],
   methods: "GET,POST,PUT,DELETE , PATCH ",
   allowedHeaders: "Content-Type,Authorization",
-  credentials: true, 
+  credentials: true,
 };
 app.use(cors(corsOptions));
 const server = http.createServer(app);
@@ -75,29 +75,72 @@ app.use("/api/v1/categoryAssets", RoutesCategoryAssets);
 app.use("/api/v1/subCategoryAssets", RoutesSubCategoryAssets);
 app.use("/api/v1/assets", RoutesAssets);
 app.use("/api/v1/tickets", RoutesTickets);
+app.use("/api/v1/notifacation", RoutesNotifacations);
 
 if (process.env.NODE_ENV === "devolopment") {
   app.use(morgan("dev"));
 }
-io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.id}`);
+io.use(async (socket, next) => {
+  let token = socket.handshake.headers.authorization?.split(" ")[1];
 
-  socket.on("joinRoom", (ticketId) => {
-    socket.join(ticketId);
+  if (!token) {
+    return next(new Error("توكن المستخدم مطلوب"));
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.DB_URL);
+    const user = await createEmployeeModel.findById(decoded.userId);
+
+    if (!user) {
+      return next(new Error("المستخدم غير موجود"));
+    }
+
+    if (!["user", "manager"].includes(user.role)) {
+      return next(new Error("ليس لديك الصلاحية للوصول إلى هذا النظام"));
+    }
+
+    socket.user = user;
+    next();
+  } catch (err) {
+    console.log(err);
+
+    return next(new Error("توكن غير صالح"));
+  }
+});
+
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.user._id}`);
+
+  socket.on("joinRoom", (ticketId) => {    
+    socket.join(ticketId.data);
   });
 
   socket.on("sendMessage", async (data) => {
-    const ticket = await createTicketModel.findById(data.ticketId);
-    ticket.messages.push({ senderId: data.senderId, text: data.text });
-    await ticket.save();
-    io.to(data.ticketId).emit("receiveMessage", data);
-    io.to(data.ticketId).emit("newNotification", "رسالة جديدة وصلت");
+    try {
+      const ticket = await createTicketModel.findById(data.data.ticketId);
+      if (!ticket) {
+        return socket.emit("error", "التذكرة غير موجودة");
+      }
+
+       
+      ticket.messages.push({ senderId: socket.user._id, text: data.data.text });
+      await ticket.save();
+
+      const newMessage = ticket.messages[ticket.messages.length - 1];
+
+      io.to(data.data.ticketId).emit("receiveMessage", newMessage);
+      io.to(data.data.ticketId).emit("newNotification", "رسالة جديدة وصلت");
+    } catch (err) {
+      console.error(err);
+      socket.emit("error", "حدث خطأ أثناء إرسال الرسالة");
+    }
   });
 
   socket.on("disconnect", () => {
     console.log("User Disconnected");
   });
 });
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Listen on the ${PORT}`);

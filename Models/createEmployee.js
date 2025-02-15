@@ -9,6 +9,9 @@ const createEmployee = new mongoose.Schema(
     slug: {
       type: String,
     },
+    image: {
+      type: String,
+    },
     email: {
       type: String,
       required: [true, "Required email employee"],
@@ -61,7 +64,7 @@ const createEmployee = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["owner","manager", "employee", "user"],
+      enum: ["owner", "manager", "employee", "user"],
 
       default: "user",
     },
@@ -80,6 +83,17 @@ createEmployee.pre(/^find/, function (next) {
 
   next();
 });
-
+const ImageURL = (doc) => {
+  if (doc.image && !doc.image.includes(`${process.env.BASE_URL}/user`)) {
+    const image = `${process.env.BASE_URL}/user/${doc.image}`;
+    doc.image = image;
+  }
+};
+createEmployee.post("init", (doc) => {
+  ImageURL(doc);
+});
+createEmployee.post("save", (doc) => {
+  ImageURL(doc);
+});
 const createEmployeeModel = mongoose.model("employee", createEmployee);
 module.exports = createEmployeeModel;

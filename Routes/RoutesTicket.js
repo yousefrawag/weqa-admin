@@ -1,17 +1,32 @@
-const express = require("express");
+const { Router } = require("express");
 const {
   createTicket,
   sendMessage,
   getTicket,
   updateTicket,
+  getTickets,
+  getMyTickets,
+  deleteTicket,
 } = require("../Services/TicketService");
-const router = express.Router();
+const {
+  protect,
+  allowedTo,
+  getLoggedUserData,
+} = require("../Services/AuthService");
+const { getPermissions } = require("../Services/Middleware");
+const Routes = Router();
+Routes.use(protect);
+Routes.route("/myTickets").get(
+  allowedTo("user"),
+  getLoggedUserData,
+  getMyTickets
+);
+Routes.route("/")
+  .post(protect,getPermissions, createTicket)
+  .get(allowedTo("employee", "owner"), getPermissions, getTickets);
+Routes.route("/:id")
+  .get(getPermissions, getTicket)
+  .put(allowedTo("employee", "owner"), getPermissions, updateTicket)
+  .delete(allowedTo("employee", "owner"), getPermissions, deleteTicket);
 
-router.post("/create", createTicket);
-
-router.post("/message/:ticketId", sendMessage);
-
-router.get("/:userId", getTicket);
-router.get("/update-priority/:ticketId", updateTicket);
-
-module.exports = router;
+module.exports = Routes;
