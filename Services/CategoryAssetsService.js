@@ -11,7 +11,7 @@ exports.createCategoryAssets = expressAsyncHandler(async (req, res) => {
     const subCategory = new createCategoryAssetsModel({
       name,
       image,
-      data
+      data:JSON.parse(data),
     });
     await createMainCategoryAssetsModel.findByIdAndUpdate(
       mainCategoryAssets,

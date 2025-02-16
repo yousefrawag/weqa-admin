@@ -9,7 +9,7 @@ exports.createMainCategoryAssets = expressAsyncHandler(async (req, res) => {
   const mainCategoryAssets = new createMainCategoryAssetsModel({
     name,
     image,
-    data,
+    data:JSON.parse(data),
   });
 
   await mainCategoryAssets.save();

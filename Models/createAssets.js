@@ -7,6 +7,12 @@ const assetSchema = new mongoose.Schema(
       enum: ["pending", "reject", "fulfilled"],
       default: "pending",
     },
+    continued: {
+      type: String,
+      enum: ["first", "second", "third", "fourth"],
+      default: "fourth",
+    },
+
     data: [],
     createBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -15,7 +21,16 @@ const assetSchema = new mongoose.Schema(
     },
     pdf: [
       {
-        pdf: String,
+        pdf: String, // Store the file path or URL
+        createdBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "employee", // Reference to the employee who uploaded the file
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now, // Automatically set the upload timestamp
+        },
       },
     ],
     location: [
@@ -33,7 +48,12 @@ const assetSchema = new mongoose.Schema(
 
     levelsModel: {
       type: String,
-      enum: ["maincategoryassets", "categoryassets", "subcategoryassets"],
+      enum: [
+        "maincategoryassets",
+        "categoryassets",
+        "subcategoryassets",
+        "nestsubcategoryassets",
+      ],
       required: true,
     },
     subCategoryAssets: [
@@ -51,10 +71,13 @@ const assetSchema = new mongoose.Schema(
 assetSchema.pre(/^find/, function (next) {
   this.populate({
     path: "createBy",
+  }).populate({
+    path: "pdf.createdBy", // Populate the createdBy field inside the pdf array
   });
 
   next();
 });
+
 
 const createAssetsnModel = mongoose.model("assets", assetSchema);
 module.exports = createAssetsnModel;

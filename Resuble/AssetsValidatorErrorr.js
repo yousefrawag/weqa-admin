@@ -6,6 +6,7 @@ const {
 } = require("../Middlewares/MiddlewareValidatorError");
 const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
 const createCategoryAssetsModel = require("../Models/createCategoryAssets");
+const createSubCategoryAssetsModel = require("../Models/createSubCategoryAssets");
 
 exports.createAssetsValidator = [
   check("name")
@@ -51,6 +52,27 @@ exports.createSubCategoryAssetsValidator = [
     .withMessage("required CategoryAssets Name")
     .custom((val, { req }) => {
       createCategoryAssetsModel.findById(val).then((res) => {
+        if (!res) {
+          throw new Error("الفئة غير موجودة");
+        }
+      });
+      return true;
+    }),
+  MiddlewareValidator,
+];
+exports.createNestSubCategoryAssetsValidator = [
+  check("name")
+    .notEmpty()
+    .withMessage("required SubCategoryAssets Name")
+    .custom((val, { req }) => {
+      req.body.slug = slugify(val);
+      return true;
+    }),
+  check("subCategoryAssets")
+    .notEmpty()
+    .withMessage("required subCategoryAssets Name")
+    .custom((val, { req }) => {
+      createSubCategoryAssetsModel.findById(val).then((res) => {
         if (!res) {
           throw new Error("الفئة غير موجودة");
         }

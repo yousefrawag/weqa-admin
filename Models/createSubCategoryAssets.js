@@ -14,7 +14,12 @@ const SubCategoryAssetsSchema = new mongoose.Schema(
     image: {
       type: String,
     },
-
+    nestSubCategoryAssets: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "nestsubcategoryassets",
+      },
+    ],
     assets: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -31,6 +36,8 @@ const SubCategoryAssetsSchema = new mongoose.Schema(
 SubCategoryAssetsSchema.pre(/^find/, function (next) {
   this.populate({
     path: "assets",
+  }).populate({
+    path:"nestSubCategoryAssets"
   });
 
   next();

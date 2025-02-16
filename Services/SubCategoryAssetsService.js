@@ -5,13 +5,13 @@ const createCategoryAssetsModel = require("../Models/createCategoryAssets");
 const createSubCategoryAssetsModel = require("../Models/createSubCategoryAssets");
 
 exports.createSubCategoryAssets = expressAsyncHandler(async (req, res) => {
-  const { name, image, categoryAssets,data } = req.body;
+  const { name, image, categoryAssets, data } = req.body;
 
   try {
     const subCategory = new createSubCategoryAssetsModel({
       name,
       image,
-      data
+      data:JSON.parse(data),
     });
     await createCategoryAssetsModel.findByIdAndUpdate(
       categoryAssets,
@@ -33,7 +33,7 @@ exports.createSubCategoryAssets = expressAsyncHandler(async (req, res) => {
 exports.getSubCategoriesAssets = factory.getAll(createSubCategoryAssetsModel);
 exports.getSubCategoryAsset = factory.getOne(createSubCategoryAssetsModel);
 exports.updateSubCategoryAssets = factory.updateOne(
-  createSubCategoryAssetsModel, 
+  createSubCategoryAssetsModel,
   "subCategoryAssets"
 );
 exports.deleteSubCategoryAssets = factory.deleteOne(

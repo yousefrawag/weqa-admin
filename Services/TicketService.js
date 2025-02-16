@@ -11,6 +11,7 @@ exports.createTicket = expressAsyncHandler(async (req, res, next) => {
       user: req.user.id,
       messages: [{ senderId: req.user.id, text: req.body.message }],
       priority: req.body.priority || "low",
+      Categoray:req.body?.Categoray
     });
    
     await newTicket.save();

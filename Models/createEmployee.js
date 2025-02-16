@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const createEmployee = new mongoose.Schema(
   {
+    status: {
+      type: Boolean,
+      default: false,
+    },
     username: {
       type: String,
       required: [true, "Required employee name"],
@@ -11,6 +15,8 @@ const createEmployee = new mongoose.Schema(
     },
     image: {
       type: String,
+      default:
+        "https://ps.w.org/user-avatar-reloaded/assets/icon-128x128.png?rev=2540745",
     },
     email: {
       type: String,
@@ -84,11 +90,11 @@ createEmployee.pre(/^find/, function (next) {
   next();
 });
 const ImageURL = (doc) => {
-  if (doc.image && !doc.image.includes(`${process.env.BASE_URL}/user`)) {
-    const image = `${process.env.BASE_URL}/user/${doc.image}`;
-    doc.image = image;
+  if (doc.image && !doc.image.startsWith("http")) {
+    doc.image = `${process.env.BASE_URL}/user/${doc.image}`;
   }
 };
+
 createEmployee.post("init", (doc) => {
   ImageURL(doc);
 });

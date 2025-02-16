@@ -40,6 +40,7 @@ const categoryAssetsSchema = new mongoose.Schema(
 categoryAssetsSchema.pre(/^find/, function (next) {
   this.populate({
     path: "subCategoryAssets",
+  
   }).populate("assets");
 
   next();
