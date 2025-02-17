@@ -29,14 +29,7 @@ const permissionBuilding = async (resource, method, user, res, next) => {
       }
 
       return res.status(200).json({ location });
-    } else if (resource === "tickets") {
-      if (!user.permissions.Support?.actions.includes(method)) {
-        return res
-          .status(403)
-          .json({ msg: "ليس لديك صلاحية وصول إلى خدمة العملاء" });
-      }
-      next();
-    } else {
+    }  else {
       return res.status(400).json({ msg: "المورد غير معروف" });
     }
   } catch (error) {
@@ -91,7 +84,7 @@ const permissionAssets = async (resource, method, user, res, next) => {
     );
 
     return res.status(403).json({ data: subCategoryAssets });
-  }else if (resource === "nestSubCategoryAssets") {
+  } else if (resource === "nestSubCategoryAssets") {
     if (!user.permissions.mainCategoryAssets.actions.includes(method)) {
       return res
         .status(403)

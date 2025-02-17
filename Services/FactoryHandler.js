@@ -37,6 +37,7 @@ exports.getAll = (Model, keyword) =>
 exports.getOne = (Model, populateOpt) =>
   expressAsyncHandler(async (req, res, next) => {
     let query = Model.findById(req.params.id);
+console.log(query);
 
     if (populateOpt) {
       query = query.populate(populateOpt);

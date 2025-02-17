@@ -107,7 +107,7 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
           .status(404)
           .json({ status: "Error", msg: " nestSubCategory asset not found" });
       }
-    }else {
+    } else {
       return res
         .status(400)
         .json({ status: "Error", msg: "Invalid 'continued' value" });
@@ -152,7 +152,9 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
 exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
   try {
     let filter =
-      req.user.role === "user" ? { building: req.user.building } : {};
+      req.user.role === "user" || req.user.role === "manager"
+        ? { building: req.user.building }
+        : {};
 
     const {
       limit = 10,
@@ -222,7 +224,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
             return {
               ...pdfItem,
               pdf: `${process.env.BASE_URL}/assets/${pdfItem.pdf}`,
-              createdBy:req.user?.id
+              createdBy: req.user?.id,
             };
           }
           return pdfItem;

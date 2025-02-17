@@ -32,9 +32,9 @@ const createTicketModel = require("./Models/createTicket");
 const createEmployeeModel = require("./Models/createEmployee");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json({ limit: "50kb" }));
 dotenv.config({ path: "config.env" });
 const corsOptions = {
   origin: [
@@ -97,7 +97,7 @@ io.use(async (socket, next) => {
       return next(new Error("المستخدم غير موجود"));
     }
 
-    if (!["user", "manager"].includes(user.role)) {
+    if (!["user", "manager" , "owner"].includes(user.role)) {
       return next(new Error("ليس لديك الصلاحية للوصول إلى هذا النظام"));
     }
 
@@ -113,7 +113,7 @@ io.use(async (socket, next) => {
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.user._id}`);
 
-  socket.on("joinRoom", (ticketId) => {    
+  socket.on("joinRoom", (ticketId) => {
     socket.join(ticketId.data);
   });
 
@@ -124,7 +124,6 @@ io.on("connection", (socket) => {
         return socket.emit("error", "التذكرة غير موجودة");
       }
 
-       
       ticket.messages.push({ senderId: socket.user._id, text: data.data.text });
       await ticket.save();
 

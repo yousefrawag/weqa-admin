@@ -39,7 +39,6 @@ SubCategoryAssetsSchema.pre(/^find/, function (next) {
   }).populate({
     path:"nestSubCategoryAssets"
   });
-
   next();
 });
 const ImageURL = (doc) => {
