@@ -16,7 +16,7 @@ const permissionBuilding = async (resource, method, user, res, next) => {
       }
       next();
     } else if (resource === "location") {
-      if (!user.permissions.building.actions.includes(method)) {
+      if (!user.permissions.location.actions.includes(method)) {
         return res.status(403).json({ msg: "ليس لديك صلاحية وصول إلى الموقع" });
       }
 
@@ -189,7 +189,7 @@ const permissionMiddlewareBuilding = async (
       }
       return next();
     } else if (resource === "location") {
-      if (!req.user.permissions.building.actions.includes(method)) {
+      if (!req.user.permissions.location.actions.includes(method)) {
         return res
           .status(403)
           .json({ msg: "ليس لديك صلاحية لتنفيذ هذا الإجراء" });
