@@ -21,11 +21,16 @@ const assetSchema = new mongoose.Schema(
     },
     pdf: [
       {
-        pdf: String, // Store the file path or URL
-    
+        pdf: String,
+        createdBy: {
+          username:String,
+          identity:Number,
+          image:String
+        },
+        fileName:String,
         createdAt: {
           type: Date,
-          default: Date.now, // Automatically set the upload timestamp
+          default: Date.now,
         },
       },
     ],
@@ -68,9 +73,6 @@ assetSchema.pre(/^find/, function (next) {
   this.populate({
     path: "createBy",
   })
-  // .populate({
-  //   path: "pdf.createdBy", // Populate the createdBy field inside the pdf array
-  // });
 
   next();
 });

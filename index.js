@@ -90,7 +90,7 @@ io.use(async (socket, next) => {
   // Remove any extra quotes around the token
   token = token?.replace(/^"(.*)"$/, '$1');  // Removes the quotes
 
-  console.log("Extracted token:", token);
+  
   if (!token) {
     return next(new Error("توكن المستخدم مطلوب"));
   }
@@ -118,10 +118,10 @@ io.use(async (socket, next) => {
 
 
 io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.user._id}`);
+
 
   socket.on("joinRoom", (ticketId) => {   
-    console.log("tickeid" , ticketId.ticketId) 
+
     socket.join(ticketId.ticketId);
   });
 

@@ -131,6 +131,8 @@ const permissionCategory = async (method, req, res, next) => {
   }
 };
 exports.getPermissions = expressAsyncHandler((req, res, next) => {
+  
+  
   const url = req.originalUrl;
   const resource = url.split("/")[3];
   const method = req.method.toLowerCase();
