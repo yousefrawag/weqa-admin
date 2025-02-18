@@ -16,12 +16,14 @@ exports.resizepdf = (type) =>
     if (!req.files || req.files.length === 0) {
       return next();
     }
+    console.log(req.files)
     req.body.createBy = req.user._id;
     req.body.pdf = [];
     if (req.files.length > 0) {
       req.files.pdf.forEach((file) => {
         req.body.pdf.push({
           pdf: file.filename,
+        
         });
       });
     }
@@ -153,7 +155,9 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
   try {
     let filter =
       req.user.role === "user" ? { building: req.user.building } : {};
-
+      if (req.query.status) {
+        filter.status = req.query.status;
+      }
     const {
       limit = 10,
       page = 1,
@@ -222,7 +226,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
             return {
               ...pdfItem,
               pdf: `${process.env.BASE_URL}/assets/${pdfItem.pdf}`,
-              createdBy:req.user?.id
+             
             };
           }
           return pdfItem;
@@ -512,7 +516,9 @@ exports.updateAssets = expressAsyncHandler(async (req, res, next) => {
   }
 });
 exports.updateAssetsStatus = expressAsyncHandler(async (req, res, next) => {
+  console.log(req.body)
   try {
+   
     const assets = await createAssetsnModel.findByIdAndUpdate(
       req.params.id,
       { status: req.body.status },

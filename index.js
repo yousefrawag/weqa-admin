@@ -30,6 +30,7 @@ const { protect, createFirstOwnerAccount } = require("./Services/AuthService");
 const { Server } = require("socket.io");
 const createTicketModel = require("./Models/createTicket");
 const createEmployeeModel = require("./Models/createEmployee");
+const { log } = require("console");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
 app.use(bodyParser.json());
@@ -82,22 +83,27 @@ app.use("/api/v1/notifacation", RoutesNotifacations);
 if (process.env.NODE_ENV === "devolopment") {
   app.use(morgan("dev"));
 }
+
 io.use(async (socket, next) => {
   let token = socket.handshake.headers.authorization?.split(" ")[1];
 
+  // Remove any extra quotes around the token
+  token = token?.replace(/^"(.*)"$/, '$1');  // Removes the quotes
+
+  console.log("Extracted token:", token);
   if (!token) {
     return next(new Error("توكن المستخدم مطلوب"));
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.DB_URL);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const user = await createEmployeeModel.findById(decoded.userId);
 
     if (!user) {
       return next(new Error("المستخدم غير موجود"));
     }
 
-    if (!["user", "manager"].includes(user.role)) {
+    if (!["user", "manager", "owner"].includes(user.role)) {
       return next(new Error("ليس لديك الصلاحية للوصول إلى هذا النظام"));
     }
 
@@ -110,28 +116,36 @@ io.use(async (socket, next) => {
   }
 });
 
+
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.user._id}`);
 
-  socket.on("joinRoom", (ticketId) => {    
-    socket.join(ticketId.data);
+  socket.on("joinRoom", (ticketId) => {   
+    console.log("tickeid" , ticketId.ticketId) 
+    socket.join(ticketId.ticketId);
   });
 
   socket.on("sendMessage", async (data) => {
+    console.log(data)
     try {
-      const ticket = await createTicketModel.findById(data.data.ticketId);
+      const ticket = await createTicketModel.findById(data.ticketId).populate("messages.senderId");
       if (!ticket) {
         return socket.emit("error", "التذكرة غير موجودة");
       }
 
        
-      ticket.messages.push({ senderId: socket.user._id, text: data.data.text });
+      ticket.messages.push({ senderId: socket.user._id, text: data.text });
       await ticket.save();
 
-      const newMessage = ticket.messages[ticket.messages.length - 1];
+      const populatedTicket = await createTicketModel
+      .findById(ticket._id)
+      .populate("messages.senderId");
 
-      io.to(data.data.ticketId).emit("receiveMessage", newMessage);
-      io.to(data.data.ticketId).emit("newNotification", "رسالة جديدة وصلت");
+    // Get the newly added message
+    const newMessage = populatedTicket.messages[populatedTicket.messages.length - 1];
+  
+      io.to(data.ticketId).emit("receiveMessage", newMessage);
+      io.to(data.ticketId).emit("newNotification", "رسالة جديدة وصلت");
     } catch (err) {
       console.error(err);
       socket.emit("error", "حدث خطأ أثناء إرسال الرسالة");

@@ -22,10 +22,12 @@ Routes.route("/myTickets").get(
   getMyTickets
 );
 Routes.route("/")
-  .post(protect,getPermissions, createTicket)
-  .get(allowedTo("employee", "owner"), getPermissions, getTickets);
+  .post( createTicket)
+  .get(
+    // allowedTo("employee", "owner" , "user"), getPermissions,
+    getTickets);
 Routes.route("/:id")
-  .get(getPermissions, getTicket)
+  .get( getTicket)
   .put(allowedTo("employee", "owner"), getPermissions, updateTicket)
   .delete(allowedTo("employee", "owner"), getPermissions, deleteTicket);
 

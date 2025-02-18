@@ -5,7 +5,7 @@ const createNotificationModel = require("../Models/createNotifacation");
 const createEmployeeModel = require("../Models/createEmployee");
 
 exports.createTicket = expressAsyncHandler(async (req, res, next) => {
-  console.log("asdasd");
+  console.log(req.body);
   try {
     const newTicket = new createTicketModel({
       user: req.user.id,
