@@ -12,12 +12,11 @@ const {
   updateLocation,
 } = require("../Services/LocationService");
 const { getPermissions, permissionMiddleware } = require("../Services/Middleware");
-const { buildingMiddleware } = require("../Services/AssetsService");
 
 const Routes = Router();
 
 Routes.route("/")
-  .post(getPermissions, createLocationValidator,buildingMiddleware, createLocation)
+  .post(getPermissions, createLocationValidator, createLocation)
   .get(getPermissions, getLocations);
 Routes.route("/:id")
   .get(permissionMiddleware, UtilsValidator, getLocation)

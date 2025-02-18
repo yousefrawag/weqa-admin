@@ -6,34 +6,36 @@ const createBuildingModel = require("../Models/createBuilding");
 
 exports.createLocation = expressAsyncHandler(async (req, res, next) => {
   const { name, location, kind, floors, building } = req.body;
-  const createLocation = new createLocationModel({
+
+  const newLocation = new createLocationModel({
     name,
     location,
     kind,
     floors,
     building,
   });
-  // if (req.body.building.toString() !== req.user.building.toString()) {
-  //   return res.status(404).json({ msg: "ليس لديك صلاحيه وصول" });
-  // }
+
   const parentBuilding = await createBuildingModel.findById(building);
 
   if (!parentBuilding) {
     return res.status(404).json({ msg: "Not Found Building" });
   }
 
-  parentBuilding.location.push(createLocation._id);
+  parentBuilding.location.push(newLocation._id);
 
   try {
-    await createLocation.save();
+ 
+    await newLocation.save();
     await parentBuilding.save();
+console.log(newLocation);
 
-    res.status(201).json({ status: "Success", data: createLocation });
+    res.status(201).json({ status: "Success", data: newLocation });
   } catch (error) {
-    console.error(error);
+    console.error("Error saving location:", error);
     res.status(500).json({ msg: "Internal Server Error" });
   }
 });
+
 
 exports.getLocations = factory.getAll(createLocationModel);
 exports.getLocation = factory.getOne(createLocationModel);
