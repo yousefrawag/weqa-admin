@@ -39,6 +39,16 @@ exports.buildingMiddleware = expressAsyncHandler(async (req, res, next) => {
 exports.createAssets = expressAsyncHandler(async (req, res) => {
   const { subCategoryAssets, continued } = req.body;
   const building = await createLocationModel.findById(req.body.location);
+  let pdfFiles = req.files.pdf.map((file) => ({
+    pdf: file.filename,
+    createdBy: {
+      identity: req.user.identity,
+      username: req.user.username,
+    },
+    createdAt: new Date(),
+  }));
+
+  req.body.pdf = [...(req.body.pdf || []), ...pdfFiles];
 
   req.body.building = building.building._id;
   const levelsModel =
@@ -174,6 +184,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
         path: "building",
         select: "name",
       })
+     
       .populate({
         path: "subCategoryAssets",
         select: { assets: 0 },
@@ -197,6 +208,9 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
             },
           },
         },
+      }).populate({
+        path: "createBy",
+        select: "username identity",
       })
       .lean()
       .exec();
@@ -223,8 +237,8 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
           ) {
             return {
               ...pdfItem,
-              pdf: `${process.env.BASE_URL}/assets/${pdfItem.pdf}`,
-              createdBy: req.user?.id,
+              pdf: `${process.env.BASE_URL}/assets/${pdfItem.pdf}`
+             
             };
           }
           return pdfItem;
@@ -281,7 +295,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
       data: enrichedData,
     });
   } catch (error) {
-    next(error); // تمرير الخطأ إلى معالج الأخطاء
+    next(error); 
   }
 });
 
@@ -305,6 +319,9 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
           },
         },
       },
+    }).populate({
+      path: "createBy",
+      select: "username identity",
     });
 
   if (!getDocById) {
@@ -339,9 +356,7 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
     });
   });
 
-  if (locationDetails.length === 0) {
-    return res.status(404).json({ msg: "No matching location details found" });
-  }
+ 
   delete getDocById.floor;
   delete getDocById.area;
   delete getDocById.room;

@@ -17,7 +17,10 @@ const MulterOptions = () => {
 const MulterOptionsPDF = () => {
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
+      
+      
       const uploadPath = path.resolve(__dirname, "../../uploads/assets");
+      
       require("fs").mkdirSync(uploadPath, { recursive: true });
       cb(null, uploadPath);
     },
