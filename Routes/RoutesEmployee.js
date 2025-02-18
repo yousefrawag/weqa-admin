@@ -15,7 +15,7 @@ const {
 } = require("../Services/EmployeeService");
 const { getPermissions } = require("../Services/Middleware");
 const { resizeImage } = require("../Utils/imagesHandler");
-const { getLoggedUserData } = require("../Services/AuthService");
+const { getLoggedUserData, updateLoggedUserPassword, protect } = require("../Services/AuthService");
 const Routes = Router();
 
 Routes.put(
@@ -26,6 +26,8 @@ Routes.put(
   getLoggedUserData,
   updateEmployee
 );
+Routes.put("/changeEmployeePassword",protect, getLoggedUserData, updateLoggedUserPassword);
+
 Routes.route("/")
   .post(
     getPermissions,

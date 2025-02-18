@@ -33,9 +33,9 @@ const createEmployeeModel = require("./Models/createEmployee");
 const { log } = require("console");
 const uploadsPath = path.join(__dirname, "../uploads");
 app.use(express.static(uploadsPath));
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json({ limit: "50kb" }));
 dotenv.config({ path: "config.env" });
 const corsOptions = {
   origin: [

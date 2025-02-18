@@ -27,7 +27,7 @@ exports.createFirstOwnerAccount = async () => {
       street: "125 atef Street",
       build: "16",
     },
-    role:"owner",
+    role: "owner",
     password: await bcrypt.hash("123456789", 12),
     confirmPassword: await bcrypt.hash("123456789", 12),
   });
@@ -48,7 +48,7 @@ exports.Login = expressAsyncHandler(async (req, res, next) => {
   if (user && bcrypt.compare(req.body.password, user.password)) {
     await user.save();
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
-      expiresIn: "1h",
+      expiresIn: "1d",
     });
     return res.status(200).json({ data: user, token });
   } else {
@@ -61,9 +61,7 @@ exports.Login = expressAsyncHandler(async (req, res, next) => {
 
 exports.allowedTo = (...roles) =>
   expressAsyncHandler(async (req, res, next) => {
-    
     if (!roles.includes(req.user.role)) {
-
       return next(
         res.status(403).json({
           status: "Error",
@@ -127,4 +125,18 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
     }
   }
 });
-
+exports.updateLoggedUserPassword = expressAsyncHandler(async (req, res) => {
+  const user = await createEmployeeModel.findByIdAndUpdate(
+    req.user._id,
+    {
+      password: await bcrypt.hash(req.body.password, 12),
+    },
+    {
+      new: true,
+    }
+  );
+  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+    expiresIn: "1d",
+  });
+  res.status(200).json({ data: user, token });
+});

@@ -5,19 +5,17 @@ const createNotificationModel = require("../Models/createNotifacation");
 const createEmployeeModel = require("../Models/createEmployee");
 
 exports.createTicket = expressAsyncHandler(async (req, res, next) => {
-  console.log(req.body);
   try {
     const newTicket = new createTicketModel({
       user: req.user.id,
       messages: [{ senderId: req.user.id, text: req.body.message }],
       priority: req.body.priority || "low",
-      Categoray:req.body?.Categoray
+      Categoray: req.body?.Categoray,
     });
-   
+
     await newTicket.save();
 
     const owners = await createEmployeeModel.find({ role: "owner" });
-
 
     const notifications = owners.map((owner) => ({
       user: req.user.id,
@@ -27,7 +25,7 @@ exports.createTicket = expressAsyncHandler(async (req, res, next) => {
     }));
     await createNotificationModel.insertMany(notifications);
 
-   return res.status(201).json(newTicket);
+    return res.status(201).json(newTicket);
   } catch (err) {
     next(err);
   }
