@@ -43,7 +43,7 @@ const permissionBuilding = async (resource, method, user, res, next) => {
   }
 };
 
-const permissionAssets = async (resource, method, user, res, next) => {
+const permissionAssets = async (resource, method, user, res, next, req) => {
   if (resource === "mainCategoryAssets") {
     if (!user.permissions.mainCategoryAssets.actions.includes(method)) {
       return res
@@ -110,6 +110,15 @@ const permissionAssets = async (resource, method, user, res, next) => {
     if (!user.permissions.assets.actions.includes(method)) {
       return res.status(403).json({ msg: "ليس لديك صلاحية وصول إلى الأصول" });
     }
+
+    if (req.user.role === "user") {
+      
+      req.query = {
+        subCategoryAssets: {
+          $in: user.permissions.mainCategoryAssets?.allowedIds || [],
+        },
+      };
+    }
   } else if (resource === "employee") {
     if (!user.permissions.employee.actions.includes(method)) {
       return res
@@ -159,7 +168,7 @@ exports.getPermissions = expressAsyncHandler((req, res, next) => {
       resource === "nestSubCategoryAssets" ||
       resource === "employee"
     ) {
-      permissionAssets(resource, method, req.user, res, next);
+      permissionAssets(resource, method, req.user, res, next, req);
     } else if (
       resource === "mainCategory" ||
       resource === "category" ||

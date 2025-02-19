@@ -92,6 +92,9 @@ exports.updateOne = (Model, filePath) =>
   expressAsyncHandler(async (req, res, next) => {
     try {
       const baseUrl = `${process.env.BASE_URL}/${filePath}/`;
+      if (req.body.data) {
+        req.body.data = JSON.parse(req.body.data);
+      }
 
       // العثور على المستند بناءً على ID
       const findDocument = await Model.findById(req.params.id);

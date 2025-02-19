@@ -163,11 +163,15 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
 
 exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
   try {
+    const queryFilter = { ...req.query };
     let filter =
-      req.user.role === "user" || req.user.role === "manager"
-        ? { building: req.user.building }
-        : {};
-
+    req.user.role === "user"
+      ? queryFilter
+      : req.user.role === "manager" && req.user.building
+      ? { building: req.user.building }
+      : {};
+  
+   
     const {
       limit = 10,
       page = 1,
