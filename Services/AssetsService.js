@@ -165,7 +165,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
   try {
     const queryFilter = { ...req.query };
     let filter =
-    req.user.role === "user"
+    req.user.role === "user" ||req.user.role === "employee"
       ? queryFilter
       : req.user.role === "manager" && req.user.building
       ? { building: req.user.building }
