@@ -5,6 +5,8 @@ const createLocationModel = require("../Models/createLocation");
 const createBuildingModel = require("../Models/createBuilding");
 
 exports.createLocation = expressAsyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  
   const { name, location, kind, floors, building } = req.body;
   const createLocation = new createLocationModel({
     name,
