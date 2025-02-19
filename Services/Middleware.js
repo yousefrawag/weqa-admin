@@ -19,7 +19,12 @@ const permissionBuilding = async (resource, method, user, res, next) => {
       if (!user.permissions.location.actions.includes(method)) {
         return res.status(403).json({ msg: "ليس لديك صلاحية وصول إلى الموقع" });
       }
-
+      if (
+        method === "post" &&
+        user.permissions.location.actions.includes(method)
+      ) {
+        return next();
+      }
       const location = await createLocationModel.findOne({
         building: user.building,
       });
@@ -29,7 +34,7 @@ const permissionBuilding = async (resource, method, user, res, next) => {
       }
 
       return res.status(200).json({ location });
-    }  else {
+    } else {
       return res.status(400).json({ msg: "المورد غير معروف" });
     }
   } catch (error) {
@@ -131,13 +136,12 @@ const permissionCategory = async (method, req, res, next) => {
   }
 };
 exports.getPermissions = expressAsyncHandler((req, res, next) => {
-  
-  
   const url = req.originalUrl;
   const resource = url.split("/")[3];
   const method = req.method.toLowerCase();
   if (
     req.user.role === "owner" ||
+     req.user.role === "manger" ||
     (req.user.role === "employee" && !req.user.building)
   ) {
     return next();
