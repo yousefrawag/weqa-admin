@@ -16,10 +16,13 @@ exports.createTicket = expressAsyncHandler(async (req, res, next) => {
     await newTicket.save();
 
     const owners = await createEmployeeModel.find({ role: "owner" });
+console.log(newTicket);
 
     const notifications = owners.map((owner) => ({
       user: req.user.id,
       employee: owner._id,
+      levels: "Ticket",
+      allowed: newTicket._id,
       type: "support",
       text: "تم إضافة تذكرة جديدة",
     }));

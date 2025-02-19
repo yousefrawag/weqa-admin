@@ -156,6 +156,8 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
     const notifications = owners.map((owner) => ({
       user: req.user.id,
       employee: owner._id,
+      levels: "assets",
+      allowed: assetsModel._id,
       type: "request",
       text: "تم إضافة اصل جديد",
     }));
@@ -168,15 +170,17 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
 
 exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
   try {
+    const queryFilter = { ...req.query };
     let filter =
-      req.user.role === "user" || req.user.role === "manager"
-        ? { building: req.user.building }
-        : {};
-
-        if (req.query.status) {
-          filter.status = req.query.status;
-        }
-
+    req.user.role === "user"
+      ? queryFilter
+      : req.user.role === "manager" && req.user.building
+      ? { building: req.user.building }
+      : {};
+      if (req.query.status) {
+        filter.status = req.query.status;
+      }
+   
     const {
       limit = 10,
       page = 1,
@@ -195,7 +199,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
         path: "building",
         select: "name",
       })
-     
+
       .populate({
         path: "subCategoryAssets",
         select: { assets: 0 },
@@ -219,7 +223,8 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
             },
           },
         },
-      }).populate({
+      })
+      .populate({
         path: "createBy",
         select: "username identity",
       })
@@ -248,8 +253,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
           ) {
             return {
               ...pdfItem,
-              pdf: `${process.env.BASE_URL}/assets/${pdfItem.pdf}`
-             
+              pdf: `${process.env.BASE_URL}/assets/${pdfItem.pdf}`,
             };
           }
           return pdfItem;
@@ -306,7 +310,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
       data: enrichedData,
     });
   } catch (error) {
-    next(error); 
+    next(error);
   }
 });
 
@@ -330,7 +334,8 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
           },
         },
       },
-    }).populate({
+    })
+    .populate({
       path: "createBy",
       select: "username identity",
     });
@@ -367,7 +372,6 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
     });
   });
 
- 
   delete getDocById.floor;
   delete getDocById.area;
   delete getDocById.room;

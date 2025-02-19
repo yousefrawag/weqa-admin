@@ -37,7 +37,7 @@ exports.getAll = (Model, keyword) =>
 exports.getOne = (Model, populateOpt) =>
   expressAsyncHandler(async (req, res, next) => {
     let query = Model.findById(req.params.id);
-console.log(query);
+    console.log(query);
 
     if (populateOpt) {
       query = query.populate(populateOpt);
@@ -92,6 +92,9 @@ exports.updateOne = (Model, filePath) =>
   expressAsyncHandler(async (req, res, next) => {
     try {
       const baseUrl = `${process.env.BASE_URL}/${filePath}/`;
+      if (req.body.data) {
+        req.body.data = JSON.parse(req.body.data);
+      }
 
       // العثور على المستند بناءً على ID
       const findDocument = await Model.findById(req.params.id);
@@ -142,7 +145,7 @@ exports.updateOne = (Model, filePath) =>
         );
       }
 
-      res.status(200).json({ data: updateDocById ,msg: "تم التعديل بنجاح"});
+      res.status(200).json({ data: updateDocById, msg: "تم التعديل بنجاح" });
     } catch (error) {
       next(error);
     }
