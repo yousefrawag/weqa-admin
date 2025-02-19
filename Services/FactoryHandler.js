@@ -37,7 +37,7 @@ exports.getAll = (Model, keyword) =>
 exports.getOne = (Model, populateOpt) =>
   expressAsyncHandler(async (req, res, next) => {
     let query = Model.findById(req.params.id);
-console.log(query);
+    console.log(query);
 
     if (populateOpt) {
       query = query.populate(populateOpt);
@@ -142,7 +142,7 @@ exports.updateOne = (Model, filePath) =>
         );
       }
 
-      res.status(200).json({ data: updateDocById ,msg: "تم التعديل بنجاح"});
+      res.status(200).json({ data: updateDocById, msg: "تم التعديل بنجاح" });
     } catch (error) {
       next(error);
     }

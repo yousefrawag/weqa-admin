@@ -40,6 +40,8 @@ exports.middelwareUpdate = expressAsyncHandler(async (req, res, next) => {
       const notifications = owners.map((owner) => ({
         user: req.user.id,
         employee: owner._id,
+        levels: "employee",
+        allowed: req.user.id,
         type: "request",
         text: "تم طلب تعديل بيانات ",
       }));

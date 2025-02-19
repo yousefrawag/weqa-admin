@@ -12,6 +12,16 @@ const notificationSchema = new mongoose.Schema(
       ref: "employee",
       required: true,
     },
+   
+    levels: {
+      type: String,
+      enum: ["Ticket", "Assets", "employee"],
+      required: true,
+    },
+    allowed: {
+      type: mongoose.Schema.Types.Mixed,
+      refPath: "levels",
+    },
     type: {
       type: String,
       enum: ["request", "maintenance", "update", "support"],
@@ -22,7 +32,13 @@ const notificationSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+notificationSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "allowed",
+  });
 
+  next();
+});
 const createNotificationModel = mongoose.model(
   "Notification",
   notificationSchema

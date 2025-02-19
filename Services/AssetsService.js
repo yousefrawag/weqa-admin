@@ -149,6 +149,8 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
     const notifications = owners.map((owner) => ({
       user: req.user.id,
       employee: owner._id,
+      levels: "assets",
+      allowed: assetsModel._id,
       type: "request",
       text: "تم إضافة اصل جديد",
     }));
@@ -184,7 +186,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
         path: "building",
         select: "name",
       })
-     
+
       .populate({
         path: "subCategoryAssets",
         select: { assets: 0 },
@@ -208,7 +210,8 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
             },
           },
         },
-      }).populate({
+      })
+      .populate({
         path: "createBy",
         select: "username identity",
       })
@@ -237,8 +240,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
           ) {
             return {
               ...pdfItem,
-              pdf: `${process.env.BASE_URL}/assets/${pdfItem.pdf}`
-             
+              pdf: `${process.env.BASE_URL}/assets/${pdfItem.pdf}`,
             };
           }
           return pdfItem;
@@ -295,7 +297,7 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
       data: enrichedData,
     });
   } catch (error) {
-    next(error); 
+    next(error);
   }
 });
 
@@ -319,7 +321,8 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
           },
         },
       },
-    }).populate({
+    })
+    .populate({
       path: "createBy",
       select: "username identity",
     });
@@ -356,7 +359,6 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
     });
   });
 
- 
   delete getDocById.floor;
   delete getDocById.area;
   delete getDocById.room;

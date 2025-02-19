@@ -25,7 +25,7 @@ const permissionBuilding = async (resource, method, user, res, next) => {
       ) {
         return next();
       }
-      const location = await createLocationModel.findOne({
+      const location = await createLocationModel.find({
         building: user.building,
       });
 
