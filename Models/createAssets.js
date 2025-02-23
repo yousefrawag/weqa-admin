@@ -4,8 +4,15 @@ const assetSchema = new mongoose.Schema(
   {
     status: {
       type: String,
-      enum: ["pending", "reject", "fulfilled"],
-      default: "pending",
+      enum: [
+        "underReview",
+        "reviewed",
+        "underDelete",
+        "deleted",
+        "underUpdate",
+        "updated",
+      ],
+      default: "underReview",
     },
     continued: {
       type: String,

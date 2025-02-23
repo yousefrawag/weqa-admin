@@ -3,6 +3,7 @@ const factory = require("./FactoryHandler");
 const createTicketModel = require("../Models/createTicket");
 const createNotificationModel = require("../Models/createNotifacation");
 const createEmployeeModel = require("../Models/createEmployee");
+const createPermissionModel = require("../Models/createPermission");
 
 exports.createTicket = expressAsyncHandler(async (req, res, next) => {
   try {
@@ -15,8 +16,12 @@ exports.createTicket = expressAsyncHandler(async (req, res, next) => {
 
     await newTicket.save();
 
-    const owners = await createEmployeeModel.find({ role: "owner" });
-console.log(newTicket);
+    const permission = await createPermissionModel.find({
+      "Support.actions": { $in: ["get"] },
+    });
+    const owners = await createEmployeeModel.find({
+      permissions: { $in: permission._id },
+    });
 
     const notifications = owners.map((owner) => ({
       user: req.user.id,

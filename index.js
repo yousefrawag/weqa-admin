@@ -133,8 +133,12 @@ io.on("connection", (socket) => {
         return socket.emit("error", "التذكرة غير موجودة");
       }
 
-       
-      ticket.messages.push({ senderId: socket.user._id, text: data.text });
+      ticket.messages.push({
+        senderId: socket.user._id,
+        text: data.data.text,
+        pdf: data.data.pdf,
+        image: data.data.image,
+      });
       await ticket.save();
 
       const populatedTicket = await createTicketModel

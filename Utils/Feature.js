@@ -24,7 +24,7 @@ class FeatureApi {
       const sortby = this.QueryStringApi.sort.split(",").join(" ");
       this.MongooseQueryApi = this.MongooseQueryApi.sort(sortby);
     } else {
-      this.MongooseQueryApi = this.MongooseQueryApi.sort("createdAt");
+      this.MongooseQueryApi = this.MongooseQueryApi.sort("-createdAt");
     }
     return this;
   }
