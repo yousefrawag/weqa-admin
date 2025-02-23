@@ -22,7 +22,7 @@ exports.getAll = (Model, keyword) =>
     const countDocs = await Model.countDocuments();
     const ApiFeatures = new FeatureApi(Model.find(), req.query)
       .Fillter(Model)
-      .Sort()
+      .Sort({ createdAt: -1 })
       .Fields()
       .Search(keyword)
       .Paginate(countDocs);

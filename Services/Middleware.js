@@ -111,12 +111,21 @@ const permissionAssets = async (resource, method, user, res, next, req) => {
       return res.status(403).json({ msg: "ليس لديك صلاحية وصول إلى الأصول" });
     }
 
-    if (req.user.role === "user" || req.user.role === "employee") {
+    if (req.user.role === "employee") {
       req.query = {
         subCategoryAssets: {
           $in: user.permissions.mainCategoryAssets?.allowedIds || [],
         },
       };
+    } else if (req.user.role === "user") {
+      req.query = {
+        $and: [
+          { subCategoryAssets: { $in: user.permissions.mainCategoryAssets?.allowedIds || [] } },
+          { building: { $in: user.building || [] } },
+        ],
+      };
+      
+      
     }
   } else if (resource === "employee") {
     if (!user.permissions.employee.actions.includes(method)) {

@@ -39,14 +39,11 @@ Routes.route("/:id")
     UtilsValidator,
     resizepdf("assets"),
     updateAssets
-  )
-  .delete(allowedTo("owner", "employee"), getPermissions, deleteAssets);
-Routes.route("/request/:id").put(
-  permissionMiddleware,
-  UtilsValidator,
-  deleteAssetsStatus
-);
-// Routes.route("/delete/:id").get("owner", deleteAssets);
+  );
+
 Routes.route("/category/:id").get(getPermissions, getAssetsByCategory);
-Routes.route("/status/:id").put(allowedTo("owner"), updateAssetsStatus);
+Routes.route("/status/:id").put(
+  allowedTo("owner", "manager", "user", "employee"),
+  updateAssetsStatus
+);
 module.exports = Routes;

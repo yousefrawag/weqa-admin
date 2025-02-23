@@ -10,6 +10,7 @@ const path = require("path");
 const createNotificationModel = require("../Models/createNotifacation");
 const createEmployeeModel = require("../Models/createEmployee");
 const createnestSubCategoryAssetsModel = require("../Models/createnestSubCategoryAssets");
+const createPermissionModel = require("../Models/createPermission");
 
 exports.resizepdf = (type) =>
   expressAsyncHandler(async (req, res, next) => {
@@ -165,13 +166,12 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
   try {
     const queryFilter = { ...req.query };
     let filter =
-    req.user.role === "user" ||req.user.role === "employee"
-      ? queryFilter
-      : req.user.role === "manager" && req.user.building
-      ? { building: req.user.building }
-      : {};
-  
-   
+      req.user.role === "user" || req.user.role === "employee"
+        ? queryFilter
+        : req.user.role === "manager" && req.user.building
+        ? { building: req.user.building }
+        : {};
+
     const {
       limit = 10,
       page = 1,
@@ -476,9 +476,7 @@ exports.updateAssets = expressAsyncHandler(async (req, res, next) => {
         )
       );
     }
-
     const imageKeys = ["pdf"];
-
     for (const key of imageKeys) {
       if (req.body[key] !== undefined || findDocument[key]?.length > 0) {
         console.log(findDocument[key]);
@@ -495,9 +493,8 @@ exports.updateAssets = expressAsyncHandler(async (req, res, next) => {
             relativePathImage
           );
 
-          // حذف الصورة القديمة إذا كانت موجودة
           try {
-            fs.unlinkSync(filePath); // احذف الملف القديم من النظام
+            fs.unlinkSync(filePath);
             console.log(`Deleted old image: ${filePath}`);
           } catch (err) {
             console.error(`Error deleting file: ${err}`);
@@ -512,8 +509,6 @@ exports.updateAssets = expressAsyncHandler(async (req, res, next) => {
         updateData[key] = req.body[key];
       }
     }
-
-    // تحديث المستند بناءً على ID
     const updateDocById = await createAssetsnModel.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -541,50 +536,29 @@ exports.updateAssetsStatus = expressAsyncHandler(async (req, res, next) => {
       { status: req.body.status },
       { new: true }
     );
-    res.status(200).json({ data: assets });
-  } catch (error) {
-    next(error);
-  }
-});
-exports.deleteAssetsStatus = expressAsyncHandler(async (req, res, next) => {
-  try {
-    const assets = await createAssetsnModel.findByIdAndUpdate(
-      req.params.id,
-      { status: "reject" },
-      { new: true }
-    );
-    const owners = await createEmployeeModel.find({
-      $or: [{ role: "owner" }, { building: req.body.building }],
+    const permission = await createPermissionModel.find({
+      "mainCategoryAssets.allowedIds": { $in: [assets._id] },
     });
+    const owners = await createEmployeeModel.find({
+      $or: [
+        { role: "owner" },
+        {
+          $and: [{ role: "manager" }, { building: assets._id }],
+        },
+        { permissions: { $in: permission._id } },
+      ],
+    });
+
     const notifications = owners.map((owner) => ({
       user: req.user.id,
       employee: owner._id,
+      levels: "Assets",
+      allowed: assets._id,
       type: "request",
-      text: "تم طلب حذف اصل",
+      text: "طلب خاص بالأصول",
     }));
     await createNotificationModel.insertMany(notifications);
     res.status(200).json({ data: assets });
-  } catch (error) {
-    next(error);
-  }
-});
-exports.deleteAssets = expressAsyncHandler(async (req, res, next) => {
-  try {
-    const findDocument = await createAssetsnModel.findById(req.params.id);
-
-    if (!findDocument || findDocument.status !== "reject") {
-      return next(
-        new ApiError(
-          `Sorry, can't find the document with ID: ${req.params.id}`,
-          404
-        )
-      );
-    }
-    await createAssetsnModel.findOneAndDelete({ _id: req.params.id });
-
-    // قائمة بالمفاتيح التي قد تحتوي على مسارات الصور
-
-    res.status(200).json({ status: "تم حذف الاصل بنجاح" });
   } catch (error) {
     next(error);
   }

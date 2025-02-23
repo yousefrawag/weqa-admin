@@ -14,7 +14,7 @@ exports.getNotifacations = expressAsyncHandler(async (req, res) => {
     req.query
   )
     .Fillter(createNotificationModel)
-    .Sort()
+    .Sort({createdAt: -1 })
     .Fields()
     .Search()
     .Paginate(countDocs);

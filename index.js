@@ -97,7 +97,7 @@ io.use(async (socket, next) => {
       return next(new Error("المستخدم غير موجود"));
     }
 
-    if (!["user", "manager" , "owner"].includes(user.role)) {
+    if (!["user", "manager", "owner"].includes(user.role)) {
       return next(new Error("ليس لديك الصلاحية للوصول إلى هذا النظام"));
     }
 
@@ -124,7 +124,12 @@ io.on("connection", (socket) => {
         return socket.emit("error", "التذكرة غير موجودة");
       }
 
-      ticket.messages.push({ senderId: socket.user._id, text: data.data.text });
+      ticket.messages.push({
+        senderId: socket.user._id,
+        text: data.data.text,
+        pdf: data.data.pdf,
+        image: data.data.image,
+      });
       await ticket.save();
 
       const newMessage = ticket.messages[ticket.messages.length - 1];
