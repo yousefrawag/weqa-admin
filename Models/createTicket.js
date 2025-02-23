@@ -35,9 +35,9 @@ ticketSchema.pre(/^find/, function (next) {
   this.populate({
     path: "user",
     populate: {
-      path: "building", // Assuming `building` exists in the `employee` schema
+      path: "building",
     },
-  }).populate("messages.senderId");
+  });
 
   next();
 });

@@ -44,8 +44,10 @@ exports.getTickets = factory.getAll(createTicketModel);
 exports.getTicket = factory.getOne(createTicketModel);
 exports.getMyTickets = expressAsyncHandler(async (req, res, next) => {
   try {
-    const userId = req.user._id;
+    
+    const userId = req.user._id.toString();
     const tickets = await createTicketModel.find({ user: userId });
+    console.log(tickets);
 
     res.status(200).json({
       success: true,
