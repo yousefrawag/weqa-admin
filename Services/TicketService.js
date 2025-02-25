@@ -11,7 +11,7 @@ exports.createTicket = expressAsyncHandler(async (req, res, next) => {
       user: req.user.id,
       messages: [{ senderId: req.user.id, text: req.body.message }],
       priority: req.body.priority || "low",
-      Categoray: req.body?.Categoray,
+      Category: req.body.Category, // تصحيح الاسم
     });
 
     await newTicket.save();
@@ -19,8 +19,11 @@ exports.createTicket = expressAsyncHandler(async (req, res, next) => {
     const permission = await createPermissionModel.find({
       "Support.actions": { $in: ["get"] },
     });
+
+    const permissionIds = permission.map((perm) => perm._id);
+    
     const owners = await createEmployeeModel.find({
-      permissions: { $in: permission._id },
+      permissions: { $in: permissionIds },
     });
 
     const notifications = owners.map((owner) => ({
@@ -31,6 +34,7 @@ exports.createTicket = expressAsyncHandler(async (req, res, next) => {
       type: "support",
       text: "تم إضافة تذكرة جديدة",
     }));
+
     await createNotificationModel.insertMany(notifications);
 
     return res.status(201).json(newTicket);
@@ -39,16 +43,14 @@ exports.createTicket = expressAsyncHandler(async (req, res, next) => {
   }
 });
 
+
 exports.getTickets = factory.getAll(createTicketModel);
 
 exports.getTicket = factory.getOne(createTicketModel);
 exports.getMyTickets = expressAsyncHandler(async (req, res, next) => {
   try {
-    
     const userId = req.user._id.toString();
     const tickets = await createTicketModel.find({ user: userId });
-    console.log(tickets);
-
     res.status(200).json({
       success: true,
       data: tickets,

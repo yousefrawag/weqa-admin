@@ -7,8 +7,8 @@ const messageSchema = new mongoose.Schema({
     required: true,
   },
   text: { type: String, default: null },
-  pdf: { type: String, default: null }, 
-  image: { type: String, default: null }, 
+  pdf: { type: String, default: null },
+  image: { type: String, default: null },
   createdAt: { type: Date, default: Date.now },
 });
 const ticketSchema = new mongoose.Schema(

@@ -4,7 +4,6 @@ const factory = require("./FactoryHandler");
 const FeatureApi = require("../Utils/Feature");
 
 exports.getNotifacations = expressAsyncHandler(async (req, res) => {
-
   const filter = { [req.user.employee ? "employee" : "user"]: req.user._id };
   const countDocs = await createNotificationModel.countDocuments(filter);
   const ApiFeatures = new FeatureApi(
@@ -12,7 +11,7 @@ exports.getNotifacations = expressAsyncHandler(async (req, res) => {
     req.query
   )
     .Fillter(createNotificationModel)
-    .Sort({createdAt: -1 })
+    .Sort({ createdAt: -1 })
     .Fields()
     .Search()
     .Paginate(countDocs);
