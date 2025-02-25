@@ -26,7 +26,7 @@ const permissionBuilding = async (resource, method, user, res, next) => {
         return next();
       }
       const filter =
-        req.user.role === "employee" ? {} : { building: user.building };
+        user.role === "employee" ? {} : { building: user.building };
 
       const location = await createLocationModel.find(filter);
 
@@ -34,7 +34,7 @@ const permissionBuilding = async (resource, method, user, res, next) => {
         return res.status(404).json({ msg: "الموقع غير موجود لهذا المبنى" });
       }
 
-      return res.status(200).json({ location });
+      return res.status(200).json({ data: location });
     } else {
       return res.status(400).json({ msg: "المورد غير معروف" });
     }
@@ -290,18 +290,18 @@ const permissionMiddlewareAssets = async (resource, method, req, res, next) => {
     }
   } else if (resource === "assets") {
     if (req.user.permissions.assets.actions.includes(method)) {
-      const mainCategoryAssets = await createMainCategoryAssetsModel.findOne({
-        assets: { $in: [req.params.id] },
-      });
-      const subCategoryAssets = await createSubCategoryAssetsModel.findOne({
-        assets: { $in: [req.params.id] },
-      });
+      // const mainCategoryAssets = await createMainCategoryAssetsModel.findOne({
+      //   assets: { $in: [req.params.id] },
+      // });
+      // const subCategoryAssets = await createSubCategoryAssetsModel.findOne({
+      //   assets: { $in: [req.params.id] },
+      // });
 
-      if (!mainCategoryAssets && !subCategoryAssets) {
-        return res
-          .status(403)
-          .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الأصول" });
-      }
+      // if (!mainCategoryAssets && !subCategoryAssets) {
+      //   return res
+      //     .status(403)
+      //     .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الأصول" });
+      // }
       return next();
     } else {
       return res

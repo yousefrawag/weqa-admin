@@ -306,9 +306,19 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
 });
 
 exports.getAssets = expressAsyncHandler(async (req, res, next) => {
-  let getDocById = await createAssetsnModel
-    .findById(req.params.id)
-    .populate({ path: "subCategoryAssets", select: { assets: 0 } })
+  console.log(req.params.id , req.user.role);
+  
+  let query = {};
+
+  if (["owner", "employee", "manager"].includes(req.user.role)) {
+    query._id = req.params.id;
+  } else {
+    query._id = req.params.id;
+    query.createBy = req.user._id;
+  }
+  
+  let getDocById = await createAssetsnModel.findOne(query)
+  .populate({ path: "subCategoryAssets", select: { assets: 0 } })
     .populate({
       path: "location",
       select: "name floors",
@@ -332,9 +342,10 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
     });
 
   if (!getDocById) {
-    return next(
-      new ApiError(`Sorry, can't get this ID from ID: ${req.params.id}`, 404)
-    );
+    return res
+        .status(403)
+        .json({ msg: "ليس لديك صلاحية وصول إلى الأصول" });
+
   }
 
   let locationDetails = [];
@@ -388,7 +399,6 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
   });
 });
 exports.getMyAssets = expressAsyncHandler(async (req, res, next) => {
-  
   let getDocById = await createAssetsnModel
     .find({
       createBy: req.user._id,
