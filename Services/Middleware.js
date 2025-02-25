@@ -2,7 +2,6 @@ const expressAsyncHandler = require("express-async-handler");
 const createLocationModel = require("../Models/createLocation");
 const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
 const createCategoryAssetsModel = require("../Models/createCategoryAssets");
-const createSubCategoryAssetsModel = require("../Models/createSubCategoryAssets");
 
 const permissionBuilding = async (resource, method, user, res, next) => {
   try {
@@ -35,6 +34,13 @@ const permissionBuilding = async (resource, method, user, res, next) => {
       }
 
       return res.status(200).json({ data: location });
+    } else if (resource === "tickets") {
+      if (!user.permissions.Support.actions.includes(method)) {
+        return res
+          .status(403)
+          .json({ msg: "ليس لديك صلاحية وصول إلى التذاكر" });
+      }
+      next();
     } else {
       return res.status(400).json({ msg: "المورد غير معروف" });
     }
