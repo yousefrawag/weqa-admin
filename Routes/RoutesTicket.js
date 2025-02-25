@@ -16,16 +16,12 @@ const {
 const { getPermissions } = require("../Services/Middleware");
 const Routes = Router();
 Routes.use(protect);
-Routes.route("/myTickets").get(
-  allowedTo("user"  , "manager"),
-  getLoggedUserData,
-  getMyTickets
-);
+Routes.route("/myTickets").get(getLoggedUserData, getMyTickets);
 Routes.route("/")
   .post(protect, createTicket)
-  .get(allowedTo("employee", "owner" ,"user" , "manager"), getPermissions, getTickets);
+  .get(allowedTo("employee", "owner", "user" , "manger"), getPermissions, getTickets);
 Routes.route("/:id")
-  .get( getTicket)
+  .get(getTicket)
   .put(allowedTo("employee", "owner"), getPermissions, updateTicket)
   .delete(allowedTo("employee", "owner"), getPermissions, deleteTicket);
 

@@ -120,13 +120,13 @@ io.use(async (socket, next) => {
 io.on("connection", (socket) => {
 
 
-  socket.on("joinRoom", (ticketId) => {   
+  socket.on("joinRoom", (data) => {   
 
-    socket.join(ticketId.ticketId);
+    socket.join(data.ticketId);
   });
 
   socket.on("sendMessage", async (data) => {
-    console.log(data)
+    console.log("hello" , data)
     try {
       const ticket = await createTicketModel.findById(data.ticketId).populate("messages.senderId");
       if (!ticket) {
@@ -135,9 +135,9 @@ io.on("connection", (socket) => {
 
       ticket.messages.push({
         senderId: socket.user._id,
-        text: data.data.text,
-        pdf: data.data.pdf,
-        image: data.data.image,
+        text: data.text,
+        pdf: data.pdf,
+        image: data.image,
       });
       await ticket.save();
 

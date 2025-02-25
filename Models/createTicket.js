@@ -3,7 +3,7 @@ const autoIncrement = require("mongoose-sequence")(mongoose);
 const messageSchema = new mongoose.Schema({
   senderId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "employee",
     required: true,
   },
   text: { type: String, default: null },
@@ -35,9 +35,10 @@ ticketSchema.pre(/^find/, function (next) {
   this.populate({
     path: "user",
     populate: {
-      path: "building", // Assuming `building` exists in the `employee` schema
+      path: "building",
     },
-  }).populate("messages.senderId");
+  }).populate({ path: "messages.senderId" })
+  ;
 
   next();
 });

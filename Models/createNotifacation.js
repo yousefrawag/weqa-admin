@@ -35,7 +35,7 @@ const notificationSchema = new mongoose.Schema(
 notificationSchema.pre(/^find/, function (next) {
   this.populate({
     path: "allowed",
-  });
+  }).populate("user").populate("employee");
 
   next();
 });
