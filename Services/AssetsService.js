@@ -387,7 +387,82 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
     locationDetails: locationDetails,
   });
 });
+exports.getMyAssets = expressAsyncHandler(async (req, res, next) => {
+  
+  let getDocById = await createAssetsnModel
+    .find({
+      createBy: req.user._id,
+    })
+    .populate({ path: "subCategoryAssets", select: { assets: 0 } })
+    .populate({
+      path: "location",
+      select: "name floors",
+      populate: {
+        path: "floors",
+        select: "floorName areas",
+        populate: {
+          path: "areas",
+          select: "name sections",
+          populate: {
+            path: "sections",
+            select: "name rooms",
+            populate: {
+              path: "rooms",
+              select: "name assets",
+            },
+          },
+        },
+      },
+    })
+    .lean()
+    .exec();
 
+  if (!getDocById) {
+    return next(new ApiError(`Sorry, no data found`, 404));
+  }
+
+  const enrichedData = getDocById.map((doc) => {
+    const locationData = doc.location.map((loc) => {
+      const floor = loc.floors.find(
+        (floor) => floor._id.toString() === doc.floor.toString()
+      );
+
+      const area = floor?.areas.find(
+        (area) => area._id.toString() === doc.area.toString()
+      );
+      const section = area?.sections.find(
+        (section) => section._id.toString() === doc.section.toString()
+      );
+      const room = section?.rooms.find(
+        (room) => room._id.toString() === doc.room.toString()
+      );
+
+      return {
+        locationName: loc.name,
+        floorName: floor?.floorName,
+        areaName: area?.name,
+        sectionName: section.name,
+        roomName: room?.name,
+      };
+    });
+    delete doc.floor;
+    delete doc.area;
+    delete doc.room;
+    const simplifiedLocation = doc.location.map((loc) => ({
+      _id: loc._id,
+      name: loc.name,
+      kind: loc.kind,
+      build: loc.building,
+    }));
+    return {
+      ...doc,
+      location: simplifiedLocation,
+      locationDetails: locationData,
+    };
+  });
+
+  res.status(200).json({ data: enrichedData });
+});
 exports.getAssetsByCategory = expressAsyncHandler(async (req, res, next) => {
   const { id } = req.params;
   let getDocById = await createAssetsnModel
@@ -552,7 +627,7 @@ exports.updateAssetsStatus = expressAsyncHandler(async (req, res, next) => {
     const notifications = owners.map((owner) => ({
       user: req.user.id,
       employee: owner._id,
-      levels: "Assets",
+      levels: "assets",
       allowed: assets._id,
       type: "request",
       text: "طلب خاص بالأصول",

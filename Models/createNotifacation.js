@@ -15,7 +15,7 @@ const notificationSchema = new mongoose.Schema(
    
     levels: {
       type: String,
-      enum: ["Ticket", "Assets", "employee"],
+      enum: ["Ticket", "assets", "employee"],
       required: true,
     },
     allowed: {

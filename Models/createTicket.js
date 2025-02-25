@@ -3,12 +3,12 @@ const autoIncrement = require("mongoose-sequence")(mongoose);
 const messageSchema = new mongoose.Schema({
   senderId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "employee",
     required: true,
   },
   text: { type: String, default: null },
-  pdf: { type: String, default: null }, 
-  image: { type: String, default: null }, 
+  pdf: { type: String, default: null },
+  image: { type: String, default: null },
   createdAt: { type: Date, default: Date.now },
 });
 const ticketSchema = new mongoose.Schema(
@@ -37,7 +37,7 @@ ticketSchema.pre(/^find/, function (next) {
     populate: {
       path: "building",
     },
-  });
+  }).populate({ path: "messages.senderId" });
 
   next();
 });

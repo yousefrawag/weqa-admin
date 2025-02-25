@@ -12,6 +12,7 @@ const {
   updateAssetsStatus,
   buildingMiddleware,
   deleteAssetsStatus,
+  getMyAssets,
 } = require("../Services/AssetsService");
 const { UploadPdfService } = require("../Utils/imagesHandler");
 const {
@@ -31,6 +32,7 @@ Routes.route("/")
     createAssets
   )
   .get(getPermissions, getAssetss);
+Routes.route("/myAssets").get(getMyAssets);
 Routes.route("/:id")
   .get(permissionMiddleware, UtilsValidator, getAssets)
   .put(
