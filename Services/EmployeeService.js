@@ -70,7 +70,11 @@ exports.updateEmployee = expressAsyncHandler(async (req, res, next) => {
           type: "request",
           text: "طلب تعديل بيانات موظف",
         }));
-
+        await createEmployeeModel.findByIdAndUpdate(
+          req.user.id,
+          { text: "underUpdate" },
+          { new: true, runValidators: true }
+        );
         await createNotificationModel.insertMany(notifications);
       }
       return res.status(200).json({ msg: "تم ارسال طلب تعديل بياناتك بنجاح" });
@@ -98,10 +102,24 @@ exports.updateEmployee = expressAsyncHandler(async (req, res, next) => {
 });
 
 exports.acceptUpdateEmployee = expressAsyncHandler(async (req, res, next) => {
-  await createEmployeeModel.findByIdAndUpdate(
-    req.params.id,
-    { status: true },
-    { new: true }
-  );
-  res.status(200).json({ msg: "تم السماح  للموظف التعديل علي بيناته" });
+  try {
+    const updatedEmployee = await createEmployeeModel.findByIdAndUpdate(
+      req.params.id,
+      { status: true, text: null },
+      { new: true }
+    );
+
+    if (!updatedEmployee) {
+      return next(
+        new ApiError(`لم يتم العثور على الموظف بالرقم: ${req.params.id}`, 404)
+      );
+    }
+
+    res.status(200).json({
+      msg: "تم السماح للموظف بالتعديل على بياناته",
+      data: updatedEmployee,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
