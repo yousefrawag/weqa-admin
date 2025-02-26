@@ -11,22 +11,30 @@ const {
   updateEmployee,
   createEmployee,
   uploadImage,
-  middelwareUpdate,
+  acceptUpdateEmployee,
 } = require("../Services/EmployeeService");
 const { getPermissions } = require("../Services/Middleware");
 const { resizeImage } = require("../Utils/imagesHandler");
-const { getLoggedUserData, updateLoggedUserPassword, protect } = require("../Services/AuthService");
+const {
+  getLoggedUserData,
+  updateLoggedUserPassword,
+  protect,
+} = require("../Services/AuthService");
 const Routes = Router();
 
 Routes.put(
   "/updateMe",
-  middelwareUpdate,
   uploadImage,
   resizeImage("user"),
   getLoggedUserData,
   updateEmployee
 );
-Routes.put("/changeEmployeePassword",protect, getLoggedUserData, updateLoggedUserPassword);
+Routes.put(
+  "/changeEmployeePassword",
+  protect,
+  getLoggedUserData,
+  updateLoggedUserPassword
+);
 
 Routes.route("/")
   .post(
@@ -37,6 +45,7 @@ Routes.route("/")
     createEmployee
   )
   .get(getPermissions, getEmployees);
+Routes.route("/status/:id").put(acceptUpdateEmployee);
 Routes.route("/:id")
   .get(
     getPermissions,
@@ -46,5 +55,6 @@ Routes.route("/:id")
     getEmployee
   )
   .delete(getPermissions, UtilsValidator, deleteEmployee)
-  .put(getPermissions, updateEmployeeValidator, updateEmployee);
+
+
 module.exports = Routes;
