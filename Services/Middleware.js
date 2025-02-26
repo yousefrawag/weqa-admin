@@ -25,15 +25,16 @@ const permissionBuilding = async (resource, method, user, res, next) => {
       ) {
         return next();
       }
-      const location = await createLocationModel.find({
-        building: user.building,
-      });
+      const filter =
+      user.role === "employee" ? {} : { building: user.building };
+
+      const location = await createLocationModel.find(filter);
 
       if (!location) {
         return res.status(404).json({ msg: "الموقع غير موجود لهذا المبنى" });
       }
 
-      return res.status(200).json({ location });
+      return res.status(200).json({data: location });
     } else {
       return res.status(400).json({ msg: "المورد غير معروف" });
     }
@@ -120,12 +121,14 @@ const permissionAssets = async (resource, method, user, res, next, req) => {
     } else if (req.user.role === "user") {
       req.query = {
         $and: [
-          { subCategoryAssets: { $in: user.permissions.mainCategoryAssets?.allowedIds || [] } },
+          {
+            subCategoryAssets: {
+              $in: user.permissions.mainCategoryAssets?.allowedIds || [],
+            },
+          },
           { building: { $in: user.building || [] } },
         ],
       };
-      
-      
     }
   } else if (resource === "employee") {
     if (!user.permissions.employee.actions.includes(method)) {

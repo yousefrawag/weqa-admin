@@ -10,7 +10,7 @@ const permissionSubSchema = new mongoose.Schema({
 const permissionAssetsSchema = new mongoose.Schema({
   actions: {
     type: [String],
-    enum: ["get", "post", "put", "delete" ,"canviewtFinancial" ,"canEditFinancial"],
+    enum: ["get", "post", "put", "delete" ,"canviewtFinancial" ,"canEditFinancial" , "Canviewclanderassets" ,"fllowAssetsRequest"],
   },
   financial: {
     financial: {
