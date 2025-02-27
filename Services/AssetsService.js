@@ -173,20 +173,18 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
     let filter =
       req.user.role === "user" || req.user.role === "employee"
         ? queryFilter
-        : req.user.role === "manager" && req.user.building
-        ? { building: req.user.building }
-        : {};
+        : req.query;
 
     const {
       limit = 10,
       page = 1,
-      sort = "-createdAt",
+      sort = { createdAt: -1 },
       fields = "",
     } = req.query;
 
     const skip = (page - 1) * limit;
     const getDocById = await createAssetsnModel
-      .find(filter)
+      .find(req.query)
       .sort(sort)
       .select(fields)
       .skip(skip)
