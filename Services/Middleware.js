@@ -2,7 +2,6 @@ const expressAsyncHandler = require("express-async-handler");
 const createLocationModel = require("../Models/createLocation");
 const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
 const createCategoryAssetsModel = require("../Models/createCategoryAssets");
-const createSubCategoryAssetsModel = require("../Models/createSubCategoryAssets");
 
 const permissionBuilding = async (resource, method, user, res, next) => {
   try {
@@ -26,7 +25,7 @@ const permissionBuilding = async (resource, method, user, res, next) => {
         return next();
       }
       const filter =
-      user.role === "employee" ? {} : { building: user.building };
+        user.role === "employee" ? {} : { building: user.building };
 
       const location = await createLocationModel.find(filter);
 
@@ -34,7 +33,14 @@ const permissionBuilding = async (resource, method, user, res, next) => {
         return res.status(404).json({ msg: "الموقع غير موجود لهذا المبنى" });
       }
 
-      return res.status(200).json({data: location });
+      return res.status(200).json({ data: location });
+    } else if (resource === "tickets") {
+      if (!user.permissions.Support.actions.includes(method)) {
+        return res
+          .status(403)
+          .json({ msg: "ليس لديك صلاحية وصول إلى التذاكر" });
+      }
+      next();
     } else {
       return res.status(400).json({ msg: "المورد غير معروف" });
     }
@@ -290,18 +296,18 @@ const permissionMiddlewareAssets = async (resource, method, req, res, next) => {
     }
   } else if (resource === "assets") {
     if (req.user.permissions.assets.actions.includes(method)) {
-      const mainCategoryAssets = await createMainCategoryAssetsModel.findOne({
-        assets: { $in: [req.params.id] },
-      });
-      const subCategoryAssets = await createSubCategoryAssetsModel.findOne({
-        assets: { $in: [req.params.id] },
-      });
+      // const mainCategoryAssets = await createMainCategoryAssetsModel.findOne({
+      //   assets: { $in: [req.params.id] },
+      // });
+      // const subCategoryAssets = await createSubCategoryAssetsModel.findOne({
+      //   assets: { $in: [req.params.id] },
+      // });
 
-      if (!mainCategoryAssets && !subCategoryAssets) {
-        return res
-          .status(403)
-          .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الأصول" });
-      }
+      // if (!mainCategoryAssets && !subCategoryAssets) {
+      //   return res
+      //     .status(403)
+      //     .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الأصول" });
+      // }
       return next();
     } else {
       return res

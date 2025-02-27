@@ -312,8 +312,19 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
 });
 
 exports.getAssets = expressAsyncHandler(async (req, res, next) => {
+  console.log(req.params.id, req.user.role);
+
+  let query = {};
+
+  if (["owner", "employee", "manager"].includes(req.user.role)) {
+    query._id = req.params.id;
+  } else {
+    query._id = req.params.id;
+    query.createBy = req.user._id;
+  }
+
   let getDocById = await createAssetsnModel
-    .findById(req.params.id)
+    .findOne(query)
     .populate({ path: "subCategoryAssets", select: { assets: 0 } })
     .populate({
       path: "location",
@@ -338,9 +349,7 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
     });
 
   if (!getDocById) {
-    return next(
-      new ApiError(`Sorry, can't get this ID from ID: ${req.params.id}`, 404)
-    );
+    return res.status(403).json({ msg: "ليس لديك صلاحية وصول إلى الأصول" });
   }
 
   let locationDetails = [];
@@ -394,7 +403,6 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
   });
 });
 exports.getMyAssets = expressAsyncHandler(async (req, res, next) => {
-  
   let getDocById = await createAssetsnModel
     .find({
       createBy: req.user._id,
@@ -639,7 +647,10 @@ exports.updateAssetsStatus = expressAsyncHandler(async (req, res, next) => {
       levels: "assets",
       allowed: assets._id,
       type: "request",
-      text: "طلب خاص بالأصول",
+      text:
+        req.body.status === "underUpdate"
+          ? `${assets.assettype} طلب تعديل علي الاصل `
+          : `${assets.assettype} طلب حذف علي الاصل`,
     }));
     await createNotificationModel.insertMany(notifications);
     res.status(200).json({ data: assets });

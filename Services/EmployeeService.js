@@ -55,4 +55,71 @@ exports.middelwareUpdate = expressAsyncHandler(async (req, res, next) => {
 exports.getEmployees = factory.getAll(createEmployeeModel);
 exports.getEmployee = factory.getOne(createEmployeeModel);
 exports.deleteEmployee = factory.deleteOne(createEmployeeModel);
-exports.updateEmployee = factory.updateOne(createEmployeeModel);
+exports.updateEmployee = expressAsyncHandler(async (req, res, next) => {
+  try {
+    if (req.user.status === false) {
+      const owners = await createEmployeeModel.find({
+        $or: [{ role: "owner" }, { building: req.user.building }],
+      });
+      if (owners.length > 0) {
+        const notifications = owners.map((owner) => ({
+          user: req.user.id,
+          employee: owner._id,
+          levels: "employee",
+          allowed: req.user._id,
+          type: "request",
+          text: "طلب تعديل بيانات موظف",
+        }));
+        await createEmployeeModel.findByIdAndUpdate(
+          req.user.id,
+          { text: "underUpdate" },
+          { new: true, runValidators: true }
+        );
+        await createNotificationModel.insertMany(notifications);
+      }
+      return res.status(200).json({ msg: "تم ارسال طلب تعديل بياناتك بنجاح" });
+    }
+
+    const updateDocById = await createEmployeeModel.findByIdAndUpdate(
+      req.user.id,
+      { $set: req.body },
+      { new: true, runValidators: true }
+    );
+
+    if (!updateDocById) {
+      return next(
+        new ApiError(
+          `Sorry, can't update the document with ID: ${req.params.id}`,
+          404
+        )
+      );
+    }
+
+    res.status(200).json({ data: updateDocById, msg: "تم التعديل بنجاح" });
+  } catch (error) {
+    next(error);
+  }
+});
+
+exports.acceptUpdateEmployee = expressAsyncHandler(async (req, res, next) => {
+  try {
+    const updatedEmployee = await createEmployeeModel.findByIdAndUpdate(
+      req.params.id,
+      { status: true, text: null },
+      { new: true }
+    );
+
+    if (!updatedEmployee) {
+      return next(
+        new ApiError(`لم يتم العثور على الموظف بالرقم: ${req.params.id}`, 404)
+      );
+    }
+
+    res.status(200).json({
+      msg: "تم السماح للموظف بالتعديل على بياناته",
+      data: updatedEmployee,
+    });
+  } catch (error) {
+    next(error);
+  }
+});

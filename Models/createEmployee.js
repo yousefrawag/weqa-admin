@@ -6,6 +6,10 @@ const createEmployee = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    text: {
+      type: String,
+      default: null,
+    },
     username: {
       type: String,
       required: [true, "Required employee name"],
