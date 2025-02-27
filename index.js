@@ -26,6 +26,7 @@ const RoutesNestSubCategoryAssets = require("./Routes/RoutesNestSubCategoryAsset
 const RoutesAssets = require("./Routes/RoutesAssets");
 const RoutesTickets = require("./Routes/RoutesTicket");
 const RoutesNotifacations = require("./Routes/RoutesNotifacation");
+const RoutesStatistics = require("./Routes/RoutesStatistics");
 const { protect, createFirstOwnerAccount } = require("./Services/AuthService");
 const { Server } = require("socket.io");
 const createTicketModel = require("./Models/createTicket");
@@ -78,6 +79,7 @@ app.use("/api/v1/nestSubCategoryAssets", RoutesNestSubCategoryAssets);
 app.use("/api/v1/assets", RoutesAssets);
 app.use("/api/v1/tickets", RoutesTickets);
 app.use("/api/v1/notifacation", RoutesNotifacations);
+app.use("/api/v1/statistics", RoutesStatistics);
 
 if (process.env.NODE_ENV === "devolopment") {
   app.use(morgan("dev"));

@@ -40,14 +40,19 @@ exports.buildingMiddleware = expressAsyncHandler(async (req, res, next) => {
 exports.createAssets = expressAsyncHandler(async (req, res) => {
   const { subCategoryAssets, continued } = req.body;
   const building = await createLocationModel.findById(req.body.location);
-  let pdfFiles = req.files.pdf.map((file) => ({
-    pdf: file.filename,
-    createdBy: {
-      identity: req.user.identity,
-      username: req.user.username,
-    },
-    createdAt: new Date(),
-  }));
+  console.log(req.files.pdf);
+
+  let pdfFiles =
+    req.files && req.files.pdf
+      ? req.files.pdf.map((file) => ({
+          pdf: file.filename,
+          createdBy: {
+            identity: req.user.identity,
+            username: req.user.username,
+          },
+          createdAt: new Date(),
+        }))
+      : [];
 
   req.body.pdf = [...(req.body.pdf || []), ...pdfFiles];
 
