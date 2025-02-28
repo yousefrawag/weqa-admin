@@ -19,6 +19,7 @@ const {
   getLoggedUserData,
   updateLoggedUserPassword,
   protect,
+  allowedTo,
 } = require("../Services/AuthService");
 const Routes = Router();
 
@@ -54,7 +55,11 @@ Routes.route("/:id")
     resizeImage("user"),
     getEmployee
   )
-  .delete(getPermissions, UtilsValidator, deleteEmployee)
-
+  .put(
+    allowedTo("onwer", "manager", "employee"),
+    UtilsValidator,
+    updateEmployee
+  )
+  .delete(getPermissions, UtilsValidator, deleteEmployee);
 
 module.exports = Routes;

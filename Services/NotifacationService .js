@@ -4,8 +4,8 @@ const factory = require("./FactoryHandler");
 const FeatureApi = require("../Utils/Feature");
 
 exports.getNotifacations = expressAsyncHandler(async (req, res) => {
-  const filter = {employee: req.user._id };
-  
+  const filter = { employee: req.user._id };
+
   const countDocs = await createNotificationModel.countDocuments(filter);
   const ApiFeatures = new FeatureApi(
     createNotificationModel.find(filter),
