@@ -21,7 +21,7 @@ exports.resizepdf = (type) =>
     req.body.createBy = req.user._id;
     req.body.pdf = [];
     if (req.files.length > 0) {
-      req.files.pdf.forEach((file) => {
+      req.files.pdf?.forEach((file) => {
         req.body.pdf.push({
           pdf: file.filename,
         
@@ -43,19 +43,22 @@ exports.createAssets = expressAsyncHandler(async (req, res) => {
   const { subCategoryAssets, continued } = req.body;
   const building = await createLocationModel.findById(req.body.location);
   console.log(req.files.pdf)
-  let pdfFiles = req.files.pdf.map((file) => ({
+  if(req.files.pdf){
+    let pdfFiles = req?.files?.pdf?.map((file) => ({
   
-    pdf: file.filename,
-    createdBy: {
-      identity: req.user.identity,
-      username: req.user.username,
-      image:req.user.image
-    },
-    fileName:file.name,
-    createdAt: new Date(),
-  }));
+      pdf: file.filename,
+      createdBy: {
+        identity: req.user.identity,
+        username: req.user.username,
+        image:req.user.image
+      },
+      fileName:file.name,
+      createdAt: new Date(),
+    }));
+  
+    req.body.pdf = [...(req.body.pdf || []), ...pdfFiles];
+  }
 
-  req.body.pdf = [...(req.body.pdf || []), ...pdfFiles];
 
   req.body.building = building.building._id;
   const levelsModel =
@@ -174,20 +177,18 @@ exports.getAssetss = expressAsyncHandler(async (req, res, next) => {
     let filter =
       req.user.role === "user" || req.user.role === "employee"
         ? queryFilter
-        : req.user.role === "manager" && req.user.building
-        ? { building: req.user.building }
-        : {};
+        : req.query;
 
     const {
       limit = 10,
       page = 1,
-      sort = "-createdAt",
+      sort = { createdAt: -1 },
       fields = "",
     } = req.query;
 
     const skip = (page - 1) * limit;
     const getDocById = await createAssetsnModel
-      .find(filter)
+      .find(req.query)
       .sort(sort)
       .select(fields)
       .skip(skip)
@@ -403,6 +404,7 @@ exports.getAssets = expressAsyncHandler(async (req, res, next) => {
   });
 });
 exports.getMyAssets = expressAsyncHandler(async (req, res, next) => {
+  console.log(req.user._id)
   let getDocById = await createAssetsnModel
     .find({
       createBy: req.user._id,

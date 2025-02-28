@@ -11,7 +11,7 @@ exports.createTicket = expressAsyncHandler(async (req, res, next) => {
       user: req.user.id,
       messages: [{ senderId: req.user.id, text: req.body.message }],
       priority: req.body.priority || "low",
-      Category: req.body.Category, // تصحيح الاسم
+      Categoray: req.body.Category,
     });
 
     await newTicket.save();
@@ -21,7 +21,7 @@ exports.createTicket = expressAsyncHandler(async (req, res, next) => {
     });
 
     const permissionIds = permission.map((perm) => perm._id);
-    
+
     const owners = await createEmployeeModel.find({
       permissions: { $in: permissionIds },
     });
@@ -42,7 +42,6 @@ exports.createTicket = expressAsyncHandler(async (req, res, next) => {
     next(err);
   }
 });
-
 
 exports.getTickets = factory.getAll(createTicketModel);
 

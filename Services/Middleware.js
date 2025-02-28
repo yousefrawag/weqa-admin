@@ -165,7 +165,7 @@ exports.getPermissions = expressAsyncHandler((req, res, next) => {
   const url = req.originalUrl;
   const resource = url.split("/")[3];
   const method = req.method.toLowerCase();
-  if (req.user.role === "owner") {
+  if (req.user.role === "owner" || req.user.role === "manager") {
     return next();
   } else if (
     req.user.role === "user" ||
@@ -328,6 +328,7 @@ exports.permissionMiddleware = expressAsyncHandler((req, res, next) => {
   const method = req.method.toLowerCase();
   if (
     req.user.role === "owner" ||
+    req.user.role === "manager" ||
     (req.user.role === "employee" && !req.user.building)
   ) {
     return next();
