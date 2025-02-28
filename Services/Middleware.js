@@ -58,9 +58,14 @@ const permissionAssets = async (resource, method, user, res, next, req) => {
         .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الاصول" });
     }
     if (user.permissions.mainCategoryAssets.allowedIds) {
-      const mainCategoryAssets = await createMainCategoryAssetsModel.find({
-        _id: user.permissions.mainCategoryAssets.allowedIds,
-      });
+      const query =
+        user.permissions.mainCategoryAssets.allowedIds === "all"
+          ? {}
+          : { _id: { $in: user.permissions.mainCategoryAssets.allowedIds } };
+
+      const mainCategoryAssets = await createMainCategoryAssetsModel.find(
+        query
+      );
 
       return res.status(200).json({ data: mainCategoryAssets });
     } else {
