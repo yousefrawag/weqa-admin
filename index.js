@@ -35,15 +35,22 @@ const { log } = require("console");
 const uploadsPath = path.join(__dirname, "../uploads");
 const rateLimit = require("express-rate-limit");
 
-app.set('trust proxy', true);
 
-// Rate limiting middleware
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
+  keyGenerator: (req) => {
+    // Use the first IP in the X-Forwarded-For header if it exists
+    const forwardedFor = req.headers["x-forwarded-for"];
+    if (forwardedFor) {
+      const ips = forwardedFor.split(",");
+      return ips[0].trim(); // Use the first IP
+    }
+    // Fall back to the remote address
+    return req.ip;
+  },
 });
 
-// Apply rate limiter to all requests
 app.use(limiter);
 app.use(express.static(uploadsPath));
 app.use(express.json());
