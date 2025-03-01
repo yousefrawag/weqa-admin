@@ -40,7 +40,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 dotenv.config({ path: "config.env" });
 const corsOptions = {
   origin: [
-    "saar-weqa-admin.netlify.app",
+    "https://saar-weqa-admin.netlify.app",
     "saar-weqa-portal.netlify.app",
     "http://localhost:5175",
   ],
@@ -53,7 +53,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
-     "saar-weqa-admin.netlify.app",
+     "https://saar-weqa-admin.netlify.app",
     "saar-weqa-portal.netlify.app",
       "http://localhost:5175",
     ],
