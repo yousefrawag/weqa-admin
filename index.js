@@ -33,6 +33,8 @@ const createTicketModel = require("./Models/createTicket");
 const createEmployeeModel = require("./Models/createEmployee");
 const { log } = require("console");
 const uploadsPath = path.join(__dirname, "../uploads");
+const rateLimit = require("express-rate-limit");
+
 app.set('trust proxy', true);
 
 // Rate limiting middleware
@@ -48,30 +50,38 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 dotenv.config({ path: "config.env" });
+
+// CORS configuration
 const corsOptions = {
   origin: [
     "https://saar-weqa-admin.netlify.app",
-    "saar-weqa-portal.netlify.app",
+    "https://saar-weqa-portal.netlify.app", // Add "https://" here
     "http://localhost:5173",
   ],
-  methods: "GET,POST,PUT,DELETE , PATCH ",
+  methods: "GET,POST,PUT,DELETE,PATCH", // Add PATCH here
   allowedHeaders: "Content-Type,Authorization",
   credentials: true,
 };
 app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options("*", cors(corsOptions));
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
-     "https://saar-weqa-admin.netlify.app",
-    "saar-weqa-portal.netlify.app",
+      "https://saar-weqa-admin.netlify.app",
+      "https://saar-weqa-portal.netlify.app", // Add "https://" here
       "http://localhost:5173",
     ],
   },
 });
+
 dbCollection();
 createFirstOwnerAccount();
 
+// Routes
 app.use("/api/v1/auth", RoutesAuth);
 app.use(protect);
 app.use("/api/v1/employee", RoutesEmployee);
@@ -96,13 +106,11 @@ if (process.env.NODE_ENV === "devolopment") {
   app.use(morgan("dev"));
 }
 
+// Socket.io setup
 io.use(async (socket, next) => {
   let token = socket.handshake.headers.authorization?.split(" ")[1];
+  token = token?.replace(/^"(.*)"$/, '$1');  // Remove extra quotes
 
-  // Remove any extra quotes around the token
-  token = token?.replace(/^"(.*)"$/, '$1');  // Removes the quotes
-
-  
   if (!token) {
     return next(new Error("توكن المستخدم مطلوب"));
   }
@@ -123,22 +131,16 @@ io.use(async (socket, next) => {
     next();
   } catch (err) {
     console.log(err);
-
     return next(new Error("توكن غير صالح"));
   }
 });
 
-
 io.on("connection", (socket) => {
-
-
-  socket.on("joinRoom", (data) => {   
-
+  socket.on("joinRoom", (data) => {
     socket.join(data.ticketId);
   });
 
   socket.on("sendMessage", async (data) => {
-    console.log("hello" , data)
     try {
       const ticket = await createTicketModel.findById(data.ticketId).populate("messages.senderId");
       if (!ticket) {
@@ -154,12 +156,10 @@ io.on("connection", (socket) => {
       await ticket.save();
 
       const populatedTicket = await createTicketModel
-      .findById(ticket._id)
-      .populate("messages.senderId");
+        .findById(ticket._id)
+        .populate("messages.senderId");
 
-    // Get the newly added message
-    const newMessage = populatedTicket.messages[populatedTicket.messages.length - 1];
-  
+      const newMessage = populatedTicket.messages[populatedTicket.messages.length - 1];
       io.to(data.ticketId).emit("receiveMessage", newMessage);
       io.to(data.ticketId).emit("newNotification", "رسالة جديدة وصلت");
     } catch (err) {
