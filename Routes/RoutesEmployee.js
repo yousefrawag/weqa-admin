@@ -38,7 +38,7 @@ Routes.route("/")
   .post(
     getPermissions,
     uploadImage,
-    createEmployeeValidator,
+
     resizeImage("user"),
     createEmployee
   )

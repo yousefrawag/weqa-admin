@@ -47,7 +47,7 @@ exports.Login = expressAsyncHandler(async (req, res, next) => {
 
   if (user && await bcrypt.compare(req.body.password, user.password)) {
     await user.save();
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+    const token = jwt.sign({ userId: user._id }, process.env.DB_URL, {
       expiresIn: "1d",
     });
     return res.status(200).json({ data: user, token });
@@ -87,7 +87,7 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const decoded = jwt.verify(token, process.env.DB_URL);
     if (!decoded) {
       return res.status(401).json({
         statusCode: "Error",
@@ -135,7 +135,7 @@ exports.updateLoggedUserPassword = expressAsyncHandler(async (req, res) => {
       new: true,
     }
   );
-  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+  const token = jwt.sign({ userId: user._id }, process.env.DB_URL, {
     expiresIn: "1d",
   });
   res.status(200).json({ data: user, token });

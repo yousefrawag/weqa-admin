@@ -98,7 +98,7 @@ io.use(async (socket, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const decoded = jwt.verify(token, process.env.DB_URL);
     const user = await createEmployeeModel.findById(decoded.userId);
 
     if (!user) {
