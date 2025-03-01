@@ -45,7 +45,8 @@ exports.Login = expressAsyncHandler(async (req, res, next) => {
     identity: req.body.identity,
   });
 
-  if (user && (await bcrypt.compare(req.body.password, user.password))) {
+  if (user && bcrypt.compare(req.body.password, user.password)) {
+    await user.save();
     const token = jwt.sign({ userId: user._id }, process.env.DB_URL, {
       expiresIn: "365d",
     });
@@ -57,7 +58,6 @@ exports.Login = expressAsyncHandler(async (req, res, next) => {
     });
   }
 });
-
 exports.allowedTo = (...roles) =>
   expressAsyncHandler(async (req, res, next) => {
     if (!roles.includes(req.user.role)) {
