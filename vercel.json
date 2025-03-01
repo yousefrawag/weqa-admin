@@ -1,5 +1,13 @@
 {
   "version": 2,
+  "env": {
+    "DB_URL": "mongodb+srv://yousefrawag908:sqzsTTbP70vnjS1z@roha-studio.trd4s.mongodb.net/weqa?retryWrites=true&w=majority"
+  },
   "builds": [{ "src": "index.js", "use": "@vercel/node" }],
-  "routes": [{ "src": "/(.*)", "dest": "index.js" }]
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/index.js"
+    }
+  ]
 }
