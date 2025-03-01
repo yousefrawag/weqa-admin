@@ -33,6 +33,16 @@ const createTicketModel = require("./Models/createTicket");
 const createEmployeeModel = require("./Models/createEmployee");
 const { log } = require("console");
 const uploadsPath = path.join(__dirname, "../uploads");
+app.set('trust proxy', true);
+
+// Rate limiting middleware
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+});
+
+// Apply rate limiter to all requests
+app.use(limiter);
 app.use(express.static(uploadsPath));
 app.use(express.json());
 app.use(bodyParser.json());
