@@ -79,14 +79,11 @@ const permissionAssets = async (resource, method, user, res, next, req) => {
         .status(403)
         .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الاصول" });
     }
-    const query =
-      user.permissions.mainCategoryAssets.allowedIds === "all"
-        ? {}
-        : { _id: { $in: user.permissions.mainCategoryAssets.allowedIds } };
+    const categoryMainAssets = await createMainCategoryAssetsModel.findOne({
+      _id: user.permissions.mainCategoryAssets.allowedIds,
+    });
 
-    const mainCategoryAssets = await createMainCategoryAssetsModel.find(query);
-
-    res.status(200).json({ data: mainCategoryAssets.categoryAssets });
+    res.status(200).json({ data: categoryMainAssets.categoryAssets });
   } else if (resource === "subCategoryAssets") {
     if (!user.permissions.mainCategoryAssets.actions.includes(method)) {
       return res
@@ -94,15 +91,12 @@ const permissionAssets = async (resource, method, user, res, next, req) => {
         .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الاصول" });
     }
 
-    const query =
-      user.permissions.mainCategoryAssets.allowedIds === "all"
-        ? {}
-        : { _id: { $in: user.permissions.mainCategoryAssets.allowedIds } };
-
-    const mainCategoryAssets = await createMainCategoryAssetsModel
-      .find(query)
+    const categoryMainAssets = await createMainCategoryAssetsModel
+      .findOne({
+        _id: user.permissions.mainCategoryAssets.allowedIds,
+      })
       .select("categoryAssets");
-    const subCategoryAssets = mainCategoryAssets.categoryAssets.map(
+    const subCategoryAssets = categoryMainAssets.categoryAssets.map(
       (category) => category.subCategoryAssets
     );
 
@@ -114,15 +108,12 @@ const permissionAssets = async (resource, method, user, res, next, req) => {
         .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الاصول" });
     }
 
-    const query =
-      user.permissions.mainCategoryAssets.allowedIds === "all"
-        ? {}
-        : { _id: { $in: user.permissions.mainCategoryAssets.allowedIds } };
-
-    const mainCategoryAssets = await createMainCategoryAssetsModel
-      .find(query)
+    const categoryMainAssets = await createMainCategoryAssetsModel
+      .findOne({
+        _id: user.permissions.mainCategoryAssets.allowedIds,
+      })
       .select("categoryAssets");
-    const subCategoryAssets = mainCategoryAssets.categoryAssets.map(
+    const subCategoryAssets = categoryMainAssets.categoryAssets.map(
       (category) => category.subCategoryAssets
     );
 

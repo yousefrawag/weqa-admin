@@ -45,7 +45,7 @@ exports.Login = expressAsyncHandler(async (req, res, next) => {
     identity: req.body.identity,
   });
 
-  if (user && bcrypt.compare(req.body.password, user.password)) {
+  if (user && await bcrypt.compare(req.body.password, user.password)) {
     await user.save();
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
       expiresIn: "1d",
