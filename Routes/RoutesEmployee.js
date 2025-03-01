@@ -1,9 +1,6 @@
 const { Router } = require("express");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
-const {
-  createEmployeeValidator,
-  updateEmployeeValidator,
-} = require("../Resuble/EmployeeValidatorError");
+
 const {
   getEmployees,
   getEmployee,
@@ -43,7 +40,7 @@ Routes.route("/")
   .post(
     getPermissions,
     uploadImage,
-    createEmployeeValidator,
+    
     resizeImage("user"),
     createEmployee
   )

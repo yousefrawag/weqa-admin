@@ -13,7 +13,10 @@ const dbCollection = async () => {
 
   if (!cached.promise) {
     console.log("🚀 Connecting to MongoDB...");
-    cached.promise = mongoose.connect(MONGODB_URI);
+    cached.promise = mongoose.connect(MONGODB_URI , {
+      serverSelectionTimeoutMS: 5000,  // Reduce timeout
+      socketTimeoutMS: 45000,
+    });
   }
 
   try {
