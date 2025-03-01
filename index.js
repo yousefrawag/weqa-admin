@@ -42,7 +42,7 @@ const corsOptions = {
   origin: [
     "https://saar-weqa-admin.netlify.app",
     "saar-weqa-portal.netlify.app",
-    "http://localhost:5175",
+    "http://localhost:5173",
   ],
   methods: "GET,POST,PUT,DELETE , PATCH ",
   allowedHeaders: "Content-Type,Authorization",
@@ -55,7 +55,7 @@ const io = new Server(server, {
     origin: [
      "https://saar-weqa-admin.netlify.app",
     "saar-weqa-portal.netlify.app",
-      "http://localhost:5175",
+      "http://localhost:5173",
     ],
   },
 });
