@@ -452,7 +452,7 @@ exports.getMyAssets = expressAsyncHandler(async (req, res, next) => {
         locationName: loc.name,
         floorName: floor?.floorName,
         areaName: area?.name,
-        sectionName: section.name,
+        sectionName: section?.name,
         roomName: room?.name,
       };
     });
