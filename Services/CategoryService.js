@@ -6,11 +6,12 @@ const createCategoryModel = require("../Models/createCategory");
 
 exports.createCategory = expressAsyncHandler(async (req, res, next) => {
   const { maincategories, name } = req.body;
-
+  console.log("Request Body:", req.body);
   const subCategory = new createCategoryModel({
     name,
     maincategories,
-    subcategories: [],
+  
+ 
   });
   const parentCategory = await createMainCategoryModel.findById(maincategories);
   if (!parentCategory) {

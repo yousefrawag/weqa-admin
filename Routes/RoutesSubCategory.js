@@ -14,7 +14,7 @@ const {
 const { allowedTo } = require("../Services/AuthService");
 
 const Routes = Router();
-Routes.use(allowedTo("owner", "manager", "facilitys_manager"));
+// Routes.use(allowedTo("owner", "manager", "facilitys_manager"));
 Routes.route("/")
   .post(createsubCategoryValidator, createSubCategory)
   .get(getSubCategories);
