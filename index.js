@@ -4,12 +4,9 @@ const cors = require("cors");
 const path = require("path");
 const http = require("http");
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
+const app = express();
 const morgan = require("morgan");
-const rateLimit = require("express-rate-limit");
-const { Server } = require("socket.io");
-
-// Import your configurations and routes
+const dotenv = require("dotenv");
 const dbCollection = require("./config/config");
 const ApiError = require("./Resuble/ApiErrors");
 const RoutesAuth = require("./Routes/RoutesAuth");
@@ -31,70 +28,40 @@ const RoutesTickets = require("./Routes/RoutesTicket");
 const RoutesNotifacations = require("./Routes/RoutesNotifacation");
 const RoutesStatistics = require("./Routes/RoutesStatistics");
 const { protect, createFirstOwnerAccount } = require("./Services/AuthService");
+const { Server } = require("socket.io");
 const createTicketModel = require("./Models/createTicket");
 const createEmployeeModel = require("./Models/createEmployee");
-
-dotenv.config({ path: "config.env" });
-
-const app = express();
+const { log } = require("console");
 const uploadsPath = path.join(__dirname, "../uploads");
-
-// **RATE LIMITER (To prevent abuse)**
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  keyGenerator: (req) => req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.ip,
-});
-app.use(limiter);
-
-// **Serve static files**
 app.use(express.static(uploadsPath));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// **CORS CONFIGURATION (Updated)**
-const allowedOrigins = [
-  "https://saar-weqa-admin.netlify.app",
-  "https://saar-weqa-portal.netlify.app",
-  "http://localhost:5173",
-];
-
+dotenv.config({ path: "config.env" });
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS Not Allowed"));
-    }
-  },
-  methods: "GET,POST,PUT,DELETE,PATCH",
+  origin: [
+    "https://saar-weqa-admin.netlify.app",
+    "https://saar-weqa-portal.netlify.app",
+    "http://localhost:5175",
+  ],
+  methods: "GET,POST,PUT,DELETE , PATCH ",
   allowedHeaders: "Content-Type,Authorization",
   credentials: true,
 };
-
 app.use(cors(corsOptions));
-
-// **Handle preflight requests explicitly**
-app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin);
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,PATCH");
-  res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.sendStatus(200);
-});
-
-// **Server setup**
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: allowedOrigins },
+  cors: {
+    origin: [
+     "https://saar-weqa-admin.netlify.app",
+    "https://saar-weqa-portal.netlify.app",
+      "http://localhost:5175",
+    ],
+  },
 });
-
-// **Connect to Database & Create First Owner**
 dbCollection();
 createFirstOwnerAccount();
 
-// **Routes Setup**
 app.use("/api/v1/auth", RoutesAuth);
 app.use(protect);
 app.use("/api/v1/employee", RoutesEmployee);
@@ -115,44 +82,58 @@ app.use("/api/v1/tickets", RoutesTickets);
 app.use("/api/v1/notifacation", RoutesNotifacations);
 app.use("/api/v1/statistics", RoutesStatistics);
 
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === "devolopment") {
   app.use(morgan("dev"));
 }
 
-// **Socket.io Middleware**
 io.use(async (socket, next) => {
   let token = socket.handshake.headers.authorization?.split(" ")[1];
-  token = token?.replace(/^"(.*)"$/, "$1");
 
-  if (!token) return next(new Error("User Token Required"));
+  // Remove any extra quotes around the token
+  token = token?.replace(/^"(.*)"$/, '$1');  // Removes the quotes
+
+  
+  if (!token) {
+    return next(new Error("توكن المستخدم مطلوب"));
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.DB_URL);
     const user = await createEmployeeModel.findById(decoded.userId);
 
-    if (!user) return next(new Error("User Not Found"));
+    if (!user) {
+      return next(new Error("المستخدم غير موجود"));
+    }
 
     if (!["user", "manager", "owner"].includes(user.role)) {
-      return next(new Error("Access Denied"));
+      return next(new Error("ليس لديك الصلاحية للوصول إلى هذا النظام"));
     }
 
     socket.user = user;
     next();
   } catch (err) {
     console.log(err);
-    return next(new Error("Invalid Token"));
+
+    return next(new Error("توكن غير صالح"));
   }
 });
 
+
 io.on("connection", (socket) => {
-  socket.on("joinRoom", (data) => {
+
+
+  socket.on("joinRoom", (data) => {   
+
     socket.join(data.ticketId);
   });
 
   socket.on("sendMessage", async (data) => {
+    console.log("hello" , data)
     try {
       const ticket = await createTicketModel.findById(data.ticketId).populate("messages.senderId");
-      if (!ticket) return socket.emit("error", "Ticket Not Found");
+      if (!ticket) {
+        return socket.emit("error", "التذكرة غير موجودة");
+      }
 
       ticket.messages.push({
         senderId: socket.user._id,
@@ -162,14 +143,18 @@ io.on("connection", (socket) => {
       });
       await ticket.save();
 
-      const populatedTicket = await createTicketModel.findById(ticket._id).populate("messages.senderId");
-      const newMessage = populatedTicket.messages.pop();
+      const populatedTicket = await createTicketModel
+      .findById(ticket._id)
+      .populate("messages.senderId");
 
+    // Get the newly added message
+    const newMessage = populatedTicket.messages[populatedTicket.messages.length - 1];
+  
       io.to(data.ticketId).emit("receiveMessage", newMessage);
-      io.to(data.ticketId).emit("newNotification", "New Message Received");
+      io.to(data.ticketId).emit("newNotification", "رسالة جديدة وصلت");
     } catch (err) {
       console.error(err);
-      socket.emit("error", "Error Sending Message");
+      socket.emit("error", "حدث خطأ أثناء إرسال الرسالة");
     }
   });
 
@@ -178,13 +163,11 @@ io.on("connection", (socket) => {
   });
 });
 
-// **Handle Undefined Routes**
-app.all("*", (req, res, next) => {
-  next(new ApiError(`Cannot find URL: ${req.originalUrl}`, 400));
-});
-
-// **Start Server**
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Listen on the ${PORT}`);
+});
+
+app.all("*", (req, res, next) => {
+  next(new ApiError(`Sorry Can't find This url:${req.originalUrl}`, 400));
 });
