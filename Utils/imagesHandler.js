@@ -9,7 +9,7 @@ const {
   UploadMultiPDF,
 } = require("../Middlewares/UploadImageMiddleware");
 const ensureUploadDirExists = (type) => {
-  const dir = `../uploads/${type}`; // تأكد من استخدام المسار الصحيح
+  const dir = `./uploads/${type}`; // تأكد من استخدام المسار الصحيح
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -25,7 +25,7 @@ exports.resizeImage = (type) =>
       await sharp(req.file.buffer)
         .resize(1920, 1080)
         .toFormat(imageType)
-        .toFile(`../uploads/${type}/${filename}`);
+        .toFile(`./uploads/${type}/${filename}`);
       req.body.image = filename;
     }
     next();
@@ -60,7 +60,7 @@ exports.filePathImage = (fileName, relativePathImage) => {
 
   const filePath = path.join(
     __dirname,
-    `../uploads/${fileName}/`,
+    `./uploads/${fileName}/`,
     relativePathImage
   );
 

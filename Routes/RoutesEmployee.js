@@ -2,7 +2,6 @@ const { Router } = require("express");
 const { UtilsValidator } = require("../Resuble/UtilsValidationError");
 const {
   createEmployeeValidator,
-  updateEmployeeValidator,
 } = require("../Resuble/EmployeeValidatorError");
 const {
   getEmployees,
@@ -25,9 +24,9 @@ const Routes = Router();
 
 Routes.put(
   "/updateMe",
+  getLoggedUserData,
   uploadImage,
   resizeImage("user"),
-  getLoggedUserData,
   updateEmployee
 );
 Routes.put(
@@ -48,16 +47,12 @@ Routes.route("/")
   .get(getPermissions, getEmployees);
 Routes.route("/status/:id").put(acceptUpdateEmployee);
 Routes.route("/:id")
-  .get(
-    getPermissions,
+  .get(getPermissions, UtilsValidator, getEmployee)
+  .put(
+    allowedTo("onwer", "manager", "employee"),
     uploadImage,
     UtilsValidator,
     resizeImage("user"),
-    getEmployee
-  )
-  .put(
-    allowedTo("onwer", "manager", "employee"),
-    UtilsValidator,
     updateEmployee
   )
   .delete(getPermissions, UtilsValidator, deleteEmployee);

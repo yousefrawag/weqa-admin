@@ -19,7 +19,7 @@ const MulterOptionsPDF = () => {
     destination: function (req, file, cb) {
       
       
-      const uploadPath = path.resolve(__dirname, "../../uploads/assets");
+      const uploadPath = path.resolve(__dirname, "../upload/assets");
       
       require("fs").mkdirSync(uploadPath, { recursive: true });
       cb(null, uploadPath);

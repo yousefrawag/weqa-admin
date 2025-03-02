@@ -31,7 +31,7 @@ const { protect, createFirstOwnerAccount } = require("./Services/AuthService");
 const { Server } = require("socket.io");
 const createTicketModel = require("./Models/createTicket");
 const createEmployeeModel = require("./Models/createEmployee");
-const uploadsPath = path.join(__dirname, "../uploads");
+const uploadsPath = path.join(__dirname, "./uploads");
 app.use(express.static(uploadsPath));
 app.use(express.json());
 app.use(bodyParser.json());

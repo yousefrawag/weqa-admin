@@ -65,17 +65,7 @@ exports.createEmployeeValidator = [
         }
       })
     ),
-    check("permissions")
-    .notEmpty()
-    .withMessage("الصلاحية مطلوبة")
-    .custom(async (val) => {
-      const permission = await createPermissionModel.findOne({ _id: val });
-  
-      if (!permission) {
-        throw new Error("الصلاحية غير موجودة");
-      }
-    }),
-  
+
   MiddlewareValidator,
 ];
 
