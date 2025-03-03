@@ -27,7 +27,7 @@ const permissionAssetsSchema = new mongoose.Schema({
 const permissionSubSchemaWithoutAllowed = new mongoose.Schema({
   actions: {
     type: [String],
-    enum: ["get", "post", "put", "delete"],
+    enum: ["get", "post", "put", "delete" , "followemployeerequest"],
   },
 });
 const permissionSchema = new mongoose.Schema(

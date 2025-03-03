@@ -57,7 +57,7 @@ exports.getEmployee = factory.getOne(createEmployeeModel);
 exports.deleteEmployee = factory.deleteOne(createEmployeeModel);
 exports.updateEmployee = expressAsyncHandler(async (req, res, next) => {
   try {
-    if (req.user.status === false && req.user.role === "user") {
+    if (req.user.status === false && req.user.role === "user" ||req.user.role === "employee") {
       const owners = await createEmployeeModel.find({
         $or: [{ role: "owner" }, { building: req.user.building }],
       });

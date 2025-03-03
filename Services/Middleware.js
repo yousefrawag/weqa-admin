@@ -2,6 +2,7 @@ const expressAsyncHandler = require("express-async-handler");
 const createLocationModel = require("../Models/createLocation");
 const createMainCategoryAssetsModel = require("../Models/createMainCategoryAssets");
 const createCategoryAssetsModel = require("../Models/createCategoryAssets");
+const { default: mongoose } = require("mongoose");
 
 const permissionBuilding = async (resource, method, user, res, next) => {
   try {
@@ -58,11 +59,11 @@ const permissionAssets = async (resource, method, user, res, next, req) => {
         .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الاصول" });
     }
     if (user.permissions.mainCategoryAssets.allowedIds) {
-      const query =
-        user.permissions.mainCategoryAssets.allowedIds === "all"
-          ? {}
-          : { _id: { $in: user.permissions.mainCategoryAssets.allowedIds } };
-
+      const query = user.permissions.mainCategoryAssets.allowedIds.includes(
+        "all"
+      )
+        ? {}
+        : { _id: { $in: user.permissions.mainCategoryAssets.allowedIds } };
       const mainCategoryAssets = await createMainCategoryAssetsModel.find(
         query
       );
@@ -79,9 +80,13 @@ const permissionAssets = async (resource, method, user, res, next, req) => {
         .status(403)
         .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الاصول" });
     }
-    const categoryMainAssets = await createMainCategoryAssetsModel.findOne({
-      _id: user.permissions.mainCategoryAssets.allowedIds,
-    });
+    const query = user.permissions.mainCategoryAssets.allowedIds.includes("all")
+      ? {}
+      : { _id: { $in: user.permissions.mainCategoryAssets.allowedIds } };
+
+    const categoryMainAssets = await createMainCategoryAssetsModel.findOne(
+      query
+    );
 
     res.status(200).json({ data: categoryMainAssets.categoryAssets });
   } else if (resource === "subCategoryAssets") {
@@ -91,10 +96,12 @@ const permissionAssets = async (resource, method, user, res, next, req) => {
         .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الاصول" });
     }
 
+    const query = user.permissions.mainCategoryAssets.allowedIds.includes("all")
+      ? {}
+      : { _id: { $in: user.permissions.mainCategoryAssets.allowedIds } };
+
     const categoryMainAssets = await createMainCategoryAssetsModel
-      .findOne({
-        _id: user.permissions.mainCategoryAssets.allowedIds,
-      })
+      .findOne(query)
       .select("categoryAssets");
     const subCategoryAssets = categoryMainAssets.categoryAssets.map(
       (category) => category.subCategoryAssets
@@ -108,10 +115,12 @@ const permissionAssets = async (resource, method, user, res, next, req) => {
         .json({ msg: "ليس لديك صلاحية وصول إلى  فئات الاصول" });
     }
 
+    const query = user.permissions.mainCategoryAssets.allowedIds.includes("all")
+      ? {}
+      : { _id: { $in: user.permissions.mainCategoryAssets.allowedIds } };
+
     const categoryMainAssets = await createMainCategoryAssetsModel
-      .findOne({
-        _id: user.permissions.mainCategoryAssets.allowedIds,
-      })
+      .findOne(query)
       .select("categoryAssets");
     const subCategoryAssets = categoryMainAssets.categoryAssets.map(
       (category) => category.subCategoryAssets
@@ -119,16 +128,18 @@ const permissionAssets = async (resource, method, user, res, next, req) => {
 
     return res.status(403).json({ data: subCategoryAssets });
   } else if (resource === "assets") {
-    if (!user.permissions.assets.actions.includes(method)) {
+    if (
+      !user.permissions.assets ||
+      !user.permissions.assets.actions.includes(method)
+    ) {
       return res.status(403).json({ msg: "ليس لديك صلاحية وصول إلى الأصول" });
     }
 
     if (req.user.role === "employee") {
-      req.query = {
-        subCategoryAssets: {
-          $in: user.permissions.mainCategoryAssets?.allowedIds || [],
-        },
-      };
+      req.query = user.permissions.mainCategoryAssets.allowedIds.includes("all")
+      ? {}
+      : { subCategoryAssets: { $in: user.permissions.mainCategoryAssets.allowedIds } };
+
     } else if (req.user.role === "user") {
       req.query = {
         $and: [

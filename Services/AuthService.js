@@ -58,7 +58,6 @@ exports.Login = expressAsyncHandler(async (req, res, next) => {
     });
   }
 });
-
 exports.allowedTo = (...roles) =>
   expressAsyncHandler(async (req, res, next) => {
     if (!roles.includes(req.user.role)) {
