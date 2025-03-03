@@ -113,7 +113,6 @@ io.use(async (socket, next) => {
 });
 
 io.on("connection", (socket) => {
-  console.log(`User Connected: ${socket.user._id}`);
 
   socket.on("joinRoom", (ticketId) => {
     socket.join(ticketId.data);

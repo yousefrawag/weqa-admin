@@ -136,11 +136,10 @@ const permissionAssets = async (resource, method, user, res, next, req) => {
     }
 
     if (req.user.role === "employee") {
-      req.query = {
-        subCategoryAssets: {
-          $in: user.permissions.mainCategoryAssets?.allowedIds || [],
-        },
-      };
+      req.query = user.permissions.mainCategoryAssets.allowedIds.includes("all")
+      ? {}
+      : { subCategoryAssets: { $in: user.permissions.mainCategoryAssets.allowedIds } };
+
     } else if (req.user.role === "user") {
       req.query = {
         $and: [
